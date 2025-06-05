@@ -1,58 +1,12 @@
 """
 Scannability Checker for AsciiDoc Files
 
-## Scannability Checker for `.adoc` Files
-
 This script analyzes AsciiDoc (`.adoc`) files in the current directory to detect scannability issues that affect readability.
 
-### What It Checks
+- Flags sentences that exceed 22 words (default, adjustable with -s)
+- Flags paragraphs with more than 3 sentences (default, adjustable with -p)
 
-- **Long sentences**  
-  Flags sentences that exceed **22 words** (default).
-  
-- **Dense paragraphs**  
-  Flags paragraphs with more than **3 sentences** (default).
-
-### Customization
-
-- Adjust limits using command-line options:
-  - `-s`: Extra words allowed per sentence
-  - `-p`: Extra sentences allowed per paragraph
-
-### Output Options
-
-- Print results to the terminal
-- Save results to a timestamped `.txt` file in your home directory with `-o`
-
-### Use Case
-
-- Designed for **technical writers and editors** who want to improve content clarity before publishing.
-
-
-Usage:
-    python3 scannable.py [-s <extra_words>] [-p <int>] [-v] [-o]
-
-Options:
-    -s <extra_words>  Allow N extra words per sentence (default: 0)
-                      Example: -s 5 allows 27 words per sentence (22 baseline + 5 = 27 words)
-    -p <int>          Allow N extra sentences per paragraph (default: 0)
-                      Example: -p 3 allows 6 sentences per paragraph (3 baseline + 3)
-    -v                Verbose output. Show results for all files, even those with no issues.
-    -o                Output the report to a timestamped txt file in your home directory (e.g., ~/20250605144341.txt)
-    -h, --help        Show this help message and exit.
-
-Examples:
-    python3 scannable.py
-    python3 scannable.py -s 5
-    python3 scannable.py -p 2
-    python3 scannable.py -s 3 -p 1
-    python3 scannable.py -v
-    python3 scannable.py -o
-
-Notes:
-    - This script checks all .adoc files in the current working directory.
-    - Sentence splitting is done with a simple regex and may not handle all edge cases (e.g., abbreviations).
-    - When using -o, the report is saved to your home directory and the path is printed at the end.
+For full documentation, see check_scannability.md in this directory.
 """
 
 import os
