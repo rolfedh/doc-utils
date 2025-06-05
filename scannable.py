@@ -1,0 +1,139 @@
+"""
+Scannability Checker for .adoc Files
+
+Usage:
+    python3 scannable.py [-s <extra_words>] [-p <int>] [-v] [-o]
+
+Options:
+    -s <extra_words>  Allow N extra words per sentence (default: 0)
+                      Example: -s 5 allows 27 words per sentence (22 baseline + 5 = 27 words)
+    -p <int>          Allow N extra sentences per paragraph (default: 0)
+                      Example: -p 3 allows 6 sentences per paragraph (3 baseline + 3)
+    -v                Verbose output. Show results for all files, even those with no issues.
+    -o                Output the report to a timestamped txt file in your home directory (e.g., ~/20250605144341.txt)
+    -h, --help        Show this help message and exit.
+
+Examples:
+    python3 scannable.py
+    python3 scannable.py -s 5
+    python3 scannable.py -p 2
+    python3 scannable.py -s 3 -p 1
+    python3 scannable.py -v
+    python3 scannable.py -o
+
+Notes:
+    - This script checks all .adoc files in the current working directory.
+    - Sentence splitting is done with a simple regex and may not handle all edge cases (e.g., abbreviations).
+    - When using -o, the report is saved to your home directory and the path is printed at the end.
+"""
+
+import os
+import re
+import argparse
+from datetime import datetime
+import sys
+import subprocess
+
+BASE_SENTENCE_WORD_LIMIT = 22
+BASE_PARAGRAPH_SENTENCE_LIMIT = 3
+
+def count_words(sentence):
+    return len(sentence.split())
+
+def split_sentences(paragraph):
+    # Simple sentence splitter (handles ., !, ?)
+    # Note: This may not handle abbreviations or all edge cases.
+    return re.split(r'(?<=[.!?])\s+', paragraph.strip())
+
+def assess_file(filepath, sentence_word_limit, paragraph_sentence_limit):
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except Exception as e:
+        return [f"Error reading file: {e}"]
+    paragraphs = [p for p in content.split('\n\n') if p.strip()]
+    issues = []
+    for i, para in enumerate(paragraphs, 1):
+        sentences = split_sentences(para)
+        if len(sentences) > paragraph_sentence_limit:
+            issues.append(f"Paragraph {i}: Too many sentences ({len(sentences)})")
+        for j, sent in enumerate(sentences, 1):
+            word_count = count_words(sent)
+            if word_count > sentence_word_limit:
+                issues.append(f"Paragraph {i}, Sentence {j}: Too long ({word_count} words)")
+    return issues
+
+def print_help():
+    print(__doc__)
+
+def main():
+    # Manual check for -h or --help to display the full docstring
+    if '-h' in sys.argv or '--help' in sys.argv:
+        print_help()
+        sys.exit(0)
+
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('-s', type=int, default=0, help='Extra words allowed per sentence')
+    parser.add_argument('-p', type=int, default=0, help='Additional sentences allowed per paragraph')
+    parser.add_argument('-v', action='store_true', help='Verbose output')
+    parser.add_argument('-o', action='store_true', help='Output the report to a timestamped txt file')
+    # Do not add -h/--help to argparse, handled manually above
+    args = parser.parse_args()
+
+    sentence_word_limit = BASE_SENTENCE_WORD_LIMIT + args.s
+    paragraph_sentence_limit = BASE_PARAGRAPH_SENTENCE_LIMIT + args.p
+
+    adoc_files = sorted(f for f in os.listdir('.') if f.endswith('.adoc'))
+    report_lines = []
+    for adoc in adoc_files:
+        issues = assess_file(adoc, sentence_word_limit, paragraph_sentence_limit)
+        if issues or args.v:
+            report_lines.append("")  # Blank line above each filename
+            report_lines.append(f"{adoc}:")
+            if issues:
+                for issue in issues:
+                    report_lines.append("  " + issue)
+            else:
+                report_lines.append("  No scannability issues found.")
+
+    output = "\n".join(report_lines)
+    if args.o:
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        home_dir = os.path.expanduser("~")
+        filename = os.path.join(home_dir, f"{timestamp}.txt")
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        pwd = os.getcwd()
+        cmd = "python3 " + " ".join([sys.argv[0]] + sys.argv[1:])
+        total_sentence_limit = sentence_word_limit
+        total_paragraph_limit = paragraph_sentence_limit
+        s_opt = f"-s {args.s}" if args.s else "0"
+        p_opt = f"-p {args.p}" if args.p else "0"
+        metadata = [
+            "Scannability Report",
+            "",
+            f"Purpose: This report lists scannability issues in .adoc files in the current directory.",
+            f"Directory: {pwd}",
+            f"Date and Time: {now_str}",
+            f"Sentence length limit: {total_sentence_limit} words (22 plus -s {args.s})",
+            f"Paragraph sentence limit: {total_paragraph_limit} sentences (3 plus -p {args.p})",
+            "See scannable.py for usage instructions and examples.",
+            f"Command: {cmd}",
+            "",
+            "------------------------------------------------------------",
+            "",
+        ]
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write("\n".join(metadata))
+            f.write(output.lstrip() + "\n")
+        print(f"Report written to: {filename}")
+        # Try to open the file automatically (Linux: xdg-open)
+        try:
+            subprocess.Popen(['xdg-open', filename])
+        except Exception:
+            pass
+    else:
+        if output:
+            print(output.lstrip())
+
+if __name__ == "__main__":
+    main()
