@@ -5,6 +5,9 @@ This script analyzes AsciiDoc (`.adoc`) files in the current directory to detect
 
 - Flags sentences that exceed 22 words (default, adjustable with -s)
 - Flags paragraphs with more than 3 sentences (default, adjustable with -p)
+- Excludes code blocks (delimited by ----, ...., or [source] blocks) from analysis
+
+When using -o, the script prints the path to the report file; it does not attempt to open the file automatically. 
 
 For full documentation, see check_scannability.md in this directory.
 """
@@ -27,12 +30,26 @@ def split_sentences(paragraph):
     # Note: This may not handle abbreviations or all edge cases.
     return re.split(r'(?<=[.!?])\s+', paragraph.strip())
 
+def remove_code_blocks(content):
+    """
+    Remove AsciiDoc code blocks (----, ...., and [source]... blocks) from the content.
+    """
+    # Remove blocks delimited by ---- or ....
+    content = re.sub(r'(?ms)^----$.*?^----$', '', content)
+    content = re.sub(r'(?ms)^\.\.\.\.$.*?^\.\.\.\.$', '', content)
+    # Remove [source] blocks (optionally with language)
+    content = re.sub(r'(?ms)^\[source.*?^----$.*?^----$', '', content)
+    content = re.sub(r'(?ms)^\[source.*?^\.\.\.\.$.*?^\.\.\.\.$', '', content)
+    return content
+
 def assess_file(filepath, sentence_word_limit, paragraph_sentence_limit):
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
     except Exception as e:
         return [f"Error reading file: {e}"]
+    # Remove code blocks before splitting into paragraphs
+    content = remove_code_blocks(content)
     paragraphs = [p for p in content.split('\n\n') if p.strip()]
     issues = []
     for i, para in enumerate(paragraphs, 1):
@@ -108,11 +125,6 @@ def main():
             f.write("\n".join(metadata))
             f.write(output.lstrip() + "\n")
         print(f"Report written to: {filename}")
-        # Try to open the file automatically (Linux: xdg-open)
-        try:
-            subprocess.Popen(['xdg-open', filename])
-        except Exception:
-            pass
     else:
         if output:
             print(output.lstrip())

@@ -25,8 +25,9 @@ Use command-line options to adjust the default thresholds:
 - Print results directly to the terminal (default)
 - Use `-o` to save a timestamped `.txt` report in your home directory  
   _Example: `~/20250605144341.txt`_
-
 - Use `-v` for verbose mode (shows all files, even those without issues)
+
+> **Note:** The script prints the path to the report file. It does not attempt to open the file automatically.
 
 ## Use Case
 
@@ -64,3 +65,4 @@ python3 check_scannability.py -o
 * Only `.adoc` files in the **current working directory** are scanned.
 * Sentence splitting uses a simple regex and may not handle edge cases (e.g., abbreviations).
 * When using `-o`, the path to the report file is printed after generation.
+* Code blocks (delimited by `----`, `....`, or `[source]` blocks) are excluded from analysis.
