@@ -50,16 +50,35 @@ def assess_file(filepath, sentence_word_limit, paragraph_sentence_limit):
         return [f"Error reading file: {e}"]
     # Remove code blocks before splitting into paragraphs
     content = remove_code_blocks(content)
-    paragraphs = [p for p in content.split('\n\n') if p.strip()]
+    # Track paragraph start line numbers
+    lines = content.splitlines()
+    paragraph_starts = []
+    paragraph_texts = []
+    current_paragraph = []
+    start_line = 0
+    for idx, line in enumerate(lines):
+        if line.strip() == '':
+            if current_paragraph:
+                paragraph_starts.append(start_line + 1)  # 1-based line number
+                paragraph_texts.append('\n'.join(current_paragraph))
+                current_paragraph = []
+            start_line = idx + 1
+        else:
+            if not current_paragraph:
+                start_line = idx
+            current_paragraph.append(line)
+    if current_paragraph:
+        paragraph_starts.append(start_line + 1)
+        paragraph_texts.append('\n'.join(current_paragraph))
     issues = []
-    for i, para in enumerate(paragraphs, 1):
+    for i, (para, para_line) in enumerate(zip(paragraph_texts, paragraph_starts), 1):
         sentences = split_sentences(para)
         if len(sentences) > paragraph_sentence_limit:
-            issues.append(f"Paragraph {i}: Too many sentences ({len(sentences)})")
+            issues.append(f"Line {para_line}: Paragraph {i}: Too many sentences ({len(sentences)})")
         for j, sent in enumerate(sentences, 1):
             word_count = count_words(sent)
             if word_count > sentence_word_limit:
-                issues.append(f"Paragraph {i}, Sentence {j}: Too long ({word_count} words)")
+                issues.append(f"Line {para_line}: Paragraph {i}, Sentence {j}: Too long ({word_count} words)")
     return issues
 
 def print_help():

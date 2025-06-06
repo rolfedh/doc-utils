@@ -10,6 +10,9 @@ This Python script analyzes `.adoc` files in the current directory to flag scann
 - **Dense paragraphs**  
   Paragraphs with more than **3 sentences** (default).
 
+- **Line numbers**  
+  The report output includes the line number where each paragraph starts, to help you quickly locate issues in your `.adoc` files.
+
 ## Customization
 
 Use command-line options to adjust the default thresholds:
@@ -66,3 +69,4 @@ python3 check_scannability.py -o
 * Sentence splitting uses a simple regex and may not handle edge cases (e.g., abbreviations).
 * When using `-o`, the path to the report file is printed after generation.
 * Code blocks (delimited by `----`, `....`, or `[source]` blocks) are excluded from analysis.
+* The report output includes the line number where each paragraph starts.
