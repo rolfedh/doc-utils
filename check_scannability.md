@@ -39,8 +39,10 @@ Ideal for **technical writers and editors** who want to review `.adoc` files for
 ## Usage
 
 ```bash
-python3 check_scannability.py [-s <extra_words>] [-p <extra_sentences>] [-v] [-o]
+python3 ~/doc-utils/check_scannability.py [-s <extra_words>] [-p <extra_sentences>] [-v] [-o]
 ```
+
+If your script is not in `~/doc-utils/`, replace the path above with the actual location of your check_scannability.py file.
 
 ### Options
 
@@ -55,12 +57,12 @@ python3 check_scannability.py [-s <extra_words>] [-p <extra_sentences>] [-v] [-o
 ## Examples
 
 ```bash
-python3 check_scannability.py
-python3 check_scannability.py -s 5
-python3 check_scannability.py -p 2
-python3 check_scannability.py -s 3 -p 1
-python3 check_scannability.py -v
-python3 check_scannability.py -o
+python3 ~/doc-utils/check_scannability.py
+python3 ~/doc-utils/check_scannability.py -s 5
+python3 ~/doc-utils/check_scannability.py -p 2
+python3 ~/doc-utils/check_scannability.py -s 3 -p 1
+python3 ~/doc-utils/check_scannability.py -v
+python3 ~/doc-utils/check_scannability.py -o
 ```
 
 ## Notes
