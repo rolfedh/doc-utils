@@ -20,26 +20,35 @@ def find_unused_images(scan_dirs, archive_dir, archive=False):
     Scans the specified directories for image files that are not referenced in any AsciiDoc file.
     Optionally archives and deletes them.
     """
-    # Collect all image files in the specified directories and subdirectories
+    # Collect all image files in the specified directories and subdirectories, ignoring symlinks
     image_files = []
     for base_dir in scan_dirs:
-        for root, _, files in os.walk(base_dir):
+        for root, dirs, files in os.walk(base_dir):
+            # Skip symlinked directories
+            dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d))]
             for f in files:
+                file_path = os.path.join(root, f)
+                if os.path.islink(file_path):
+                    continue
                 ext = os.path.splitext(f)[1].lower()
                 if ext in IMAGE_EXTENSIONS:
-                    image_files.append(os.path.join(root, f))
+                    image_files.append(file_path)
     image_files = list(dict.fromkeys(image_files))
 
-    # Collect all AsciiDoc files in the project
+    # Collect all AsciiDoc files in the project, ignoring symlinks
     adoc_files = []
-    for root, _, files in os.walk('.'):
+    for root, dirs, files in os.walk('.'):
+        dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d))]
         for f in files:
+            file_path = os.path.join(root, f)
+            if os.path.islink(file_path):
+                continue
             if f.endswith('.adoc'):
-                adoc_files.append(os.path.join(root, f))
+                adoc_files.append(file_path)
 
     # Search for image references in all AsciiDoc files
     referenced_images = set()
-    image_ref_pattern = re.compile(r'(?i)image::([^\[]+)\[|image:([^\[]+)\[|"([^"]+\.(?:png|jpg|jpeg|gif|svg))"')
+    image_ref_pattern = re.compile(r'(?i)image::([^\[]+)\[|image:([^\[]+)\[|"([^"\s]+\.(?:png|jpg|jpeg|gif|svg))"')
     for adoc_file in adoc_files:
         try:
             with open(adoc_file, 'r', encoding='utf-8') as f:
