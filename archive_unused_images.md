@@ -1,11 +1,11 @@
 # Archive Unused Image Files
 
-This script scans the `./modules` and `./assemblies` directories (including subdirectories) for image files (such as `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`) that are *not* referenced in any AsciiDoc (`.adoc`) file within the project.
+This script scans all directories in your project (including subdirectories) for image files (such as `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`) that are *not* referenced in any AsciiDoc (`.adoc`) file within the project.
 
 ## What It Does
 
 - **Identifies unused image files**
-  - Finds image files in the specified directories that are not referenced by any `.adoc` file (via `image::`, `image:`, or direct filename references).
+  - Finds image files anywhere in the project that are not referenced by any `.adoc` file (via `image::`, `image:`, or direct filename references).
 - **Generates a manifest**
   - Prints the list of unused image files to the console and writes their paths to a manifest file named `unused-images-<YYYY-MM-DD_HHMMSS>.txt` in the `./archive` directory.
 - **Optionally archives and deletes**
@@ -50,7 +50,7 @@ python3 ~/doc-utils/archive_unused_images.py --archive
 
 ## Notes
 
-- You can configure which directories are scanned and where the archive is created by editing the `scan_dirs` and `archive_dir` variables at the bottom of this script.
+- The script now scans all directories in your project by default. You can change this by editing the `scan_dirs` variable in the script.
 - The script skips symlinked directories and files.
 - The manifest file is always created in the archive directory, even if no files are archived.
 - The script is safe to run multiple times; it will not archive or delete files that are already gone.

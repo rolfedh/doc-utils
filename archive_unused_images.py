@@ -92,7 +92,8 @@ if __name__ == '__main__':
     parser.add_argument('--archive', action='store_true', help='Move the files to a dated zip in the archive directory.')
     args = parser.parse_args()
 
-    scan_dirs = ['./modules', './modules/rn', './assemblies']  # <-- Edit this list to change scan locations
+    # Scan all directories from the project root
+    scan_dirs = ['.']  # <-- Scan all directories
     archive_dir = './archive'  # <-- Edit this to change the archive output directory
 
     find_unused_images(scan_dirs, archive_dir, args.archive)
