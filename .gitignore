@@ -1,0 +1,99 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+debug.log
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+
+# pytest
+.pytest_cache/
+
+# Test output
+*.log
+*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Reports
+*.txt
+
+# Ignore test fixture data
+fixtures/
+
+# Ignore requirements lock files
+poetry.lock
+Pipfile.lock
+
+# Ignore virtual environments
+.venv/
+venv/
+
+# Ignore backup files
+*~
+*.bak
+
+# Ignore archive files
+*.tar.gz
+*.zip
+*.tar
+*.rar
+
+# Ignore generated files
+*.out
+*.pdf
+*.html
+
+# Ignore legacy fixture/readme
+fixtures-README-legacy.txt
