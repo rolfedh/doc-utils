@@ -13,31 +13,41 @@ from datetime import datetime
 import shutil
 import zipfile
 
-def find_unused_files(scan_dirs, archive_dir, archive=False):
+def find_unused_files(scan_dirs, archive_dir, archive=False, exclude_dirs=None, exclude_files=None):
     """
     Scans the specified directories for AsciiDoc files that are not included anywhere else.
     Optionally archives and deletes them.
+    Excludes directories and files as specified.
     """
-    # Collect all AsciiDoc files in the specified directories and subdirectories
+    exclude_dirs = set(os.path.normpath(d) for d in (exclude_dirs or []))
+    exclude_files = set(os.path.normpath(f) for f in (exclude_files or []))
+
+    # Collect all AsciiDoc files in the specified directories and subdirectories, ignoring symlinks and excluded dirs/files
     asciidoc_files = []
     for base_dir in scan_dirs:
-        for root, _, files in os.walk(base_dir):
+        for root, dirs, files in os.walk(base_dir):
+            # Skip symlinked and excluded directories
+            dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d)) and os.path.normpath(os.path.join(root, d)) not in exclude_dirs]
             for f in files:
+                file_path = os.path.normpath(os.path.join(root, f))
+                if os.path.islink(file_path):
+                    continue
+                if any(file_path == ex or file_path.endswith(os.sep + ex) for ex in exclude_files):
+                    continue
                 if f.endswith('.adoc'):
-                    asciidoc_files.append(os.path.join(root, f))
-    # Deduplicate asciidoc_files
+                    asciidoc_files.append(file_path)
     asciidoc_files = list(dict.fromkeys(asciidoc_files))
 
-    # Search for include:: statements in all AsciiDoc files under the project
+    # Search for include:: statements in all AsciiDoc files under the project, ignoring symlinks and excluded dirs/files
     include_pattern = re.compile(r'include::(.+?)\[')
     included_files = set()
-
     for root, dirs, files in os.walk('.'):
-        # Skip symlinked directories
-        dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d))]
+        dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d)) and os.path.normpath(os.path.join(root, d)) not in exclude_dirs]
         for file in files:
-            file_path = os.path.join(root, file)
+            file_path = os.path.normpath(os.path.join(root, file))
             if os.path.islink(file_path):
+                continue
+            if any(file_path == ex or file_path.endswith(os.sep + ex) for ex in exclude_files):
                 continue
             if file.endswith('.adoc'):
                 try:
@@ -86,10 +96,26 @@ def find_unused_files(scan_dirs, archive_dir, archive=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Archive unused AsciiDoc files.')
     parser.add_argument('--archive', action='store_true', help='Move the files to a dated zip in the archive directory.')
+    parser.add_argument('--exclude-dir', action='append', default=[], help='Directory to exclude (can be used multiple times).')
+    parser.add_argument('--exclude-file', action='append', default=[], help='File to exclude (can be used multiple times).')
+    parser.add_argument('--exclude-list', type=str, help='Path to a file containing directories or files to exclude, one per line.')
     args = parser.parse_args()
 
-    # Configure which directories to scan and where to place the archive
-    scan_dirs = ['./modules', './modules/rn', './assemblies']  # <-- Edit this list to change scan locations
-    archive_dir = './archive'  # <-- Edit this to change the archive output directory
+    scan_dirs = ['./modules', './modules/rn', './assemblies']
+    archive_dir = './archive'
 
-    find_unused_files(scan_dirs, archive_dir, args.archive)
+    # Gather exclusions from file if provided
+    exclude_dirs = list(args.exclude_dir)
+    exclude_files = list(args.exclude_file)
+    if args.exclude_list:
+        with open(args.exclude_list, 'r', encoding='utf-8') as excl:
+            for line in excl:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                if os.path.isdir(line):
+                    exclude_dirs.append(line)
+                else:
+                    exclude_files.append(line)
+
+    find_unused_files(scan_dirs, archive_dir, args.archive, exclude_dirs, exclude_files)
