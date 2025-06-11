@@ -13,73 +13,10 @@ For full documentation, see check_scannability.md in this directory.
 """
 
 import os
-import re
-import argparse
-from datetime import datetime
 import sys
-import subprocess
-
-BASE_SENTENCE_WORD_LIMIT = 22
-BASE_PARAGRAPH_SENTENCE_LIMIT = 3
-
-def count_words(sentence):
-    return len(sentence.split())
-
-def split_sentences(paragraph):
-    # Simple sentence splitter (handles ., !, ?)
-    # Note: This may not handle abbreviations or all edge cases.
-    return re.split(r'(?<=[.!?])\s+', paragraph.strip())
-
-def remove_code_blocks(content):
-    """
-    Remove AsciiDoc code blocks (----, ...., and [source]... blocks) from the content.
-    """
-    # Remove blocks delimited by ---- or ....
-    content = re.sub(r'(?ms)^----$.*?^----$', '', content)
-    content = re.sub(r'(?ms)^\.\.\.\.$.*?^\.\.\.\.$', '', content)
-    # Remove [source] blocks (optionally with language)
-    content = re.sub(r'(?ms)^\[source.*?^----$.*?^----$', '', content)
-    content = re.sub(r'(?ms)^\[source.*?^\.\.\.\.$.*?^\.\.\.\.$', '', content)
-    return content
-
-def assess_file(filepath, sentence_word_limit, paragraph_sentence_limit):
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            content = f.read()
-    except Exception as e:
-        return [f"Error reading file: {e}"]
-    # Remove code blocks before splitting into paragraphs
-    content = remove_code_blocks(content)
-    # Track paragraph start line numbers
-    lines = content.splitlines()
-    paragraph_starts = []
-    paragraph_texts = []
-    current_paragraph = []
-    start_line = 0
-    for idx, line in enumerate(lines):
-        if line.strip() == '':
-            if current_paragraph:
-                paragraph_starts.append(start_line + 1)  # 1-based line number
-                paragraph_texts.append('\n'.join(current_paragraph))
-                current_paragraph = []
-            start_line = idx + 1
-        else:
-            if not current_paragraph:
-                start_line = idx
-            current_paragraph.append(line)
-    if current_paragraph:
-        paragraph_starts.append(start_line + 1)
-        paragraph_texts.append('\n'.join(current_paragraph))
-    issues = []
-    for i, (para, para_line) in enumerate(zip(paragraph_texts, paragraph_starts), 1):
-        sentences = split_sentences(para)
-        if len(sentences) > paragraph_sentence_limit:
-            issues.append(f"Line {para_line}: Paragraph {i}: Too many sentences ({len(sentences)})")
-        for j, sent in enumerate(sentences, 1):
-            word_count = count_words(sent)
-            if word_count > sentence_word_limit:
-                issues.append(f"Line {para_line}: Paragraph {i}, Sentence {j}: Too long ({word_count} words)")
-    return issues
+import argparse
+from doc_utils.scannability import check_scannability
+from doc_utils.file_utils import collect_files
 
 def print_help():
     print(__doc__)
@@ -98,10 +35,14 @@ def main():
     # Do not add -h/--help to argparse, handled manually above
     args = parser.parse_args()
 
-    sentence_word_limit = BASE_SENTENCE_WORD_LIMIT + args.s
-    paragraph_sentence_limit = BASE_PARAGRAPH_SENTENCE_LIMIT + args.p
-
-    adoc_files = sorted(f for f in os.listdir('.') if f.endswith('.adoc'))
+    exclude_dirs = []
+    exclude_files = []
+    adoc_files = collect_files(['.'], {'.adoc'}, exclude_dirs, exclude_files)
+    long_sentences, long_paragraphs = check_scannability(
+        adoc_files,
+        max_sentence_length=BASE_SENTENCE_WORD_LIMIT + args.s,
+        max_paragraph_sentences=BASE_PARAGRAPH_SENTENCE_LIMIT + args.p
+    )
     report_lines = []
     for adoc in adoc_files:
         issues = assess_file(adoc, sentence_word_limit, paragraph_sentence_limit)
