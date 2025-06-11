@@ -36,5 +36,6 @@ def test_archive_unused_images_exclusions(exclude_args, should_find):
         if should_find:
             assert should_find in result.stdout
         else:
-            # If all images are excluded, nothing should be found
-            assert 'unused1.png' not in result.stdout and 'unused2.jpg' not in result.stdout
+            # If all images are excluded, no unused images from './images' should be present
+            assert 'images/unused1.png' not in result.stdout
+            assert 'images/unused2.jpg' not in result.stdout

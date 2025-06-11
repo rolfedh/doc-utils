@@ -32,8 +32,15 @@ def test_archive_unused_files_exclusions(exclude_args, should_find):
     with tempfile.TemporaryDirectory() as tmpdir:
         setup_test_fixture_archive_unused_files(tmpdir)
         result = run_script(exclude_args, cwd=tmpdir)
+        archive_dir = os.path.join(tmpdir, 'archive')
+        manifest_files = [f for f in os.listdir(archive_dir) if f.startswith('to-archive-') and f.endswith('.txt')]
+        assert manifest_files
+        manifest_path = os.path.join(archive_dir, manifest_files[0])
+        with open(manifest_path, 'r', encoding='utf-8') as f:
+            manifest_content = f.read()
         if should_find:
-            assert should_find in result.stdout
+            assert should_find in manifest_content
         else:
-            # If all modules are excluded, nothing should be found
-            assert 'unused1.adoc' not in result.stdout and 'unused2.adoc' not in result.stdout
+            # If all modules are excluded, no unused files from './modules' should be present
+            assert 'modules/unused1.adoc' not in manifest_content
+            assert 'modules/unused2.adoc' not in manifest_content

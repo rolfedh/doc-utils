@@ -11,17 +11,20 @@ def collect_files(scan_dirs, extensions, exclude_dirs=None, exclude_files=None):
     Recursively collect files with given extensions from scan_dirs, excluding symlinks, exclude_dirs, and exclude_files.
     Returns a list of normalized file paths.
     """
-    exclude_dirs = set(os.path.normpath(d) for d in (exclude_dirs or []))
-    exclude_files = set(os.path.normpath(f) for f in (exclude_files or []))
+    exclude_dirs = set(os.path.abspath(os.path.normpath(d)) for d in (exclude_dirs or []))
+    exclude_files = set(os.path.abspath(os.path.normpath(f)) for f in (exclude_files or []))
     found_files = []
     for base_dir in scan_dirs:
         for root, dirs, files in os.walk(base_dir):
-            dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d)) and os.path.normpath(os.path.join(root, d)) not in exclude_dirs]
+            abs_root = os.path.abspath(root)
+            # Exclude directories by absolute path
+            dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d)) and os.path.abspath(os.path.join(root, d)) not in exclude_dirs]
             for f in files:
                 file_path = os.path.normpath(os.path.join(root, f))
+                abs_file_path = os.path.abspath(file_path)
                 if os.path.islink(file_path):
                     continue
-                if any(file_path == ex or file_path.endswith(os.sep + ex) for ex in exclude_files):
+                if abs_file_path in exclude_files:
                     continue
                 if os.path.splitext(f)[1].lower() in extensions:
                     found_files.append(file_path)
