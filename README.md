@@ -22,6 +22,17 @@ Each script in this repository is self-contained and documents its own purpose, 
 2. Read the top of the script or the corresponding `.md` file for instructions, options, and examples.
 3. Run the script from your terminal as described in the usage section.
 
+## Running Tests
+
+To run all tests, install the development requirements and run pytest from the project root:
+
+```sh
+pip install -r requirements-dev.txt
+pytest
+```
+
+All tests and fixtures are located in the `tests/` directory. See `tests/README.md` for details.
+
 ---
 
 *For licensing information, see [LICENSE](LICENSE).*
