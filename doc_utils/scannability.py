@@ -3,7 +3,7 @@
 import os
 import re
 
-def check_scannability(adoc_files, max_sentence_length=40, max_paragraph_sentences=6):
+def check_scannability(adoc_files, max_sentence_length=22, max_paragraph_sentences=3):
     long_sentences = []
     long_paragraphs = []
     for file_path in adoc_files:

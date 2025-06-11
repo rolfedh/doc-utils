@@ -15,8 +15,12 @@ For full documentation, see check_scannability.md in this directory.
 import os
 import sys
 import argparse
+from datetime import datetime
 from doc_utils.scannability import check_scannability
 from doc_utils.file_utils import collect_files
+
+BASE_SENTENCE_WORD_LIMIT = 22
+BASE_PARAGRAPH_SENTENCE_LIMIT = 3
 
 def print_help():
     print(__doc__)
@@ -28,25 +32,33 @@ def main():
         sys.exit(0)
 
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('-s', type=int, default=0, help='Extra words allowed per sentence')
-    parser.add_argument('-p', type=int, default=0, help='Additional sentences allowed per paragraph')
-    parser.add_argument('-v', action='store_true', help='Verbose output')
-    parser.add_argument('-o', action='store_true', help='Output the report to a timestamped txt file')
+    parser.add_argument('-s', '--max-sentence-length', type=int, default=0, help='Extra words allowed per sentence (default: 0, base: 22)')
+    parser.add_argument('-p', '--max-paragraph-sentences', type=int, default=0, help='Extra sentences allowed per paragraph (default: 0, base: 3)')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output (show all files, even those without issues)')
+    parser.add_argument('-o', '--output', action='store_true', help='Output the report to a timestamped txt file in your home directory')
     # Do not add -h/--help to argparse, handled manually above
     args = parser.parse_args()
 
     exclude_dirs = []
     exclude_files = []
     adoc_files = collect_files(['.'], {'.adoc'}, exclude_dirs, exclude_files)
+    sentence_word_limit = BASE_SENTENCE_WORD_LIMIT + args.max_sentence_length
+    paragraph_sentence_limit = BASE_PARAGRAPH_SENTENCE_LIMIT + args.max_paragraph_sentences
     long_sentences, long_paragraphs = check_scannability(
         adoc_files,
-        max_sentence_length=BASE_SENTENCE_WORD_LIMIT + args.s,
-        max_paragraph_sentences=BASE_PARAGRAPH_SENTENCE_LIMIT + args.p
+        max_sentence_length=sentence_word_limit,
+        max_paragraph_sentences=paragraph_sentence_limit
     )
+    # Build a report per file
     report_lines = []
+    issues_by_file = {}
+    for file, line, sent in long_sentences:
+        issues_by_file.setdefault(file, []).append(f"Line {line}: Sentence exceeds {sentence_word_limit} words: {sent}")
+    for file, line, count in long_paragraphs:
+        issues_by_file.setdefault(file, []).append(f"Line {line}: Paragraph exceeds {paragraph_sentence_limit} sentences ({count} sentences)")
     for adoc in adoc_files:
-        issues = assess_file(adoc, sentence_word_limit, paragraph_sentence_limit)
-        if issues or args.v:
+        issues = issues_by_file.get(adoc, [])
+        if issues or args.verbose:
             report_lines.append("")  # Blank line above each filename
             report_lines.append(f"{adoc}:")
             if issues:
@@ -56,26 +68,22 @@ def main():
                 report_lines.append("  No scannability issues found.")
 
     output = "\n".join(report_lines)
-    if args.o:
+    if args.output:
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
         home_dir = os.path.expanduser("~")
         filename = os.path.join(home_dir, f"{timestamp}.txt")
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         pwd = os.getcwd()
         cmd = "python3 " + " ".join([sys.argv[0]] + sys.argv[1:])
-        total_sentence_limit = sentence_word_limit
-        total_paragraph_limit = paragraph_sentence_limit
-        s_opt = f"-s {args.s}" if args.s else "0"
-        p_opt = f"-p {args.p}" if args.p else "0"
         metadata = [
             "Scannability Report",
             "",
             f"Purpose: This report lists scannability issues in .adoc files in the current directory.",
             f"Directory: {pwd}",
             f"Date and Time: {now_str}",
-            f"Sentence length limit: {total_sentence_limit} words (22 plus -s {args.s})",
-            f"Paragraph sentence limit: {total_paragraph_limit} sentences (3 plus -p {args.p})",
-            "See scannable.py for usage instructions and examples.",
+            f"Sentence length limit: {sentence_word_limit} words (22 plus -s/--max-sentence-length {args.max_sentence_length})",
+            f"Paragraph sentence limit: {paragraph_sentence_limit} sentences (3 plus -p/--max-paragraph-sentences {args.max_paragraph_sentences})",
+            "See check_scannability.md for usage instructions and examples.",
             f"Command: {cmd}",
             "",
             "------------------------------------------------------------",

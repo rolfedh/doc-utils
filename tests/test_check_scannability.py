@@ -1,5 +1,7 @@
-import os
 import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import tempfile
 import pytest
 from test_fixture_check_scannability import setup_test_fixture_check_scannability
@@ -16,7 +18,7 @@ def test_check_scannability_basic():
         setup_test_fixture_check_scannability(tmpdir)
         result = run_script([], cwd=tmpdir)
         # Should flag the long sentence and long paragraph in test1.adoc
-        assert 'too long' in result.stdout or 'too many sentences' in result.stdout
+        assert 'Sentence exceeds' in result.stdout or 'Paragraph exceeds' in result.stdout
         # Should not flag test2.adoc
         assert 'test2.adoc' not in result.stderr
 
@@ -29,4 +31,23 @@ def test_check_scannability_custom_limits(args, should_flag):
         setup_test_fixture_check_scannability(tmpdir)
         result = run_script(args, cwd=tmpdir)
         if should_flag:
-            assert 'too long' in result.stdout or 'too many sentences' in result.stdout
+            assert 'Sentence exceeds' in result.stdout or 'Paragraph exceeds' in result.stdout
+
+def test_check_scannability_short_options():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        setup_test_fixture_check_scannability(tmpdir)
+        # Use short options -s and -p
+        result = run_script(['-s', '10', '-p', '2'], cwd=tmpdir)
+        assert 'Sentence exceeds' in result.stdout or 'Paragraph exceeds' in result.stdout
+
+def test_check_scannability_defaults():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        setup_test_fixture_check_scannability(tmpdir)
+        # No options: should use 22 and 3 as limits
+        result = run_script([], cwd=tmpdir)
+        # Should flag the long sentence and long paragraph in test1.adoc
+        assert 'Sentence exceeds' in result.stdout or 'Paragraph exceeds' in result.stdout
+
+def test_check_scannability_help():
+    result = run_script(['-h'], cwd=os.getcwd())
+    assert 'Scannability Checker' in result.stdout or 'usage' in result.stdout
