@@ -1,83 +1,50 @@
 # Archive Unused AsciiDoc Files
 
-This script scans the `./modules` and `./assemblies` directories (including subdirectories) for AsciiDoc (`.adoc`) files that are *not* referenced (included) in any other AsciiDoc file within the project.
+This tool scans `./modules` and `./assemblies` for AsciiDoc files not referenced by any other AsciiDoc file in the project. Optionally archives and deletes them.
 
-## What It Does
+## Installation
 
-- **Identifies unused AsciiDoc files**
-  - Finds `.adoc` files in the specified directories that are not included by any other `.adoc` file (via `include::` statements).
-- **Generates a manifest**
-  - Prints the list of unused files to the console and writes their paths to a manifest file named `to-archive-<YYYY-MM-DD_HHMMSS>.txt` in the `./archive` directory.
-- **Optionally archives and deletes**
-  - With `--archive`, creates a zip archive in `./archive` containing all unused files and the manifest, then deletes the originals.
-- **Supports exclusions**
-  - You can exclude specific directories or files from scanning using command-line options or a list file (see below).
+After installing the package from PyPI:
 
-## Use Case
+```sh
+pip install rolfedh-doc-utils
+```
 
-Ideal for **documentation maintainers** who want to clean up orphaned modules and assemblies in large AsciiDoc projects.
+You can run the tool from anywhere using:
+
+```sh
+archive-unused-files [options]
+```
+
+Or, if running from source:
+
+```sh
+python3 archive_unused_files.py [options]
+```
 
 ## Usage
 
-To identify unused files:
+See the script's `--help` output or the docstring for all options. Common options include:
+
+- `--archive` — Move the files to a dated zip in the archive directory.
+- `--exclude-dir` — Directory to exclude (can be used multiple times).
+- `--exclude-file` — File to exclude (can be used multiple times).
+- `--exclude-list` — Path to a file containing directories or files to exclude, one per line.
+
+## Example
+
 ```sh
-python3 ~/doc-utils/archive_unused_files.py
+archive-unused-files --archive --exclude-dir ./modules/legacy
 ```
 
-To identify and archive unused files:
-```sh
-python3 ~/doc-utils/archive_unused_files.py --archive
-```
+This will archive all unused AsciiDoc files, excluding those in `./modules/legacy`.
 
-To exclude specific directories or files:
-```sh
-python3 ~/doc-utils/archive_unused_files.py --exclude-dir <directory_path> --exclude-file <file_path>
-```
+## Output
 
-To use a file containing exclusions (one per line):
-```sh
-python3 ~/doc-utils/archive_unused_files.py --exclude-list <file_name>
-```
+- Prints unused files to the terminal.
+- Creates a manifest file in the `archive/` directory.
+- Optionally creates a zip archive of unused files.
 
-> **Note:** Run this script from the root of your project repository. The archive zip and manifest will be placed in the `./archive` directory.
+---
 
-## Options
-
-| Option            | Description                                                                 |
-|-------------------|-----------------------------------------------------------------------------|
-| `--archive`       | Move unused files to a dated zip in the archive directory and delete originals |
-| `--exclude-dir`   | Directory to exclude from scanning (can be used multiple times)              |
-| `--exclude-file`  | File to exclude from scanning (can be used multiple times). Must match the full path or relative path, not just the filename. |
-| `--exclude-list`  | Path to a file containing directories or files to exclude, one per line      |
-| `-h`, `--help`    | Show usage and exit                                                          |
-
-## Examples
-
-Identify unused files only:
-```sh
-python3 ~/doc-utils/archive_unused_files.py
-```
-
-Identify and archive unused files:
-```sh
-python3 ~/doc-utils/archive_unused_files.py --archive
-```
-
-Exclude a directory and a file:
-```sh
-python3 ~/doc-utils/archive_unused_files.py --exclude-dir ./modules --exclude-file ./modules/unused1.adoc
-```
-
-Use a file with exclusions:
-```sh
-python3 ~/doc-utils/archive_unused_files.py --exclude-list exclude.txt
-```
-
-## Notes
-
-- You can configure which directories are scanned and where the archive is created by editing the `scan_dirs` and `archive_dir` variables at the bottom of this script.
-- The script skips symlinked directories and files.
-- The manifest file is always created in the archive directory, even if no files are archived.
-- The script is safe to run multiple times; it will not archive or delete files that are already gone.
-- The `--exclude-file` option matches the full or relative path you provide, not just the filename. If you want to exclude all files with a certain name in any directory, specify each path or adjust the script logic.
-- The `--exclude-list` file can contain both directories and files, one per line. Lines starting with `#` are ignored as comments.
+See the main [README.md](README.md) for more details on installation and usage as a package.

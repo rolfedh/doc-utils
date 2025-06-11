@@ -4,14 +4,25 @@ This tool scans a user-specified attributes file (typically named `attributes.ad
 
 Any attribute defined in the attributes file but not used in any `.adoc` file is reported as **NOT USED** in both the command line output and a timestamped output file (if requested).
 
-## Usage
+## Installation
+
+After installing the package from PyPI:
+
+```sh
+pip install rolfedh-doc-utils
+```
+
+You can run the tool from anywhere using:
+
+```sh
+find-unused-attributes attributes.adoc [-o|--output]
+```
+
+Or, if running from source:
 
 ```sh
 python3 find_unused_attributes.py attributes.adoc [-o|--output]
 ```
-
-- `attributes.adoc` — Path to the attributes file to scan for attribute definitions.
-- `-o`, `--output` — (Optional) Write results to a timestamped `.txt` file in your home directory.
 
 ## Example
 
@@ -39,7 +50,6 @@ If you use `-o`, a file like `~/unused_attributes_20250611123456.txt` will be cr
 - Attribute names are matched as `{name}` in `.adoc` files.
 - The script does not modify any files.
 
-## See Also
-- [archive_unused_files.md](archive_unused_files.md)
-- [archive_unused_images.md](archive_unused_images.md)
-- [check_scannability.md](check_scannability.md)
+---
+
+See the main [README.md](README.md) for more details on installation and usage as a package.

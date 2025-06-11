@@ -5,6 +5,22 @@ This repository contains modular Python utilities and CLI scripts to help techni
 **Purpose:**
 Each script is now a thin CLI wrapper that delegates to reusable modules in the `doc_utils` package. For details on how to use a script, see the initial docstring, comments, or the corresponding Markdown help file.
 
+## Installation (via PyPI)
+
+You can install this package from PyPI (after publishing) with:
+
+```sh
+pip install rolfedh-doc-utils
+```
+
+This will install the following CLI commands globally:
+- `check-scannability`
+- `archive-unused-files`
+- `archive-unused-images`
+- `find-unused-attributes`
+
+You can then run these commands from any directory.
+
 ## Current Scripts
 
 - **check_scannability.py**  
@@ -31,9 +47,23 @@ The core logic for all scripts is implemented in the `doc_utils/` package. You c
 
 ## How to Use
 
-1. Open the script you are interested in (for example, `check_scannability.py` or `find_unused_attributes.py`).
-2. Read the top of the script or the corresponding `.md` file for instructions, options, and examples.
-3. Run the script from your terminal as described in the usage section.
+After installation, use the CLI commands directly, for example:
+
+```sh
+check-scannability --help
+archive-unused-files --help
+find-unused-attributes attributes.adoc
+```
+
+Or, if running from source, use:
+
+```sh
+python3 check_scannability.py
+python3 archive_unused_files.py
+python3 find_unused_attributes.py attributes.adoc
+```
+
+See each script's `.md` file for detailed usage and options.
 
 ## Running Tests
 

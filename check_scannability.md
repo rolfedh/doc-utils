@@ -1,6 +1,26 @@
 # Scannability Checker for AsciiDoc Files
 
-This Python script analyzes `.adoc` files in the current directory to flag scannability issues that can reduce readability.
+This tool analyzes `.adoc` files in the current directory to flag scannability issues that can reduce readability.
+
+## Installation
+
+After installing the package from PyPI:
+
+```sh
+pip install rolfedh-doc-utils
+```
+
+You can run the tool from anywhere using:
+
+```sh
+check-scannability [options]
+```
+
+Or, if running from source:
+
+```sh
+python3 check_scannability.py [options]
+```
 
 ## What It Checks
 
@@ -13,66 +33,23 @@ This Python script analyzes `.adoc` files in the current directory to flag scann
 - **Line numbers**  
   The report output includes the line number where each paragraph starts, to help you quickly locate issues in your `.adoc` files.
 
-## Customization
-
-Use command-line options to adjust the default thresholds:
-
-- `-s`, `--max-sentence-length` `<extra_words>` — Add extra words per sentence  
-  _Example: `-s 5` or `--max-sentence-length 5` raises the limit to 27 words (22 + 5)_
-
-- `-p`, `--max-paragraph-sentences` `<extra_sentences>` — Add extra sentences per paragraph  
-  _Example: `-p 2` or `--max-paragraph-sentences 2` raises the limit to 5 sentences (3 + 2)_
-
-## Output Options
-
-- Print results directly to the terminal (default)
-- Use `-o` to save a timestamped `.txt` report in your home directory  
-  _Example: `~/20250605144341.txt`_
-- Use `-v` for verbose mode (shows all files, even those without issues)
-
-> **Note:** The script prints the path to the report file. It does not attempt to open the file automatically.
-
-## Use Case
-
-Ideal for **technical writers and editors** who want to review `.adoc` files for scannability before publishing.
-
 ## Usage
 
-```bash
-python3 ~/doc-utils/check_scannability.py [-s <extra_words>] [-p <extra_sentences>] [-v|--verbose] [-o|--output]
+See the script's `--help` output or the docstring for all options. Common options include:
+
+- `-s`, `--max-sentence-length` — Add extra words per sentence
+- `-p`, `--max-paragraph-sentences` — Add extra sentences per paragraph
+- `-v`, `--verbose` — Verbose mode (shows all files, even those without issues)
+- `-o`, `--output` — Write results to a timestamped txt file in your home directory
+
+## Example
+
+```sh
+check-scannability -s 5 -p 2 -o
 ```
 
-If your script is not in `~/doc-utils/`, replace the path above with the actual location of your check_scannability.py file.
+This will check for sentences longer than 27 words and paragraphs longer than 5 sentences, and write the results to a file.
 
-### Options
+---
 
-| Option                                 | Description                                                             |
-| -------------------------------------- | ----------------------------------------------------------------------- |
-| `-s <int>`, `--max-sentence-length <int>` | Extra words allowed per sentence (default: 0; base: 22)                  |
-| `-p <int>`, `--max-paragraph-sentences <int>` | Extra sentences allowed per paragraph (default: 0; base: 3)             |
-| `-v`, `--verbose`                      | Verbose mode — shows results for all files, even if no issues are found |
-| `-o`, `--output`                       | Output results to a timestamped file in your home directory             |
-| `-h`, `--help`                         | Show usage and exit                                                     |
-
-## Examples
-
-```bash
-python3 ~/doc-utils/check_scannability.py
-python3 ~/doc-utils/check_scannability.py -s 5
-python3 ~/doc-utils/check_scannability.py --max-sentence-length 5
-python3 ~/doc-utils/check_scannability.py -p 2
-python3 ~/doc-utils/check_scannability.py --max-paragraph-sentences 2
-python3 ~/doc-utils/check_scannability.py -s 3 -p 1
-python3 ~/doc-utils/check_scannability.py -v
-python3 ~/doc-utils/check_scannability.py --verbose
-python3 ~/doc-utils/check_scannability.py -o
-python3 ~/doc-utils/check_scannability.py --output
-```
-
-## Notes
-
-* Only `.adoc` files in the **current working directory** are scanned.
-* Sentence splitting uses a simple regex and may not handle edge cases (e.g., abbreviations).
-* When using `-o`, the path to the report file is printed after generation.
-* Code blocks (delimited by `----`, `....`, or `[source]` blocks) are excluded from analysis.
-* The report output includes the line number where each paragraph starts.
+See the main [README.md](README.md) for more details on installation and usage as a package.
