@@ -1,9 +1,9 @@
 # doc-utils
 
-This repository contains standalone scripts designed to help technical writers with documentation tasks.
+This repository contains modular Python utilities and CLI scripts to help technical writers with documentation tasks.
 
 **Purpose:**
-Each script in this repository is self-contained and documents its own purpose, usage instructions, and examples at the top of the script file. For details on how to use a script, open the script and read the initial docstring or comments, or see the corresponding Markdown help file.
+Each script is now a thin CLI wrapper that delegates to reusable modules in the `doc_utils` package. For details on how to use a script, see the initial docstring, comments, or the corresponding Markdown help file.
 
 ## Current Scripts
 
@@ -14,7 +14,16 @@ Each script in this repository is self-contained and documents its own purpose, 
   Scans `./modules` and `./assemblies` for AsciiDoc files not referenced by any other AsciiDoc file in the project. Optionally archives and deletes them. See [archive_unused_files.md](archive_unused_files.md) for usage and examples.
 
 - **archive_unused_images.py**  
-  Scans `./modules` and `./assemblies` for image files (e.g., `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`) not referenced by any AsciiDoc file in the project. Optionally archives and deletes them. See [archive_unused_images.md](archive_unused_images.md) for usage and examples.
+  Scans all directories for image files (e.g., `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`) not referenced by any AsciiDoc file in the project. Optionally archives and deletes them. See [archive_unused_images.md](archive_unused_images.md) for usage and examples.
+
+## Modular Python Package
+
+The core logic for all scripts is implemented in the `doc_utils/` package. You can import and reuse these utilities in your own scripts or tests:
+
+- `doc_utils.file_utils` — file collection, manifest, and archiving utilities
+- `doc_utils.unused_images` — logic for finding and archiving unused images
+- `doc_utils.unused_adoc` — logic for finding and archiving unused AsciiDoc files
+- `doc_utils.scannability` — logic for checking AsciiDoc scannability
 
 ## How to Use
 

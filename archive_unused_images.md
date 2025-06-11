@@ -65,7 +65,7 @@ python3 ~/doc-utils/archive_unused_images.py --archive
 
 Exclude a directory and a file:
 ```sh
-python3 ~/doc-utils/archive_unused_images.py --exclude-dir ./icons --exclude-file warning.png
+python3 ~/doc-utils/archive_unused_images.py --exclude-dir ./icons --exclude-file ./images/unused1.png
 ```
 
 Use a file with exclusions:
@@ -79,5 +79,5 @@ python3 ~/doc-utils/archive_unused_images.py --exclude-list exclude.txt
 - The script skips symlinked directories and files.
 - The manifest file is always created in the archive directory, even if no files are archived.
 - The script is safe to run multiple times; it will not archive or delete files that are already gone.
-- The `--exclude-list` file can contain both directories and files, one per line. Lines starting with `#` are ignored as comments.
 - The `--exclude-file` option matches the full or relative path you provide, not just the filename. If you want to exclude all files with a certain name in any directory, specify each path or adjust the script logic.
+- The `--exclude-list` file can contain both directories and files, one per line. Lines starting with `#` are ignored as comments.

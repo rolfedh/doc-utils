@@ -10,6 +10,8 @@ This script scans the `./modules` and `./assemblies` directories (including subd
   - Prints the list of unused files to the console and writes their paths to a manifest file named `to-archive-<YYYY-MM-DD_HHMMSS>.txt` in the `./archive` directory.
 - **Optionally archives and deletes**
   - With `--archive`, creates a zip archive in `./archive` containing all unused files and the manifest, then deletes the originals.
+- **Supports exclusions**
+  - You can exclude specific directories or files from scanning using command-line options or a list file (see below).
 
 ## Use Case
 
@@ -27,14 +29,27 @@ To identify and archive unused files:
 python3 ~/doc-utils/archive_unused_files.py --archive
 ```
 
+To exclude specific directories or files:
+```sh
+python3 ~/doc-utils/archive_unused_files.py --exclude-dir <directory_path> --exclude-file <file_path>
+```
+
+To use a file containing exclusions (one per line):
+```sh
+python3 ~/doc-utils/archive_unused_files.py --exclude-list <file_name>
+```
+
 > **Note:** Run this script from the root of your project repository. The archive zip and manifest will be placed in the `./archive` directory.
 
 ## Options
 
-| Option        | Description                                                        |
-| -------------|--------------------------------------------------------------------|
-| `--archive`  | Move unused files to a dated zip in the archive directory and delete originals |
-| `-h`, `--help` | Show usage and exit                                              |
+| Option            | Description                                                                 |
+|-------------------|-----------------------------------------------------------------------------|
+| `--archive`       | Move unused files to a dated zip in the archive directory and delete originals |
+| `--exclude-dir`   | Directory to exclude from scanning (can be used multiple times)              |
+| `--exclude-file`  | File to exclude from scanning (can be used multiple times). Must match the full path or relative path, not just the filename. |
+| `--exclude-list`  | Path to a file containing directories or files to exclude, one per line      |
+| `-h`, `--help`    | Show usage and exit                                                          |
 
 ## Examples
 
@@ -48,9 +63,21 @@ Identify and archive unused files:
 python3 ~/doc-utils/archive_unused_files.py --archive
 ```
 
+Exclude a directory and a file:
+```sh
+python3 ~/doc-utils/archive_unused_files.py --exclude-dir ./modules --exclude-file ./modules/unused1.adoc
+```
+
+Use a file with exclusions:
+```sh
+python3 ~/doc-utils/archive_unused_files.py --exclude-list exclude.txt
+```
+
 ## Notes
 
 - You can configure which directories are scanned and where the archive is created by editing the `scan_dirs` and `archive_dir` variables at the bottom of this script.
 - The script skips symlinked directories and files.
 - The manifest file is always created in the archive directory, even if no files are archived.
 - The script is safe to run multiple times; it will not archive or delete files that are already gone.
+- The `--exclude-file` option matches the full or relative path you provide, not just the filename. If you want to exclude all files with a certain name in any directory, specify each path or adjust the script logic.
+- The `--exclude-list` file can contain both directories and files, one per line. Lines starting with `#` are ignored as comments.
