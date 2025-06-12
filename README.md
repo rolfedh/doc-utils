@@ -5,9 +5,9 @@ This repository contains modular Python utilities and CLI scripts to help techni
 **Purpose:**
 Each script is now a thin CLI wrapper that delegates to reusable modules in the `doc_utils` package. For details on how to use a script, see the initial docstring, comments, or the corresponding Markdown help file.
 
-## Installation (via PyPI)
+## Installation
 
-You can install this package from PyPI (after publishing) with:
+You can install this package from PyPI with:
 
 ```sh
 pip install rolfedh-doc-utils
@@ -20,6 +20,31 @@ This will install the following CLI commands globally:
 - `find-unused-attributes`
 
 You can then run these commands from any directory.
+
+
+---
+
+**⚠️ One small follow-up:**
+
+These CLI tools are typically installed to:
+
+```
+$HOME/.local/bin
+```
+
+If this directory isn't in your `PATH`, running commands like `archive-unused-files` directly from the terminal won’t work.
+
+In that case, add the following line to your `~/.bashrc`, `~/.zshrc`, or equivalent:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+Then reload your shell:
+
+```bash
+source ~/.bashrc  # or ~/.zshrc
+```
 
 ## Current Scripts
 
