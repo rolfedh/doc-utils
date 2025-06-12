@@ -60,16 +60,6 @@ source ~/.bashrc  # or ~/.zshrc
 - **find_unused_attributes.py**  
   Scans a user-specified attributes file (e.g., `attributes.adoc`) for attribute definitions (e.g., `:version:`) and recursively scans all `.adoc` files in the current directory for usages (e.g., `{version}`). Reports any attribute that is defined but not used in any `.adoc` file as **NOT USED** in both the command line output and a timestamped output file. See [find_unused_attributes.md](find_unused_attributes.md) for usage and examples.
 
-## Modular Python Package
-
-The core logic for all scripts is implemented in the `doc_utils/` package. You can import and reuse these utilities in your own scripts or tests:
-
-- `doc_utils.file_utils` — file collection, manifest, and archiving utilities
-- `doc_utils.unused_images` — logic for finding and archiving unused images
-- `doc_utils.unused_adoc` — logic for finding and archiving unused AsciiDoc files
-- `doc_utils.scannability` — logic for checking AsciiDoc scannability
-- `doc_utils.unused_attributes` — logic for finding unused AsciiDoc attributes
-
 ## How to Use
 
 After installation, use the CLI commands directly, for example:
@@ -89,17 +79,6 @@ python3 find_unused_attributes.py attributes.adoc
 ```
 
 See each script's `.md` file for detailed usage and options.
-
-## Running Tests
-
-To run all tests, install the development requirements and run pytest from the project root:
-
-```sh
-pip install -r requirements-dev.txt
-pytest
-```
-
-All tests and fixtures are located in the `tests/` directory. See `tests/README.md` for details.
 
 ---
 
