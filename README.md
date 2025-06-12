@@ -3,11 +3,11 @@
 This repository contains modular Python utilities and CLI scripts to help technical writers with documentation tasks.
 
 **Purpose:**
-Each script is now a thin CLI wrapper that delegates to reusable modules in the `doc_utils` package. For details on how to use a script, see the initial docstring, comments, or the corresponding Markdown help file.
+Each script is a thin CLI wrapper that delegates to reusable modules in the `doc_utils` package. For details on how to use a script, see the initial docstring, comments, or the corresponding Markdown help file.
 
 ## Installation
 
-You can install this package from PyPI with:
+Install from PyPI:
 
 ```sh
 pip install rolfedh-doc-utils
@@ -21,28 +21,19 @@ This will install the following CLI commands globally:
 
 You can then run these commands from any directory.
 
-
----
-
-**⚠️ One small follow-up:**
+### PATH Setup (if needed)
 
 These CLI tools are typically installed to:
-
 ```
 $HOME/.local/bin
 ```
-
-If this directory isn't in your `PATH`, running commands like `archive-unused-files` directly from the terminal won’t work.
-
-In that case, add the following line to your `~/.bashrc`, `~/.zshrc`, or equivalent:
-
+If this directory isn't in your `PATH`, running commands like `archive-unused-files` directly from the terminal won’t work. 
+In that case, add this line to your `~/.bashrc`, `~/.zshrc`, or equivalent:
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
 ```
-
 Then reload your shell:
-
-```bash
+```sh
 source ~/.bashrc  # or ~/.zshrc
 ```
 
@@ -70,7 +61,7 @@ archive-unused-files --help
 find-unused-attributes attributes.adoc
 ```
 
-Or, if running from source, use:
+Or, if running from source:
 
 ```sh
 python3 check_scannability.py
