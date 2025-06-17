@@ -32,10 +32,10 @@ By default, CLI tools install to:
 $HOME/.local/bin
 ```
 
-If this directory isn’t in your `PATH`, commands may not run. Add it to your shell configuration:
+If this directory isn’t in your `PATH`, commands may not run. Append it to your shell configuration:
 
 ```sh
-export PATH="$HOME/.local/bin:$PATH"
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc   # or ~/.zshrc
 ```
 
 Then reload your shell:
