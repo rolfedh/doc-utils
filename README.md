@@ -1,9 +1,10 @@
 # doc-utils
 
-This repository contains modular Python utilities and CLI scripts to help technical writers with documentation tasks.
+Python utilities and CLI scripts to help technical writers maintain Asciidoc repositories.
 
-**Purpose:**
-Each script is a thin CLI wrapper that delegates to reusable modules in the `doc_utils` package. For details on how to use a script, see the initial docstring, comments, or the corresponding Markdown help file.
+For more information: 
+- https://pypi.org/project/rolfedh-doc-utils/
+- https://github.com/rolfedh/doc-utils
 
 ## Installation
 
