@@ -1,60 +1,87 @@
 # doc-utils
 
-Python utilities and CLI scripts to help technical writers maintain Asciidoc repositories.
+A set of Python utilities and CLI tools to help technical writers maintain AsciiDoc documentation repositories.
 
-For more information: 
-- https://pypi.org/project/rolfedh-doc-utils/
-- https://github.com/rolfedh/doc-utils
+## Resources
+
+- [PyPI: rolfedh-doc-utils](https://pypi.org/project/rolfedh-doc-utils/)
+- [GitHub repository](https://github.com/rolfedh/doc-utils)
 
 ## Installation
 
-Install from PyPI:
+Install the package from PyPI:
 
 ```sh
 pip install rolfedh-doc-utils
-```
+````
 
-This will install the following CLI commands globally:
-- `check-scannability`
-- `archive-unused-files`
-- `archive-unused-images`
-- `find-unused-attributes`
+The following CLI tools are installed:
 
-You can then run these commands from any directory.
+* `check-scannability`
+* `archive-unused-files`
+* `archive-unused-images`
+* `find-unused-attributes`
 
-### PATH Setup (if needed)
+These tools can be run from any directory.
 
-These CLI tools are typically installed to:
-```
+### Add to PATH (if needed)
+
+By default, CLI tools install to:
+
+```sh
 $HOME/.local/bin
 ```
-If this directory isn't in your `PATH`, running commands like `archive-unused-files` directly from the terminal won’t work. 
-In that case, add this line to your `~/.bashrc`, `~/.zshrc`, or equivalent:
-```bash
+
+If this directory isn’t in your `PATH`, commands may not run. Add it to your shell configuration:
+
+```sh
 export PATH="$HOME/.local/bin:$PATH"
 ```
+
 Then reload your shell:
+
 ```sh
-source ~/.bashrc  # or ~/.zshrc
+source ~/.bashrc   # or ~/.zshrc
 ```
 
-## Current Scripts
+## CLI Tools Overview
 
-- **check_scannability.py**  
-  Checks the scannability of AsciiDoc (`.adoc`) files in the current directory. Reports sentences that are too long and paragraphs that contain too many sentences, based on configurable limits. See [check_scannability.md](check_scannability.md) for usage and examples.
+### `check_scannability.py`
 
-- **archive_unused_files.py**  
-  Scans `./modules` and `./assemblies` for AsciiDoc files not referenced by any other AsciiDoc file in the project. Optionally archives and deletes them. See [archive_unused_files.md](archive_unused_files.md) for usage and examples.
+Scans `.adoc` files in the current directory to report:
 
-- **archive_unused_images.py**  
-  Scans all directories for image files (e.g., `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`) not referenced by any AsciiDoc file in the project. Optionally archives and deletes them. See [archive_unused_images.md](archive_unused_images.md) for usage and examples.
+* Sentences that exceed a length limit
+* Paragraphs with too many sentences
 
-- **find_unused_attributes.py**  
-  Scans a user-specified attributes file (e.g., `attributes.adoc`) for attribute definitions (e.g., `:version:`) and recursively scans all `.adoc` files in the current directory for usages (e.g., `{version}`). Reports any attribute that is defined but not used in any `.adoc` file as **NOT USED** in both the command line output and a timestamped output file. See [find_unused_attributes.md](find_unused_attributes.md) for usage and examples.
+➡️ See [`check_scannability.md`](https://github.com/rolfedh/doc-utils/blob/main/check_scannability.md) for details.
 
-## How to Use
+---
 
-After installation, use the CLI commands directly, for example:
+### `archive_unused_files.py`
+
+Scans the `./modules` and `./assemblies` directories for `.adoc` files that are not referenced. Optionally archives and deletes them.
+
+➡️ See [`archive_unused_files.md`](https://github.com/rolfedh/doc-utils/blob/main/archive_unused_files.md).
+
+---
+
+### `archive_unused_images.py`
+
+Finds unused image files (e.g., `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`) and optionally archives and deletes them.
+
+➡️ See [`archive_unused_images.md`](https://github.com/rolfedh/doc-utils/blob/main/archive_unused_images.md).
+
+---
+
+### `find_unused_attributes.py`
+
+Scans an attributes file (e.g., `attributes.adoc`) for unused attribute definitions across all `.adoc` files.
+
+➡️ See [`find_unused_attributes.md`](https://github.com/rolfedh/doc-utils/blob/main/find_unused_attributes.md).
+
+## Usage
+
+To run the tools after installation:
 
 ```sh
 check-scannability --help
@@ -62,7 +89,7 @@ archive-unused-files --help
 find-unused-attributes attributes.adoc
 ```
 
-Or, if running from source:
+Or run them directly from source:
 
 ```sh
 python3 check_scannability.py
@@ -70,8 +97,6 @@ python3 archive_unused_files.py
 python3 find_unused_attributes.py attributes.adoc
 ```
 
-See each script's `.md` file for detailed usage and options.
+## License
 
----
-
-*For licensing information, see [LICENSE](LICENSE).*
+This project is licensed under the terms of the [LICENSE](https://github.com/rolfedh/doc-utils/blob/main/LICENSE).
