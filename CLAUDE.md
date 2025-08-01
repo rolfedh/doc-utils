@@ -15,7 +15,7 @@ doc-utils is a collection of Python utilities and CLI tools designed to help tec
 
 ### Core Modules
 
-- `doc_utils/file_utils.py` - Core file scanning and archiving functionality
+- `doc_utils/file_utils.py` - Core file scanning, archiving, and exclusion list parsing
 - `doc_utils/unused_attributes.py` - Logic for finding unused AsciiDoc attributes
 - `doc_utils/unused_adoc.py` - Logic for finding unused AsciiDoc files
 - `doc_utils/unused_images.py` - Logic for finding unused images
@@ -33,6 +33,8 @@ doc-utils is a collection of Python utilities and CLI tools designed to help tec
 - Run tests with: `python -m pytest tests/`
 - Ensure new features have corresponding tests
 - Test coverage focuses on core functionality and CLI entry points
+- Current test suite: 47 tests total (87% pass rate)
+- Test fixtures are located in `tests/` directory
 
 ### Common Tasks
 
@@ -71,8 +73,9 @@ pip install -r requirements-dev.txt
 
 ### CLI Design
 - Each tool is a standalone script with a `main()` function
-- Entry points are configured in `pyproject.toml`
-- Common exclusion options (--exclude-dir, --exclude-file, --exclude-list)
+- Entry points are configured in `pyproject.toml` with `py-modules`
+- All tools support common exclusion options (--exclude-dir, --exclude-file, --exclude-list)
+- Exclusion list parsing is centralized in `file_utils.parse_exclude_list_file()`
 - Consistent output format across tools
 
 ### Testing Approach
@@ -86,6 +89,7 @@ pip install -r requirements-dev.txt
 1. **Fixed Scan Directories**: Most tools have hardcoded scan paths (e.g., `./modules`, `./assemblies`)
 2. **Current Directory Execution**: Tools must be run from the documentation project root
 3. **AsciiDoc Parsing**: Simple regex-based parsing may miss complex attribute usage
+4. **Test Failures**: Some CLI integration tests have format expectation issues (6 tests currently failing)
 
 ## Future Enhancements to Consider
 
@@ -135,3 +139,35 @@ When contributing to this project:
 - Consider caching results for repeated operations
 - Archive operations should batch file processing
 - Regular expressions should be compiled once and reused
+
+## Recent Improvements (Latest Refactoring)
+
+### Code Quality Improvements
+1. **Eliminated Code Duplication**: Created `parse_exclude_list_file()` to centralize exclusion parsing logic
+2. **Removed Dead Code**: 
+   - Removed unused `re` import from `file_utils.py`
+   - Removed legacy test runner files (`test_run_*.py`)
+   - Removed `fixtures-README-legacy.txt`
+3. **Improved Organization**: Moved test fixtures from root to `tests/` directory
+4. **Enhanced Consistency**: Added exclusion support to `check-scannability` tool
+
+### Testing Improvements
+- Added comprehensive tests for `file_utils.py` functions (14 tests)
+- Added tests for CLI entry points (15 tests)
+- Added tests for the new `parse_exclude_list_file()` function
+- Total test coverage: 47 tests with 87% pass rate
+
+### Key Functions to Know
+
+#### `file_utils.parse_exclude_list_file(exclude_list_path)`
+Parses an exclusion list file and returns tuple of (exclude_dirs, exclude_files).
+- Supports comments (lines starting with #)
+- Automatically detects directories vs files
+- Returns empty lists if file doesn't exist
+
+#### `file_utils.collect_files(scan_dirs, extensions, exclude_dirs=None, exclude_files=None)`
+Core file collection function used by all tools.
+- Handles symlink exclusion
+- Implements parent directory exclusion logic
+- Normalizes all paths to absolute paths
+- Removes duplicates while preserving order

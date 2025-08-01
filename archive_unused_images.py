@@ -6,9 +6,9 @@ Scans './modules' and './assemblies' for image files (e.g., .png, .jpg, .jpeg, .
 For full documentation and usage examples, see archive_unused_files.md in this directory.
 """
 
-import os
 import argparse
 from doc_utils.unused_images import find_unused_images
+from doc_utils.file_utils import parse_exclude_list_file
 
 def main():
     parser = argparse.ArgumentParser(description='Archive unused image files.')
@@ -23,16 +23,11 @@ def main():
 
     exclude_dirs = list(args.exclude_dir)
     exclude_files = list(args.exclude_file)
+    
     if args.exclude_list:
-        with open(args.exclude_list, 'r', encoding='utf-8') as excl:
-            for line in excl:
-                line = line.strip()
-                if not line or line.startswith('#'):
-                    continue
-                if os.path.isdir(line):
-                    exclude_dirs.append(line)
-                else:
-                    exclude_files.append(line)
+        list_dirs, list_files = parse_exclude_list_file(args.exclude_list)
+        exclude_dirs.extend(list_dirs)
+        exclude_files.extend(list_files)
 
     find_unused_images(scan_dirs, archive_dir, args.archive, exclude_dirs, exclude_files)
 

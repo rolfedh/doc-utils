@@ -1,7 +1,6 @@
 # doc_utils/file_utils.py
 
 import os
-import re
 import zipfile
 from datetime import datetime
 
@@ -47,6 +46,33 @@ def collect_files(scan_dirs, extensions, exclude_dirs=None, exclude_files=None):
                 if os.path.splitext(f)[1].lower() in extensions:
                     found_files.append(file_path)
     return list(dict.fromkeys(found_files))
+
+
+def parse_exclude_list_file(exclude_list_path):
+    """
+    Parse an exclusion list file and return lists of directories and files to exclude.
+    
+    Args:
+        exclude_list_path: Path to file containing paths to exclude (one per line)
+        
+    Returns:
+        tuple: (exclude_dirs, exclude_files) lists
+    """
+    exclude_dirs = []
+    exclude_files = []
+    
+    if exclude_list_path and os.path.exists(exclude_list_path):
+        with open(exclude_list_path, 'r', encoding='utf-8') as excl:
+            for line in excl:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                if os.path.isdir(line):
+                    exclude_dirs.append(line)
+                else:
+                    exclude_files.append(line)
+    
+    return exclude_dirs, exclude_files
 
 
 def write_manifest_and_archive(unused_files, archive_dir, manifest_prefix, archive_prefix, archive=False):

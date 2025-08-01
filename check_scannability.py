@@ -17,7 +17,7 @@ import sys
 import argparse
 from datetime import datetime
 from doc_utils.scannability import check_scannability
-from doc_utils.file_utils import collect_files
+from doc_utils.file_utils import collect_files, parse_exclude_list_file
 
 BASE_SENTENCE_WORD_LIMIT = 22
 BASE_PARAGRAPH_SENTENCE_LIMIT = 3
@@ -36,11 +36,19 @@ def main():
     parser.add_argument('-p', '--max-paragraph-sentences', type=int, default=0, help='Extra sentences allowed per paragraph (default: 0, base: 3)')
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output (show all files, even those without issues)')
     parser.add_argument('-o', '--output', action='store_true', help='Output the report to a timestamped txt file in your home directory')
+    parser.add_argument('--exclude-dir', action='append', default=[], help='Directory to exclude (can be used multiple times).')
+    parser.add_argument('--exclude-file', action='append', default=[], help='File to exclude (can be used multiple times).')
+    parser.add_argument('--exclude-list', type=str, help='Path to a file containing directories or files to exclude, one per line.')
     # Do not add -h/--help to argparse, handled manually above
     args = parser.parse_args()
 
-    exclude_dirs = []
-    exclude_files = []
+    exclude_dirs = list(args.exclude_dir)
+    exclude_files = list(args.exclude_file)
+    
+    if args.exclude_list:
+        list_dirs, list_files = parse_exclude_list_file(args.exclude_list)
+        exclude_dirs.extend(list_dirs)
+        exclude_files.extend(list_files)
     adoc_files = collect_files(['.'], {'.adoc'}, exclude_dirs, exclude_files)
     sentence_word_limit = BASE_SENTENCE_WORD_LIMIT + args.max_sentence_length
     paragraph_sentence_limit = BASE_PARAGRAPH_SENTENCE_LIMIT + args.max_paragraph_sentences

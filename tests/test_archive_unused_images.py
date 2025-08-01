@@ -1,5 +1,6 @@
 import os
 import sys
+sys.path.insert(0, os.path.dirname(__file__))
 import tempfile
 import shutil
 import pytest
@@ -16,10 +17,14 @@ def test_archive_unused_images_basic():
     with tempfile.TemporaryDirectory() as tmpdir:
         setup_test_fixture(tmpdir)
         result = run_script([], cwd=tmpdir)
-        assert 'unused1.png' in result.stdout
-        assert 'unused2.jpg' in result.stdout
-        assert 'used1.png' not in result.stdout
-        assert 'used2.jpg' not in result.stdout
+        # Check that unused images are found
+        assert 'images/unused1.png' in result.stdout
+        assert 'images/unused2.jpg' in result.stdout
+        # Check that used images are not in the output
+        # Split by lines to avoid substring matching issues
+        output_lines = result.stdout.strip().split('\n')
+        assert not any('images/used1.png' in line for line in output_lines)
+        assert not any('images/used2.jpg' in line for line in output_lines)
         # Manifest file should be created in archive
         archive_dir = os.path.join(tmpdir, 'archive')
         manifest_files = [f for f in os.listdir(archive_dir) if f.startswith('unused-images-') and f.endswith('.txt')]
