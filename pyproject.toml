@@ -23,3 +23,6 @@ find-unused-attributes = "find_unused_attributes:main"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["doc_utils*"]
+
+[tool.setuptools]
+py-modules = ["find_unused_attributes", "check_scannability", "archive_unused_files", "archive_unused_images"]

@@ -17,8 +17,26 @@ def collect_files(scan_dirs, extensions, exclude_dirs=None, exclude_files=None):
     for base_dir in scan_dirs:
         for root, dirs, files in os.walk(base_dir):
             abs_root = os.path.abspath(root)
-            # Exclude directories by absolute path
-            dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d)) and os.path.abspath(os.path.join(root, d)) not in exclude_dirs]
+            # Check if current root directory should be excluded
+            if abs_root in exclude_dirs:
+                dirs[:] = []  # Skip this directory entirely
+                continue
+            # Exclude directories by absolute path and check for any parent directory exclusions
+            new_dirs = []
+            for d in dirs:
+                dir_path = os.path.join(root, d)
+                abs_dir_path = os.path.abspath(dir_path)
+                if not os.path.islink(dir_path) and abs_dir_path not in exclude_dirs:
+                    # Also check if any parent of this directory is excluded
+                    excluded = False
+                    for exclude_dir in exclude_dirs:
+                        if abs_dir_path.startswith(exclude_dir + os.sep) or abs_dir_path == exclude_dir:
+                            excluded = True
+                            break
+                    if not excluded:
+                        new_dirs.append(d)
+            dirs[:] = new_dirs
+
             for f in files:
                 file_path = os.path.normpath(os.path.join(root, f))
                 abs_file_path = os.path.abspath(file_path)

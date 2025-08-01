@@ -10,7 +10,7 @@ import os
 import argparse
 from doc_utils.unused_images import find_unused_images
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description='Archive unused image files.')
     parser.add_argument('--archive', action='store_true', help='Move the files to a dated zip in the archive directory.')
     parser.add_argument('--exclude-dir', action='append', default=[], help='Directory to exclude (can be used multiple times).')
@@ -35,3 +35,6 @@ if __name__ == '__main__':
                     exclude_files.append(line)
 
     find_unused_images(scan_dirs, archive_dir, args.archive, exclude_dirs, exclude_files)
+
+if __name__ == '__main__':
+    main()

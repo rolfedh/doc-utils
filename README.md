@@ -9,11 +9,26 @@ A set of Python utilities and CLI tools to help technical writers maintain Ascii
 
 ## Installation
 
+### From PyPI
+
 Install the package from PyPI:
 
 ```sh
 pip install rolfedh-doc-utils
 ````
+
+### For Development
+
+If you're developing or testing locally, install the package in editable mode:
+
+```sh
+# Clone the repository
+git clone https://github.com/rolfedh/doc-utils.git
+cd doc-utils
+
+# Install in editable mode
+pip install -e .
+```
 
 The following CLI tools are installed:
 
@@ -96,6 +111,58 @@ python3 check_scannability.py
 python3 archive_unused_files.py
 python3 find_unused_attributes.py attributes.adoc
 ```
+
+### Directory/File Exclusion
+
+Most tools support excluding specific directories and files from scanning. You can use these options:
+
+1. **`--exclude-dir`** - Exclude specific directories (can be used multiple times):
+   ```sh
+   archive-unused-files --exclude-dir ./modules/temp --exclude-dir ./modules/old
+   ```
+
+2. **`--exclude-file`** - Exclude specific files (can be used multiple times):
+   ```sh
+   check-scannability --exclude-file ./README.adoc --exclude-file ./test.adoc
+   ```
+
+3. **`--exclude-list`** - Point to a text file containing exclusions:
+   ```sh
+   archive-unused-images --exclude-list .docutils-ignore
+   ```
+   
+   The exclusion file format:
+   ```
+   # Comments are supported
+   ./modules/deprecated/
+   ./assemblies/archive/
+   ./images/temp/
+   specific-file.adoc
+   ```
+
+**Note:** When you exclude a parent directory, all its subdirectories are automatically excluded. Symbolic links are never followed during scanning.
+
+## Troubleshooting
+
+### ModuleNotFoundError
+
+If you see an error like `ModuleNotFoundError: No module named 'find_unused_attributes'`, this typically means:
+
+1. The package isn't installed. Run:
+   ```sh
+   pip install rolfedh-doc-utils
+   ```
+
+2. You're trying to run the script directly without installation. Either:
+   - Install the package first (see Installation section)
+   - Run the script using Python directly:
+     ```sh
+     python3 find_unused_attributes.py attributes.adoc
+     ```
+
+### Command not found
+
+If the command isn't found after installation, ensure `$HOME/.local/bin` is in your PATH (see "Add to PATH" section above).
 
 ## License
 
