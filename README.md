@@ -35,6 +35,18 @@ pip install --user rolfedh-doc-utils
 pip install rolfedh-doc-utils
 ```
 
+### Upgrading
+
+To upgrade to the latest version:
+
+```sh
+# If installed with pipx:
+pipx upgrade rolfedh-doc-utils
+
+# If installed with pip:
+pip install --upgrade rolfedh-doc-utils  # or --user flag if needed
+```
+
 ### For Development
 
 If you're developing or testing locally, install the package in editable mode:
