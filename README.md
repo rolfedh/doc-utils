@@ -18,11 +18,22 @@ A set of Python utilities and CLI tools to help technical writers maintain Ascii
 
 ### From PyPI
 
-Install the package from PyPI:
+On modern Linux distributions, you may encounter an "externally-managed-environment" error. Use one of these methods:
 
+**Option 1: pipx (Recommended for CLI tools)**
+```sh
+pipx install rolfedh-doc-utils
+```
+
+**Option 2: pip with --user flag**
+```sh
+pip install --user rolfedh-doc-utils
+```
+
+**Option 3: Traditional pip (may require virtual environment)**
 ```sh
 pip install rolfedh-doc-utils
-````
+```
 
 ### For Development
 
@@ -179,7 +190,7 @@ If you see an error like `ModuleNotFoundError: No module named 'find_unused_attr
 
 1. The package isn't installed. Run:
    ```sh
-   pip install rolfedh-doc-utils
+   pipx install rolfedh-doc-utils  # or pip install --user rolfedh-doc-utils
    ```
 
 2. You're trying to run the script directly without installation. Either:
