@@ -7,6 +7,9 @@ from .file_utils import collect_files, write_manifest_and_archive
 IMAGE_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.gif', '.svg'}
 
 def find_unused_images(scan_dirs, archive_dir, archive=False, exclude_dirs=None, exclude_files=None):
+    # Print safety warning
+    print("\n⚠️  SAFETY: Work in a git branch! Run without --archive first to preview.\n")
+    
     image_files = collect_files(scan_dirs, IMAGE_EXTENSIONS, exclude_dirs, exclude_files)
     adoc_files = collect_files(['.'], {'.adoc'}, exclude_dirs, exclude_files)
     referenced_images = set()

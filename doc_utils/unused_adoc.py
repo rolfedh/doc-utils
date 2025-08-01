@@ -6,6 +6,9 @@ from .file_utils import collect_files, write_manifest_and_archive
 from .topic_map_parser import detect_repo_type, get_all_topic_map_references
 
 def find_unused_adoc(scan_dirs, archive_dir, archive=False, exclude_dirs=None, exclude_files=None):
+    # Print safety warning
+    print("\n⚠️  SAFETY: Work in a git branch! Run without --archive first to preview.\n")
+    
     # Detect repository type
     repo_type = detect_repo_type()
     print(f"Detected repository type: {repo_type}")
