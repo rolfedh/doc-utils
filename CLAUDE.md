@@ -22,8 +22,9 @@ doc-utils/
 │   └── test_fixture_*.py  # Test fixtures
 ├── *.py                   # CLI entry point scripts
 ├── *.md                   # Documentation for each tool
+├── setup.py              # Custom installation hooks
 ├── pyproject.toml         # Package configuration
-├── requirements-dev.txt   # Development dependencies
+├── requirements-dev.txt   # Development dependencies (pytest, PyYAML)
 ├── CHANGELOG.md          # Version history
 ├── CONTRIBUTING.md       # Contribution guidelines
 └── CLAUDE.md            # This file
@@ -85,6 +86,10 @@ pip install -e .
 pip install -r requirements-dev.txt
 ```
 
+#### Dependencies
+- **PyYAML** (>=6.0): Required for parsing topic map files in OpenShift-docs repositories
+- **pytest**: Development dependency for running tests
+
 #### Creating a New Release
 1. Update version in `pyproject.toml`
 2. Update CHANGELOG.md with release date and changes
@@ -115,6 +120,7 @@ pip install -r requirements-dev.txt
 - All tools support common exclusion options (--exclude-dir, --exclude-file, --exclude-list)
 - Exclusion list parsing is centralized in `file_utils.parse_exclude_list_file()`
 - Consistent output format across tools
+- Archive tools display safety warnings on execution
 
 ### Testing Approach
 - Unit tests for core functionality (file_utils, unused_attributes)
@@ -169,6 +175,7 @@ When contributing to this project:
 - Be cautious with file deletion operations (always require --archive flag)
 - Validate all file paths to prevent directory traversal attacks
 - Don't follow symbolic links to avoid security issues
+- Safety warnings remind users to work in git branches
 
 ## Performance Considerations
 
@@ -179,7 +186,12 @@ When contributing to this project:
 
 ## Recent Improvements (Latest Refactoring)
 
-### OpenShift-docs Support (New)
+### Safety Improvements (Latest)
+1. **Installation Safety Message**: Custom setup.py displays safety reminders after installation
+2. **Runtime Warnings**: Archive tools show concise safety warning when executed
+3. **Warning Message**: "⚠️  SAFETY: Work in a git branch! Run without --archive first to preview."
+
+### OpenShift-docs Support (v0.1.3)
 1. **Topic Map Support**: Added ability to parse OpenShift-docs style repositories
    - New `topic_map_parser.py` module for YAML parsing
    - Automatic detection of repository type
