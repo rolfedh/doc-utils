@@ -12,6 +12,7 @@ doc-utils/
 │   ├── __init__.py
 │   ├── file_utils.py       # File operations and exclusion handling
 │   ├── scannability.py     # Document readability checks
+│   ├── topic_map_parser.py # Parse OpenShift-docs topic maps
 │   ├── unused_adoc.py      # Find unused AsciiDoc files
 │   ├── unused_attributes.py # Find unused attributes
 │   └── unused_images.py    # Find unused images
@@ -41,8 +42,9 @@ doc-utils/
 ### Core Modules
 
 - `doc_utils/file_utils.py` - Core file scanning, archiving, and exclusion list parsing
+- `doc_utils/topic_map_parser.py` - Parse OpenShift-docs style topic map YAML files
 - `doc_utils/unused_attributes.py` - Logic for finding unused AsciiDoc attributes
-- `doc_utils/unused_adoc.py` - Logic for finding unused AsciiDoc files
+- `doc_utils/unused_adoc.py` - Logic for finding unused AsciiDoc files (supports both topic maps and master.adoc)
 - `doc_utils/unused_images.py` - Logic for finding unused images
 - `doc_utils/scannability.py` - Document readability analysis
 
@@ -58,7 +60,7 @@ doc-utils/
 - Run tests with: `python -m pytest tests/`
 - Ensure new features have corresponding tests
 - Test coverage focuses on core functionality and CLI entry points
-- Current test suite: 47 tests total (100% pass rate)
+- Current test suite: 56 tests total (100% pass rate)
 - Test fixtures are located in `tests/` directory
 - Tests use pytest framework with fixtures for temporary directories
 
@@ -94,6 +96,12 @@ pip install -r requirements-dev.txt
 8. The GitHub Action will automatically publish to PyPI
 
 ## Architecture Decisions
+
+### Repository Type Detection
+- Automatically detects repository style (OpenShift-docs vs traditional)
+- OpenShift-docs: Looks for `_topic_maps/*.yml` files
+- Traditional: Looks for `master.adoc` files
+- Falls back to scanning `include::` directives in all cases
 
 ### File Scanning Strategy
 - Uses `os.walk()` for recursive directory traversal
@@ -171,6 +179,16 @@ When contributing to this project:
 
 ## Recent Improvements (Latest Refactoring)
 
+### OpenShift-docs Support (New)
+1. **Topic Map Support**: Added ability to parse OpenShift-docs style repositories
+   - New `topic_map_parser.py` module for YAML parsing
+   - Automatic detection of repository type
+   - Supports nested topic structures
+2. **Dual Repository Support**: `archive-unused-files` now works with both:
+   - OpenShift-docs style (uses `_topic_maps/*.yml`)
+   - Traditional AsciiDoc (uses `master.adoc` files)
+3. **Backward Compatibility**: Existing functionality preserved for traditional repos
+
 ### Code Quality Improvements
 1. **Eliminated Code Duplication**: Created `parse_exclude_list_file()` to centralize exclusion parsing logic
 2. **Removed Dead Code**: 
@@ -184,8 +202,9 @@ When contributing to this project:
 - Added comprehensive tests for `file_utils.py` functions (14 tests)
 - Added tests for CLI entry points (15 tests)
 - Added tests for the new `parse_exclude_list_file()` function
+- Added tests for topic map parsing (9 tests)
 - Fixed all failing tests related to substring matching and output expectations
-- Total test coverage: 47 tests with 100% pass rate
+- Total test coverage: 56 tests with 100% pass rate
 
 ### Key Functions to Know
 
@@ -201,3 +220,15 @@ Core file collection function used by all tools.
 - Implements parent directory exclusion logic
 - Normalizes all paths to absolute paths
 - Removes duplicates while preserving order
+
+#### `topic_map_parser.detect_repo_type(base_path='.')`
+Detects repository type (OpenShift-docs vs traditional).
+- Returns 'topic_map', 'master_adoc', or 'unknown'
+- Checks for `_topic_maps/*.yml` files
+- Falls back to checking for `master.adoc` files
+
+#### `topic_map_parser.get_all_topic_map_references(base_path='.')`
+Extracts all .adoc file references from topic map YAML files.
+- Parses all .yml files in `_topic_maps/` directory
+- Handles nested topic structures
+- Returns set of all referenced file paths
