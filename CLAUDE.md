@@ -4,6 +4,31 @@
 
 doc-utils is a collection of Python utilities and CLI tools designed to help technical writers maintain AsciiDoc documentation repositories. The tools help identify unused content, check document readability, and maintain clean documentation projects.
 
+## Project Structure
+
+```
+doc-utils/
+├── doc_utils/              # Core library modules
+│   ├── __init__.py
+│   ├── file_utils.py       # File operations and exclusion handling
+│   ├── scannability.py     # Document readability checks
+│   ├── unused_adoc.py      # Find unused AsciiDoc files
+│   ├── unused_attributes.py # Find unused attributes
+│   └── unused_images.py    # Find unused images
+├── tests/                  # Test suite
+│   ├── __init__.py
+│   ├── test_*.py          # Test files
+│   └── test_fixture_*.py  # Test fixtures
+├── *.py                   # CLI entry point scripts
+├── *.md                   # Documentation for each tool
+├── pyproject.toml         # Package configuration
+├── requirements-dev.txt   # Development dependencies
+├── CHANGELOG.md          # Version history
+├── CONTRIBUTING.md       # Contribution guidelines
+└── CLAUDE.md            # This file
+
+```
+
 ## Key Components
 
 ### CLI Tools
@@ -33,8 +58,9 @@ doc-utils is a collection of Python utilities and CLI tools designed to help tec
 - Run tests with: `python -m pytest tests/`
 - Ensure new features have corresponding tests
 - Test coverage focuses on core functionality and CLI entry points
-- Current test suite: 47 tests total (87% pass rate)
+- Current test suite: 47 tests total (100% pass rate)
 - Test fixtures are located in `tests/` directory
+- Tests use pytest framework with fixtures for temporary directories
 
 ### Common Tasks
 
@@ -59,9 +85,13 @@ pip install -r requirements-dev.txt
 
 #### Creating a New Release
 1. Update version in `pyproject.toml`
-2. Create a git tag: `git tag v0.1.2`
-3. Push tags: `git push origin --tags`
-4. The GitHub Action will automatically publish to PyPI
+2. Update CHANGELOG.md with release date and changes
+3. Run full test suite: `python -m pytest tests/`
+4. Commit changes: `git commit -am "Prepare release vX.Y.Z"`
+5. Create a git tag: `git tag vX.Y.Z`
+6. Push commits and tags: `git push origin main --tags`
+7. Create GitHub release with release notes
+8. The GitHub Action will automatically publish to PyPI
 
 ## Architecture Decisions
 
@@ -89,7 +119,6 @@ pip install -r requirements-dev.txt
 1. **Fixed Scan Directories**: Most tools have hardcoded scan paths (e.g., `./modules`, `./assemblies`)
 2. **Current Directory Execution**: Tools must be run from the documentation project root
 3. **AsciiDoc Parsing**: Simple regex-based parsing may miss complex attribute usage
-4. **Test Failures**: Some CLI integration tests have format expectation issues (6 tests currently failing)
 
 ## Future Enhancements to Consider
 
@@ -155,7 +184,8 @@ When contributing to this project:
 - Added comprehensive tests for `file_utils.py` functions (14 tests)
 - Added tests for CLI entry points (15 tests)
 - Added tests for the new `parse_exclude_list_file()` function
-- Total test coverage: 47 tests with 87% pass rate
+- Fixed all failing tests related to substring matching and output expectations
+- Total test coverage: 47 tests with 100% pass rate
 
 ### Key Functions to Know
 

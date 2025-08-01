@@ -2,6 +2,13 @@
 
 A set of Python utilities and CLI tools to help technical writers maintain AsciiDoc documentation repositories.
 
+> ⚠️ **IMPORTANT: Safety First**
+>
+> These tools can modify or delete files in your documentation repository. Always:
+> - **Work in a git branch** - Never run these tools on the main/master branch
+> - **Review all changes carefully** - Use `git diff` or a pull request to verify modifications
+> - **Check your preview builds** - Ensure no documentation errors were introduced
+
 ## Resources
 
 - [PyPI: rolfedh-doc-utils](https://pypi.org/project/rolfedh-doc-utils/)
@@ -61,18 +68,19 @@ source ~/.bashrc   # or ~/.zshrc
 
 ## CLI Tools Overview
 
-### `check_scannability.py`
+### `check-scannability`
 
 Scans `.adoc` files in the current directory to report:
 
-* Sentences that exceed a length limit
-* Paragraphs with too many sentences
+* Sentences that exceed a length limit (default: 22 words)
+* Paragraphs with too many sentences (default: 3 sentences)
+* Supports exclusion of files and directories
 
 ➡️ See [`check_scannability.md`](https://github.com/rolfedh/doc-utils/blob/main/check_scannability.md) for details.
 
 ---
 
-### `archive_unused_files.py`
+### `archive-unused-files`
 
 Scans the `./modules` and `./assemblies` directories for `.adoc` files that are not referenced. Optionally archives and deletes them.
 
@@ -80,19 +88,40 @@ Scans the `./modules` and `./assemblies` directories for `.adoc` files that are 
 
 ---
 
-### `archive_unused_images.py`
+### `archive-unused-images`
 
-Finds unused image files (e.g., `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`) and optionally archives and deletes them.
+Finds unused image files (e.g., `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`) in the current directory and optionally archives and deletes them.
 
 ➡️ See [`archive_unused_images.md`](https://github.com/rolfedh/doc-utils/blob/main/archive_unused_images.md).
 
 ---
 
-### `find_unused_attributes.py`
+### `find-unused-attributes`
 
-Scans an attributes file (e.g., `attributes.adoc`) for unused attribute definitions across all `.adoc` files.
+Scans an attributes file (e.g., `attributes.adoc`) for unused attribute definitions across all `.adoc` files in the current directory.
 
 ➡️ See [`find_unused_attributes.md`](https://github.com/rolfedh/doc-utils/blob/main/find_unused_attributes.md).
+
+## Best Practices for Safe Usage
+
+### Before Running Any Tool:
+
+- **Create a feature branch:**
+   ```sh
+   git checkout -b doc-cleanup-$(date +%Y%m%d)
+   ```
+
+- **Commit any pending changes:**
+   ```sh
+   git add -A && git commit -m "Save work before cleanup"
+   ```
+
+- **Run tools in preview mode first:**
+   - For archive tools: Run without `--archive` to see what would be affected
+
+- **Review all changes and preview builds**
+
+- **Only merge after verification:**
 
 ## Usage
 
@@ -114,7 +143,7 @@ python3 find_unused_attributes.py attributes.adoc
 
 ### Directory/File Exclusion
 
-Most tools support excluding specific directories and files from scanning. You can use these options:
+All tools support excluding specific directories and files from scanning. You can use these options:
 
 1. **`--exclude-dir`** - Exclude specific directories (can be used multiple times):
    ```sh
@@ -130,7 +159,7 @@ Most tools support excluding specific directories and files from scanning. You c
    ```sh
    archive-unused-images --exclude-list .docutils-ignore
    ```
-   
+
    The exclusion file format:
    ```
    # Comments are supported
@@ -163,6 +192,33 @@ If you see an error like `ModuleNotFoundError: No module named 'find_unused_attr
 ### Command not found
 
 If the command isn't found after installation, ensure `$HOME/.local/bin` is in your PATH (see "Add to PATH" section above).
+
+## Development
+
+### Running Tests
+
+The project includes a comprehensive test suite. To run tests:
+
+```sh
+# Install development dependencies
+pip install -r requirements-dev.txt
+
+# Run all tests
+python -m pytest tests/
+
+# Run with verbose output
+python -m pytest tests/ -v
+```
+
+### Contributing
+
+Contributions are welcome! Please ensure:
+- All tests pass before submitting a PR
+- New features include appropriate tests
+- Code follows PEP 8 style guidelines
+- Documentation is updated as needed
+
+See [CONTRIBUTING.md](https://github.com/rolfedh/doc-utils/blob/main/CONTRIBUTING.md) for more details.
 
 ## License
 

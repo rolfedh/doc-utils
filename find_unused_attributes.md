@@ -1,5 +1,14 @@
 # Find Unused AsciiDoc Attributes
 
+> ⚠️ **IMPORTANT: Work in a Git Branch**
+>
+> While this tool only reports unused attributes and doesn't modify files, when cleaning up attributes:
+> 1. **Create a git branch first**: `git checkout -b cleanup-attributes`
+> 2. **Review the report carefully** - some attributes may be used in conditional includes
+> 3. **Search for each attribute** before removing it from your attributes file
+> 4. **Test your documentation build** after removing attributes
+> 5. **Check preview builds** to ensure no broken attribute references
+
 This tool scans a user-specified attributes file (typically named `attributes.adoc`) for attribute definitions (e.g., `:version: 1.1`). It then recursively scans all `.adoc` files in the current directory (ignoring symlinks) for usages of those attributes (e.g., `{version}`).
 
 Any attribute defined in the attributes file but not used in any `.adoc` file is reported as **NOT USED** in both the command line output and a timestamped output file (if requested).
@@ -49,6 +58,7 @@ If you use `-o`, a file like `~/unused_attributes_20250611123456.txt` will be cr
 - Symlinks are ignored.
 - Attribute names are matched as `{name}` in `.adoc` files.
 - The script does not modify any files.
+- This tool does not currently support file/directory exclusions.
 
 ---
 

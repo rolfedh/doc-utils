@@ -1,6 +1,15 @@
 # Archive Unused Images
 
-This tool scans all directories for image files (e.g., `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`) not referenced by any AsciiDoc file in the project. Optionally archives and deletes them.
+> ⚠️ **WARNING: This Tool Can Delete Files**
+> 
+> **ALWAYS:**
+> 1. **Create a git branch first**: `git checkout -b cleanup-unused-images`
+> 2. **Run without `--archive` first** to preview what will be affected
+> 3. **Review the list carefully** - ensure no images are incorrectly marked as unused
+> 4. **Check your documentation build** after archiving to ensure no broken image links
+> 5. **Keep the archive files** until you're certain the removal was correct
+
+This tool scans the current directory and all subdirectories for image files (e.g., `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`) not referenced by any AsciiDoc file in the project. Optionally archives and deletes them.
 
 ## Installation
 
@@ -31,13 +40,27 @@ See the script's `--help` output or the docstring for all options. Common option
 - `--exclude-file` — File to exclude (can be used multiple times).
 - `--exclude-list` — Path to a file containing directories or files to exclude, one per line.
 
-## Example
+## Examples
 
+Archive unused images while excluding a directory:
 ```sh
 archive-unused-images --archive --exclude-dir ./images/legacy
 ```
 
-This will archive all unused images, excluding those in `./images/legacy`.
+Dry run (see what would be archived without actually archiving):
+```sh
+archive-unused-images
+```
+
+Exclude multiple directories and files:
+```sh
+archive-unused-images --archive --exclude-dir ./images/icons --exclude-dir ./images/logos --exclude-file ./images/placeholder.png
+```
+
+Use an exclusion list file:
+```sh
+archive-unused-images --archive --exclude-list .docutils-ignore
+```
 
 ## Output
 

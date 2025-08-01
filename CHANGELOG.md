@@ -1,0 +1,40 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- Comprehensive test coverage for core functionality
+  - Added 14 tests for `file_utils.py` covering file collection and archiving
+  - Added 15 tests for CLI entry points
+  - Added 3 tests for exclusion list parsing
+  - Total test coverage increased to 47 tests with 100% pass rate
+- New `parse_exclude_list_file()` function in `file_utils.py` for centralized exclusion list parsing
+- Exclusion support (--exclude-dir, --exclude-file, --exclude-list) added to `check-scannability` tool
+- `CLAUDE.md` file for AI assistant context and development guidelines
+
+### Changed
+- Refactored exclusion list parsing to eliminate code duplication across CLI tools
+- Improved module import handling with `py-modules` configuration in `pyproject.toml`
+- Moved test fixtures from root directory to `tests/` directory for better organization
+- Updated README.md with:
+  - Development installation instructions
+  - Comprehensive troubleshooting section for ModuleNotFoundError
+  - Directory/file exclusion documentation
+
+### Fixed
+- Fixed ModuleNotFoundError when running CLI commands without proper installation
+- Fixed substring matching issues in tests that were causing false failures
+- Corrected test expectations for check-scannability output behavior
+
+### Removed
+- Removed unused `re` import from `file_utils.py`
+- Removed legacy test runner files (`test_run_*.py`)
+- Removed obsolete `fixtures-README-legacy.txt`
+
+## [0.1.1] - Previous release
+- Initial release with basic functionality
