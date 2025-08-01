@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Support for OpenShift-docs style repositories that use topic maps instead of master.adoc files
+- New `topic_map_parser.py` module for parsing `_topic_maps/*.yml` files
+- Automatic repository type detection (topic maps vs traditional master.adoc)
+- PyYAML dependency for parsing topic map YAML files
+
+### Changed
+- `archive-unused-files` tool now works with both OpenShift-docs and traditional AsciiDoc repositories
+- Updated documentation to explain dual repository type support
+
 ## [0.1.2] - 2025-08-01
 
 ### Added

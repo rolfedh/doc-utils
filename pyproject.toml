@@ -12,7 +12,7 @@ license = { file = "LICENSE" }
 authors = [
   { name="Rolfe Dlugy-Hegwer" }
 ]
-dependencies = []
+dependencies = ["PyYAML>=6.0"]
 
 [project.scripts]
 check-scannability = "check_scannability:main"

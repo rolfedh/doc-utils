@@ -88,7 +88,7 @@ pip install -r requirements-dev.txt
 2. Update CHANGELOG.md with release date and changes
 3. Run full test suite: `python -m pytest tests/`
 4. Commit changes: `git commit -am "Prepare release vX.Y.Z"`
-5. Create a git tag: `git tag vX.Y.Z`
+5. Create an annotated git tag: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`
 6. Push commits and tags: `git push origin main --tags`
 7. Create GitHub release with release notes
 8. The GitHub Action will automatically publish to PyPI

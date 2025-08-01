@@ -107,6 +107,10 @@ Scans `.adoc` files in the current directory to report:
 
 Scans the `./modules` and `./assemblies` directories for `.adoc` files that are not referenced. Optionally archives and deletes them.
 
+Works with both:
+- **OpenShift-docs style** repositories (uses `_topic_maps/*.yml` files)
+- **Traditional AsciiDoc** repositories (uses `master.adoc` files)
+
 ➡️ See [`archive_unused_files.md`](https://github.com/rolfedh/doc-utils/blob/main/archive_unused_files.md).
 
 ---

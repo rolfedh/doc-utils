@@ -11,6 +11,11 @@
 
 This tool scans `./modules`, `./modules/rn`, and `./assemblies` directories for AsciiDoc files not referenced by any other AsciiDoc file in the project. Optionally archives and deletes them.
 
+The tool automatically detects your repository type:
+- **OpenShift-docs style**: Uses `_topic_maps/*.yml` files to determine file references
+- **Traditional AsciiDoc**: Looks for `master.adoc` files and `include::` directives
+- **Both**: The tool always scans for `include::` directives in addition to topic maps
+
 ## Installation
 
 After installing the package from PyPI:
