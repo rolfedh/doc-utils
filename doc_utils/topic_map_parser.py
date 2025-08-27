@@ -22,8 +22,16 @@ def detect_repo_type(base_path='.'):
         if yml_files:
             return 'topic_map'
     
-    # Check for master.adoc files
-    master_files = glob.glob(os.path.join(base_path, '**/master.adoc'), recursive=True)
+    # Check for master.adoc files using os.walk to avoid symlink issues
+    master_files = []
+    for root, dirs, files in os.walk(base_path):
+        # Skip symbolic link directories to prevent infinite recursion
+        dirs[:] = [d for d in dirs if not os.path.islink(os.path.join(root, d))]
+        
+        # Check for master.adoc in this directory
+        if 'master.adoc' in files:
+            master_files.append(os.path.join(root, 'master.adoc'))
+            
     if master_files:
         return 'master_adoc'
     

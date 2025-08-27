@@ -1,4 +1,6 @@
-# CLAUDE.md - AI Assistant Context for doc-utils
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
@@ -49,6 +51,53 @@ doc-utils/
 - `doc_utils/unused_images.py` - Logic for finding unused images
 - `doc_utils/scannability.py` - Document readability analysis
 
+## Common Development Commands
+
+### Installing for Development
+```bash
+# Clone and install in editable mode
+git clone https://github.com/rolfedh/doc-utils.git
+cd doc-utils
+pip install -e .
+pip install -r requirements-dev.txt
+```
+
+### Running Tests
+```bash
+# Run all tests
+python -m pytest tests/
+
+# Run with verbose output  
+python -m pytest tests/ -v
+
+# Run specific test file
+python -m pytest tests/test_file_utils.py
+```
+
+### Linting and Type Checking
+```bash
+# If ruff is available
+ruff check .
+
+# If mypy is configured
+mypy doc_utils/
+```
+
+### Building Package
+```bash
+# Build distribution packages
+python -m build
+```
+
+### Creating a New Release
+1. Update version in `pyproject.toml`
+2. Update CHANGELOG.md with release date and changes
+3. Run full test suite: `python -m pytest tests/`
+4. Commit changes: `git commit -am "Prepare release vX.Y.Z"`
+5. Create an annotated git tag: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`
+6. Push commits and tags: `git push origin main --tags`
+7. GitHub Action automatically publishes to PyPI (via `.github/workflows/pypi-publish.yml`)
+
 ## Development Guidelines
 
 ### Code Style
@@ -58,47 +107,15 @@ doc-utils/
 - Add docstrings to all public functions
 
 ### Testing
-- Run tests with: `python -m pytest tests/`
 - Ensure new features have corresponding tests
 - Test coverage focuses on core functionality and CLI entry points
 - Current test suite: 56 tests total (100% pass rate)
 - Test fixtures are located in `tests/` directory
 - Tests use pytest framework with fixtures for temporary directories
 
-### Common Tasks
-
-#### Running Linting and Type Checking
-The project uses standard Python linting tools. Run these commands to check code quality:
-```bash
-# If ruff is available
-ruff check .
-
-# If mypy is configured
-mypy doc_utils/
-```
-
-#### Installing for Development
-```bash
-# Clone and install in editable mode
-git clone https://github.com/rolfedh/doc-utils.git
-cd doc-utils
-pip install -e .
-pip install -r requirements-dev.txt
-```
-
-#### Dependencies
+### Dependencies
 - **PyYAML** (>=6.0): Required for parsing topic map files in OpenShift-docs repositories
 - **pytest**: Development dependency for running tests
-
-#### Creating a New Release
-1. Update version in `pyproject.toml`
-2. Update CHANGELOG.md with release date and changes
-3. Run full test suite: `python -m pytest tests/`
-4. Commit changes: `git commit -am "Prepare release vX.Y.Z"`
-5. Create an annotated git tag: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`
-6. Push commits and tags: `git push origin main --tags`
-7. Create GitHub release with release notes
-8. The GitHub Action will automatically publish to PyPI
 
 ## Architecture Decisions
 

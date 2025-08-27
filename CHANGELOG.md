@@ -7,9 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2025-08-27
+
 ### Added
 - Safety warnings displayed when running archive utilities
 - Post-installation message reminding users about safety practices
+- Comprehensive tests for symlink handling
+
+### Fixed
+- Fixed infinite loop/freeze when `archive-unused-files` encounters circular symbolic links
+  - Replaced recursive glob with os.walk that explicitly skips symlink directories
+  - Prevents freezing when repositories contain circular symlinks (e.g., in .archive directories)
 
 ## [0.1.3] - 2025-08-01
 
