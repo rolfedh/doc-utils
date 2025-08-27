@@ -90,13 +90,61 @@ python -m build
 ```
 
 ### Creating a New Release
-1. Update version in `pyproject.toml`
-2. Update CHANGELOG.md with release date and changes
-3. Run full test suite: `python -m pytest tests/`
-4. Commit changes: `git commit -am "Prepare release vX.Y.Z"`
-5. Create an annotated git tag: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`
-6. Push commits and tags: `git push origin main --tags`
-7. GitHub Action automatically publishes to PyPI (via `.github/workflows/pypi-publish.yml`)
+
+Follow these exact steps to release a new version:
+
+1. **Update version in `pyproject.toml`**
+   ```bash
+   # Edit pyproject.toml and change version = "X.Y.Z" to new version
+   ```
+
+2. **Update CHANGELOG.md**
+   ```bash
+   # Move items from [Unreleased] to new version section with date
+   # Format: ## [X.Y.Z] - YYYY-MM-DD
+   ```
+
+3. **Run full test suite**
+   ```bash
+   python -m pytest tests/ -v --tb=short
+   # Verify all tests pass (should show "XX passed")
+   ```
+
+4. **Stage and commit changes**
+   ```bash
+   git add -A
+   git status  # Verify only pyproject.toml and CHANGELOG.md are changed
+   git commit -am "Prepare release vX.Y.Z"
+   ```
+
+5. **Create annotated tag**
+   ```bash
+   git tag -a vX.Y.Z -m "Release vX.Y.Z: Brief description of main changes"
+   ```
+
+6. **Push to GitHub**
+   ```bash
+   git push origin main --tags
+   ```
+
+7. **Automatic PyPI Publishing**
+   - GitHub Action automatically publishes to PyPI (via `.github/workflows/pypi-publish.yml`)
+   - Monitor progress at: https://github.com/rolfedh/doc-utils/actions
+   - Package will be available at: https://pypi.org/project/rolfedh-doc-utils/
+
+**Example for releasing v0.1.5:**
+```bash
+# 1. Update pyproject.toml: version = "0.1.5"
+# 2. Update CHANGELOG.md: Move unreleased items to ## [0.1.5] - 2025-08-27
+# 3. Test
+python -m pytest tests/ -v --tb=short
+# 4. Commit
+git add -A && git commit -am "Prepare release v0.1.5"
+# 5. Tag
+git tag -a v0.1.5 -m "Release v0.1.5: Automatic directory discovery"
+# 6. Push
+git push origin main --tags
+```
 
 ## Development Guidelines
 
@@ -109,7 +157,7 @@ python -m build
 ### Testing
 - Ensure new features have corresponding tests
 - Test coverage focuses on core functionality and CLI entry points
-- Current test suite: 56 tests total (100% pass rate)
+- Current test suite: 66+ tests total (100% pass rate)
 - Test fixtures are located in `tests/` directory
 - Tests use pytest framework with fixtures for temporary directories
 
@@ -147,17 +195,17 @@ python -m build
 
 ## Known Issues and Limitations
 
-1. **Fixed Scan Directories**: Most tools have hardcoded scan paths (e.g., `./modules`, `./assemblies`)
+1. ~~**Fixed Scan Directories**: Most tools have hardcoded scan paths~~ ✅ Fixed in v0.1.5 with auto-discovery
 2. **Current Directory Execution**: Tools must be run from the documentation project root
 3. **AsciiDoc Parsing**: Simple regex-based parsing may miss complex attribute usage
 
 ## Future Enhancements to Consider
 
-1. **Configurable Scan Paths**: Allow users to specify which directories to scan
+1. ~~**Configurable Scan Paths**: Allow users to specify which directories to scan~~ ✅ Implemented in v0.1.5
 2. **Configuration File**: Support `.docutils.yml` for project-specific settings
 3. **Performance Optimization**: Parallel file scanning for large repositories
 4. **Extended Format Support**: Support for Markdown or other documentation formats
-5. **Dry Run Mode**: Show what would be changed without making modifications
+5. **Dry Run Mode**: Show what would be changed without making modifications (partially implemented - archive tools preview by default)
 
 ## Debugging Tips
 
@@ -203,7 +251,20 @@ When contributing to this project:
 
 ## Recent Improvements (Latest Refactoring)
 
-### Safety Improvements (Latest)
+### Automatic Directory Discovery (v0.1.5)
+1. **Auto-discovery of scan directories**: `archive-unused-files` now automatically finds all `modules` and `assemblies` directories
+   - No longer requires hardcoded paths at repository root
+   - Works with any repository structure (nested, multiple locations)
+   - New `find_scan_directories()` function in `unused_adoc.py`
+2. **New `--scan-dir` option**: Override auto-discovery with specific directories
+3. **Transparent output**: Shows discovered directories for user visibility
+
+### Symlink Handling Fix (v0.1.4)
+1. **Fixed infinite loop**: Replaced recursive glob with os.walk that skips symlinks
+2. **Prevents freezing**: Handles circular symbolic links in `.archive` directories
+3. **Added tests**: Comprehensive symlink handling test coverage
+
+### Safety Improvements
 1. **Installation Safety Message**: Custom setup.py displays safety reminders after installation
 2. **Runtime Warnings**: Archive tools show concise safety warning when executed
 3. **Warning Message**: "⚠️  SAFETY: Work in a git branch! Run without --archive first to preview."
