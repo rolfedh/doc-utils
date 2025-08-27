@@ -9,7 +9,12 @@
 > 4. **Check your documentation build** after archiving to ensure nothing broke
 > 5. **Keep the archive files** until you're certain the removal was correct
 
-This tool scans `./modules`, `./modules/rn`, and `./assemblies` directories for AsciiDoc files not referenced by any other AsciiDoc file in the project. Optionally archives and deletes them.
+This tool automatically discovers and scans all `modules` and `assemblies` directories in your repository for AsciiDoc files not referenced by any other AsciiDoc file in the project. Optionally archives and deletes them.
+
+**Auto-Discovery**: The tool recursively searches for all directories named `modules` or `assemblies` that contain `.adoc` files, regardless of their location in your repository structure. This works with:
+- Standard structures (`./modules`, `./assemblies`)
+- Nested structures (`./downstream/modules`, `./content/assemblies`)
+- Multiple module directories in different locations
 
 The tool automatically detects your repository type:
 - **OpenShift-docs style**: Uses `_topic_maps/*.yml` files to determine file references
@@ -41,20 +46,41 @@ python3 archive_unused_files.py [options]
 See the script's `--help` output or the docstring for all options. Common options include:
 
 - `--archive` — Move the files to a dated zip in the archive directory.
+- `--scan-dir` — Specify a specific directory to scan (can be used multiple times). If not specified, auto-discovers all modules and assemblies directories.
 - `--exclude-dir` — Directory to exclude (can be used multiple times).
 - `--exclude-file` — File to exclude (can be used multiple times).
 - `--exclude-list` — Path to a file containing directories or files to exclude, one per line.
 
 ## Examples
 
-Archive unused files while excluding a directory:
-```sh
-archive-unused-files --archive --exclude-dir ./modules/legacy
-```
+### Basic Usage (Auto-Discovery)
 
-Dry run (see what would be archived without actually archiving):
+Preview what would be archived (dry run):
 ```sh
 archive-unused-files
+# Automatically discovers all modules and assemblies directories
+# Shows: Auto-discovered directories to scan:
+#        - ./downstream/modules
+#        - ./downstream/assemblies
+```
+
+Archive unused files:
+```sh
+archive-unused-files --archive
+```
+
+### Specifying Directories
+
+Scan specific directories only:
+```sh
+archive-unused-files --scan-dir ./content/modules --scan-dir ./content/assemblies
+```
+
+### Exclusions
+
+Exclude specific directories:
+```sh
+archive-unused-files --archive --exclude-dir ./modules/legacy --exclude-dir ./modules/wip
 ```
 
 Use an exclusion list file:

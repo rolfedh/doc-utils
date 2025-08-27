@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Automatic directory discovery for `archive-unused-files` tool
+  - Recursively finds all `modules` and `assemblies` directories containing `.adoc` files
+  - Works with any repository structure (nested, multiple locations, etc.)
+  - New `--scan-dir` option to override auto-discovery with specific directories
+  - Shows discovered directories in output for transparency
+
+### Changed
+- `archive-unused-files` no longer requires hardcoded directory paths
+  - Previously required `./modules` and `./assemblies` at root level
+  - Now works from any repository root regardless of structure
+  - Backwards compatible: `--scan-dir` option allows specifying custom paths
+
 ## [0.1.4] - 2025-08-27
 
 ### Added
