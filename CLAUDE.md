@@ -127,10 +127,14 @@ Follow these exact steps to release a new version:
    git push origin main --tags
    ```
 
-7. **Automatic PyPI Publishing**
-   - GitHub Action automatically publishes to PyPI (via `.github/workflows/pypi-publish.yml`)
+7. **Automatic Publishing**
+   - GitHub Action automatically:
+     - Publishes package to PyPI
+     - Creates GitHub Release with release notes from CHANGELOG.md
+     - Attaches built distribution files to the release
    - Monitor progress at: https://github.com/rolfedh/doc-utils/actions
    - Package will be available at: https://pypi.org/project/rolfedh-doc-utils/
+   - GitHub Release will appear at: https://github.com/rolfedh/doc-utils/releases
 
 **Example for releasing v0.1.5:**
 ```bash
