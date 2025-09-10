@@ -41,6 +41,7 @@ doc-utils/
 2. **check-scannability** - Analyzes document readability by checking sentence/paragraph length
 3. **archive-unused-files** - Finds and optionally archives unreferenced AsciiDoc files
 4. **archive-unused-images** - Finds and optionally archives unreferenced image files
+5. **format-asciidoc-spacing** - Standardizes AsciiDoc formatting (blank lines after headings and around includes)
 
 ### Core Modules
 
@@ -205,11 +206,39 @@ git push origin main --tags
 
 ## Future Enhancements to Consider
 
+### General Improvements
 1. ~~**Configurable Scan Paths**: Allow users to specify which directories to scan~~ ✅ Implemented in v0.1.5
 2. **Configuration File**: Support `.docutils.yml` for project-specific settings
 3. **Performance Optimization**: Parallel file scanning for large repositories
 4. **Extended Format Support**: Support for Markdown or other documentation formats
 5. **Dry Run Mode**: Show what would be changed without making modifications (partially implemented - archive tools preview by default)
+
+### format-asciidoc-spacing Specific Improvements
+1. **Add Comprehensive Tests**
+   - Create `tests/test_format_asciidoc_spacing.py` with unit tests
+   - Test heading spacing logic
+   - Test include directive spacing
+   - Test edge cases (empty files, consecutive headings, etc.)
+
+2. **Add Exclusion Options** (for consistency with other tools)
+   - Add `--exclude-dir`, `--exclude-file`, `--exclude-list` options
+   - Integrate with existing `file_utils.parse_exclude_list_file()` function
+
+3. **Enhanced Features**
+   - **Backup option**: Create `.bak` files before modifying
+   - **Report mode**: Generate a summary report of changes made
+   - **Config file support**: Allow `.formatrc` or similar for default settings
+   - **Exit codes**: Return non-zero if changes were needed (useful for CI/CD)
+   - **Progress bar**: Show progress for large file sets
+
+4. **Safety Improvements**
+   - Add confirmation prompt when not in dry-run mode
+   - Check if running in a git repository and warn if uncommitted changes exist
+   - Integrate with existing safety warning system
+
+5. **Performance Optimization**
+   - Parallel processing of files for large repositories
+   - Compile regex patterns once and reuse them
 
 ## Debugging Tips
 
@@ -254,6 +283,16 @@ When contributing to this project:
 - Regular expressions should be compiled once and reused
 
 ## Recent Improvements (Latest Refactoring)
+
+### New AsciiDoc Spacing Formatter (Unreleased)
+1. **New CLI Tool**: `format-asciidoc-spacing` for standardizing AsciiDoc formatting
+   - Automatically adds blank lines after headings (=, ==, ===, etc.)
+   - Adds blank lines around include:: directives
+   - Supports dry-run mode to preview changes
+   - Verbose mode for detailed change tracking
+   - Processes single files or entire directories recursively
+2. **Python Implementation**: Written in Python with no external dependencies
+3. **Integration**: Fully integrated with package installation via pyproject.toml
 
 ### Automatic Directory Discovery (v0.1.5)
 1. **Auto-discovery of scan directories**: `archive-unused-files` now automatically finds all `modules` and `assemblies` directories

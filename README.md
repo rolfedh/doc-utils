@@ -100,7 +100,7 @@ Scans `.adoc` files in the current directory to report:
 * Paragraphs with too many sentences (default: 3 sentences)
 * Supports exclusion of files and directories
 
-➡️ See [`check_scannability.md`](https://github.com/rolfedh/doc-utils/blob/main/check_scannability.md) for details.
+➡️ See [Scannability Checker for AsciiDoc Files](https://github.com/rolfedh/doc-utils/blob/main/check_scannability.md) for details.
 
 ---
 
@@ -112,7 +112,7 @@ Works with both:
 - **OpenShift-docs style** repositories (uses `_topic_maps/*.yml` files)
 - **Traditional AsciiDoc** repositories (uses `master.adoc` files)
 
-➡️ See [`archive_unused_files.md`](https://github.com/rolfedh/doc-utils/blob/main/archive_unused_files.md).
+➡️ See [Archive Unused AsciiDoc Files](https://github.com/rolfedh/doc-utils/blob/main/archive_unused_files.md).
 
 ---
 
@@ -120,7 +120,7 @@ Works with both:
 
 Finds unused image files (e.g., `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`) in the current directory and optionally archives and deletes them.
 
-➡️ See [`archive_unused_images.md`](https://github.com/rolfedh/doc-utils/blob/main/archive_unused_images.md).
+➡️ See [Archive Unused Images](https://github.com/rolfedh/doc-utils/blob/main/archive_unused_images.md).
 
 ---
 
@@ -128,7 +128,7 @@ Finds unused image files (e.g., `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`) in the 
 
 Scans an attributes file (e.g., `attributes.adoc`) for unused attribute definitions across all `.adoc` files in the current directory.
 
-➡️ See [`find_unused_attributes.md`](https://github.com/rolfedh/doc-utils/blob/main/find_unused_attributes.md).
+➡️ See [Find Unused AsciiDoc Attributes](https://github.com/rolfedh/doc-utils/blob/main/find_unused_attributes.md).
 
 ---
 
@@ -143,7 +143,7 @@ Formatting rules:
 
 Implemented as a Python script (`format-asciidoc-spacing.py`).
 
-➡️ See [`format_asciidoc_spacing.md`](https://github.com/rolfedh/doc-utils/blob/main/format_asciidoc_spacing.md).
+➡️ See [AsciiDoc Spacing Formatter](https://github.com/rolfedh/doc-utils/blob/main/format_asciidoc_spacing.md).
 
 ## Best Practices for Safe Usage
 
@@ -263,7 +263,7 @@ Contributions are welcome! Please ensure:
 - Code follows PEP 8 style guidelines
 - Documentation is updated as needed
 
-See [CONTRIBUTING.md](https://github.com/rolfedh/doc-utils/blob/main/CONTRIBUTING.md) for more details.
+See [Contributing Guidelines](https://github.com/rolfedh/doc-utils/blob/main/CONTRIBUTING.md) for more details.
 
 ## License
 

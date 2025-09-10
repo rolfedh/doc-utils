@@ -1,4 +1,4 @@
-# format-asciidoc-spacing
+# AsciiDoc Spacing Formatter
 
 A Python utility script that ensures proper spacing in AsciiDoc files by adding blank lines after headings and around `include::` directives.
 
@@ -54,25 +54,19 @@ More text follows.
 
 ```bash
 # Process current directory
-format-asciidoc-spacing
-# or
 ./format-asciidoc-spacing.py
 
 # Process specific directory
-format-asciidoc-spacing modules/
-# or
 ./format-asciidoc-spacing.py modules/
 
 # Process single file
-format-asciidoc-spacing assemblies/my-guide.adoc
-# or
 ./format-asciidoc-spacing.py assemblies/my-guide.adoc
 ```
 
 ### Options
 
 ```bash
-format-asciidoc-spacing [OPTIONS] [PATH]
+./format-asciidoc-spacing.py [OPTIONS] [PATH]
 
 OPTIONS:
     -h, --help     Show help message
@@ -87,22 +81,16 @@ ARGUMENTS:
 
 **Preview changes without modifying files:**
 ```bash
-format-asciidoc-spacing --dry-run modules/
-# or
 ./format-asciidoc-spacing.py --dry-run modules/
 ```
 
 **Process with detailed output:**
 ```bash
-format-asciidoc-spacing --verbose assemblies/
-# or
 ./format-asciidoc-spacing.py --verbose assemblies/
 ```
 
 **Process all .adoc files recursively:**
 ```bash
-format-asciidoc-spacing .
-# or
 ./format-asciidoc-spacing.py .
 ```
 
@@ -140,13 +128,9 @@ format-asciidoc-spacing .
 git checkout -b fix-asciidoc-spacing
 
 # Preview changes
-format-asciidoc-spacing --dry-run --verbose
-# or
 ./format-asciidoc-spacing.py --dry-run --verbose
 
 # Apply changes
-format-asciidoc-spacing --verbose
-# or
 ./format-asciidoc-spacing.py --verbose
 
 # Review changes
@@ -162,7 +146,7 @@ The script can be integrated into documentation workflows:
 
 ```bash
 # Check if files need formatting (returns non-zero if changes needed)
-format-asciidoc-spacing --dry-run . && echo "Formatting is correct" || echo "Files need formatting"
+./format-asciidoc-spacing.py --dry-run . && echo "Formatting is correct" || echo "Files need formatting"
 ```
 
 ## Edge Cases Handled
@@ -231,8 +215,6 @@ ls -la target-directory/
 ### File Processing Issues
 ```bash
 # Use verbose mode to identify problematic files
-format-asciidoc-spacing --verbose --dry-run problematic-file.adoc
-# or
 ./format-asciidoc-spacing.py --verbose --dry-run problematic-file.adoc
 
 # Check file encoding (script expects UTF-8)

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6] - 2025-09-10
+
+### Added
+- New `format-asciidoc-spacing` tool for standardizing AsciiDoc formatting
+  - Ensures blank lines after headings (=, ==, ===, etc.)
+  - Adds blank lines around include:: directives
+  - Supports dry-run mode to preview changes
+  - Verbose mode for detailed change tracking
+  - Processes single files or entire directories recursively
+  - Implemented in Python with no external dependencies
+
 ## [0.1.5] - 2025-08-27
 
 ### Added
