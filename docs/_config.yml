@@ -1,0 +1,53 @@
+# Jekyll configuration for GitHub Pages
+title: doc-utils Documentation
+description: CLI tools for maintaining AsciiDoc documentation repositories
+author: Rolfe Dlugy-Hegwer
+theme: minima
+baseurl: "/doc-utils"
+url: "https://rolfedh.github.io"
+
+# Navigation
+navigation:
+  - title: Home
+    url: /
+  - title: Getting Started
+    url: /getting-started
+  - title: Tools
+    url: /tools/
+    subnav:
+      - title: format-asciidoc-spacing
+        url: /tools/format-asciidoc-spacing
+      - title: check-scannability
+        url: /tools/check-scannability
+      - title: archive-unused-files
+        url: /tools/archive-unused-files
+      - title: archive-unused-images
+        url: /tools/archive-unused-images
+      - title: find-unused-attributes
+        url: /tools/find-unused-attributes
+  - title: Best Practices
+    url: /best-practices
+  - title: Contributing
+    url: /contributing
+  - title: GitHub
+    url: https://github.com/rolfedh/doc-utils
+
+# Plugins
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# Markdown settings
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# Exclude files from build
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - LICENSE
+  - CONTRIBUTING.md
+  - CHANGELOG.md
