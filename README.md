@@ -66,6 +66,7 @@ The following CLI tools are installed:
 * `archive-unused-files`
 * `archive-unused-images`
 * `find-unused-attributes`
+* `format-asciidoc-spacing`
 
 These tools can be run from any directory.
 
@@ -129,6 +130,21 @@ Scans an attributes file (e.g., `attributes.adoc`) for unused attribute definiti
 
 ➡️ See [`find_unused_attributes.md`](https://github.com/rolfedh/doc-utils/blob/main/find_unused_attributes.md).
 
+---
+
+### `format-asciidoc-spacing`
+
+Ensures proper spacing in AsciiDoc files by adding blank lines after headings and around `include::` directives.
+
+Formatting rules:
+- Adds blank line after headings (`=`, `==`, `===`, etc.)
+- Adds blank lines before and after `include::` directives
+- Preserves existing spacing where appropriate
+
+Implemented as a Python script (`format-asciidoc-spacing.py`).
+
+➡️ See [`format_asciidoc_spacing.md`](https://github.com/rolfedh/doc-utils/blob/main/format_asciidoc_spacing.md).
+
 ## Best Practices for Safe Usage
 
 ### Before Running Any Tool:
@@ -158,6 +174,7 @@ To run the tools after installation:
 check-scannability --help
 archive-unused-files --help
 find-unused-attributes attributes.adoc
+format-asciidoc-spacing --help
 ```
 
 Or run them directly from source:
@@ -166,6 +183,7 @@ Or run them directly from source:
 python3 check_scannability.py
 python3 archive_unused_files.py
 python3 find_unused_attributes.py attributes.adoc
+python3 format-asciidoc-spacing.py
 ```
 
 ### Directory/File Exclusion
