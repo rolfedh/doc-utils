@@ -128,27 +128,39 @@ Follow these exact steps to release a new version:
    git push origin main --tags
    ```
 
-7. **Automatic Publishing**
-   - GitHub Action automatically:
-     - Publishes package to PyPI
-     - Creates GitHub Release with release notes from CHANGELOG.md
-     - Attaches built distribution files to the release
+7. **Create GitHub Release**
+   ```bash
+   # Extract release notes from CHANGELOG.md for the new version
+   # Create release using GitHub CLI
+   gh release create vX.Y.Z --title "Release vX.Y.Z" --notes "Release notes here"
+   
+   # Or if GitHub Actions doesn't automatically create the release:
+   # Go to https://github.com/rolfedh/doc-utils/releases
+   # Click "Draft a new release"
+   # Select the tag you just pushed
+   # Add release notes from CHANGELOG.md
+   ```
+
+8. **Automatic Publishing to PyPI**
+   - GitHub Action automatically publishes package to PyPI
    - Monitor progress at: https://github.com/rolfedh/doc-utils/actions
    - Package will be available at: https://pypi.org/project/rolfedh-doc-utils/
    - GitHub Release will appear at: https://github.com/rolfedh/doc-utils/releases
 
-**Example for releasing v0.1.5:**
+**Example for releasing v0.1.7:**
 ```bash
-# 1. Update pyproject.toml: version = "0.1.5"
-# 2. Update CHANGELOG.md: Move unreleased items to ## [0.1.5] - 2025-08-27
+# 1. Update pyproject.toml: version = "0.1.7"
+# 2. Update CHANGELOG.md: Move unreleased items to ## [0.1.7] - YYYY-MM-DD
 # 3. Test
 python -m pytest tests/ -v --tb=short
 # 4. Commit
-git add -A && git commit -am "Prepare release v0.1.5"
+git add -A && git commit -am "Prepare release v0.1.7"
 # 5. Tag
-git tag -a v0.1.5 -m "Release v0.1.5: Automatic directory discovery"
+git tag -a v0.1.7 -m "Release v0.1.7: Brief description"
 # 6. Push
 git push origin main --tags
+# 7. Create GitHub Release
+gh release create v0.1.7 --title "Release v0.1.7" --notes "Release notes from CHANGELOG"
 ```
 
 ## Development Guidelines
@@ -284,7 +296,7 @@ When contributing to this project:
 
 ## Recent Improvements (Latest Refactoring)
 
-### New AsciiDoc Spacing Formatter (Unreleased)
+### New AsciiDoc Spacing Formatter (v0.1.6)
 1. **New CLI Tool**: `format-asciidoc-spacing` for standardizing AsciiDoc formatting
    - Automatically adds blank lines after headings (=, ==, ===, etc.)
    - Adds blank lines around include:: directives
