@@ -128,24 +128,23 @@ Follow these exact steps to release a new version:
    git push origin main --tags
    ```
 
-7. **Create GitHub Release**
+7. **Automatic Publishing to PyPI and GitHub Release**
+   - GitHub Action automatically:
+     - Publishes package to PyPI
+     - Creates GitHub Release (if not already created)
+     - Uploads distribution files to the release
+   - Monitor progress at: https://github.com/rolfedh/doc-utils/actions
+   - Package will be available at: https://pypi.org/project/rolfedh-doc-utils/
+   - GitHub Release will appear at: https://github.com/rolfedh/doc-utils/releases
+
+8. **Manual GitHub Release (Optional)**
+   If you want to create the release manually before the workflow runs:
    ```bash
    # Extract release notes from CHANGELOG.md for the new version
    # Create release using GitHub CLI
    gh release create vX.Y.Z --title "Release vX.Y.Z" --notes "Release notes here"
-   
-   # Or if GitHub Actions doesn't automatically create the release:
-   # Go to https://github.com/rolfedh/doc-utils/releases
-   # Click "Draft a new release"
-   # Select the tag you just pushed
-   # Add release notes from CHANGELOG.md
    ```
-
-8. **Automatic Publishing to PyPI**
-   - GitHub Action automatically publishes package to PyPI
-   - Monitor progress at: https://github.com/rolfedh/doc-utils/actions
-   - Package will be available at: https://pypi.org/project/rolfedh-doc-utils/
-   - GitHub Release will appear at: https://github.com/rolfedh/doc-utils/releases
+   Note: The workflow will detect existing releases and only upload distribution files
 
 **Example for releasing v0.1.7:**
 ```bash
@@ -157,10 +156,9 @@ python -m pytest tests/ -v --tb=short
 git add -A && git commit -am "Prepare release v0.1.7"
 # 5. Tag
 git tag -a v0.1.7 -m "Release v0.1.7: Brief description"
-# 6. Push
+# 6. Push (this triggers the workflow)
 git push origin main --tags
-# 7. Create GitHub Release
-gh release create v0.1.7 --title "Release v0.1.7" --notes "Release notes from CHANGELOG"
+# 7. Monitor the automated release at https://github.com/rolfedh/doc-utils/actions
 ```
 
 ## Development Guidelines
