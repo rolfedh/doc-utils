@@ -1,6 +1,8 @@
 ---
-layout: page
+layout: default
 title: format-asciidoc-spacing
+parent: Tools Reference
+nav_order: 1
 ---
 
 # AsciiDoc Spacing Formatter

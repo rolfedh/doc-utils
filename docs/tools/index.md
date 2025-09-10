@@ -1,6 +1,8 @@
 ---
-layout: page
+layout: default
 title: Tools Reference
+nav_order: 3
+has_children: true
 ---
 
 # Tools Reference

@@ -1,6 +1,8 @@
 ---
-layout: page
+layout: default
 title: find-unused-attributes
+parent: Tools Reference
+nav_order: 5
 ---
 
 # Find Unused AsciiDoc Attributes

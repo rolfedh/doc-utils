@@ -1,41 +1,56 @@
 # Jekyll configuration for GitHub Pages
-title: doc-utils Documentation
+title: doc-utils
 description: CLI tools for maintaining AsciiDoc documentation repositories
-author: Rolfe Dlugy-Hegwer
-theme: minima
 baseurl: "/doc-utils"
 url: "https://rolfedh.github.io"
 
-# Navigation
-navigation:
-  - title: Home
-    url: /
-  - title: Getting Started
-    url: /getting-started
-  - title: Tools
-    url: /tools/
-    subnav:
-      - title: format-asciidoc-spacing
-        url: /tools/format-asciidoc-spacing
-      - title: check-scannability
-        url: /tools/check-scannability
-      - title: archive-unused-files
-        url: /tools/archive-unused-files
-      - title: archive-unused-images
-        url: /tools/archive-unused-images
-      - title: find-unused-attributes
-        url: /tools/find-unused-attributes
-  - title: Best Practices
-    url: /best-practices
-  - title: Contributing
-    url: /contributing
-  - title: GitHub
-    url: https://github.com/rolfedh/doc-utils
-
-# Plugins
+# Modern theme - Just the Docs
+remote_theme: just-the-docs/just-the-docs@v0.8.2
 plugins:
+  - jekyll-remote-theme
   - jekyll-seo-tag
-  - jekyll-sitemap
+
+# Just the Docs theme configuration
+color_scheme: light
+search_enabled: true
+search:
+  # Split pages into sections that can be searched individually
+  heading_level: 2
+  # Maximum amount of previews per search result
+  previews: 3
+  # Maximum amount of words to display before a matched word in the preview
+  preview_words_before: 5
+  # Maximum amount of words to display after a matched word in the preview
+  preview_words_after: 10
+  # Set the search token separator
+  tokenizer_separator: /[\s\-/]+/
+  # Display the relative url in search results
+  rel_url: true
+  # Enable or disable the search button that appears in the bottom right corner of every page
+  button: false
+
+# Footer configuration
+footer_content: "Copyright &copy; 2025 doc-utils. Created by <a href=\"https://github.com/rolfedh\">Rolfe Dlugy-Hegwer</a>. Distributed under the project <a href=\"https://github.com/rolfedh/doc-utils/blob/main/LICENSE\">LICENSE</a>."
+
+# Enable "Edit this page on GitHub" links
+gh_edit_link: true
+gh_edit_repository: "https://github.com/rolfedh/doc-utils"
+gh_edit_branch: "main"
+gh_edit_source: docs
+gh_edit_view_mode: "tree"
+
+# Navigation structure
+nav_sort: case_insensitive
+
+# Auxiliary links for the header
+aux_links:
+  "doc-utils on GitHub":
+    - "https://github.com/rolfedh/doc-utils"
+  "PyPI Package":
+    - "https://pypi.org/project/rolfedh-doc-utils/"
+
+# Makes Aux links open in a new tab. Default is false
+aux_links_new_tab: true
 
 # Markdown settings
 markdown: kramdown

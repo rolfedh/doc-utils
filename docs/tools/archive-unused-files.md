@@ -1,6 +1,8 @@
 ---
-layout: page
+layout: default
 title: archive-unused-files
+parent: Tools Reference
+nav_order: 3
 ---
 
 # Archive Unused AsciiDoc Files
