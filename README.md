@@ -1,270 +1,154 @@
 # doc-utils
 
-A set of Python utilities and CLI tools to help technical writers maintain AsciiDoc documentation repositories.
+[![PyPI version](https://badge.fury.io/py/rolfedh-doc-utils.svg)](https://pypi.org/project/rolfedh-doc-utils/)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/github/license/rolfedh/doc-utils)](https://github.com/rolfedh/doc-utils/blob/main/LICENSE)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-brightgreen)](https://rolfedh.github.io/doc-utils/)
 
-> ⚠️ **IMPORTANT: Safety First**
->
-> These tools can modify or delete files in your documentation repository. Always:
-> - **Work in a git branch** - Never run these tools on the main/master branch
-> - **Review all changes carefully** - Use `git diff` or a pull request to verify modifications
-> - **Check your preview builds** - Ensure no documentation errors were introduced
+Python CLI tools for maintaining clean, consistent AsciiDoc documentation repositories.
 
-## Resources
+📚 **[View Full Documentation](https://rolfedh.github.io/doc-utils/)** | 📦 **[PyPI Package](https://pypi.org/project/rolfedh-doc-utils/)** | 🐙 **[GitHub](https://github.com/rolfedh/doc-utils)**
 
-- [PyPI: rolfedh-doc-utils](https://pypi.org/project/rolfedh-doc-utils/)
-- [GitHub repository](https://github.com/rolfedh/doc-utils)
+## ⚠️ Safety First
 
-## Installation
+These tools can modify or delete files. **Always:**
+- Work in a git branch (never main/master)
+- Review changes with `git diff`
+- Test documentation builds after changes
 
-### From PyPI
+## 🚀 Quick Start
 
-On modern Linux distributions, you may encounter an "externally-managed-environment" error. Use one of these methods:
+### Install with pipx (Recommended)
 
-**Option 1: pipx (Recommended for CLI tools)**
-```sh
+```bash
 pipx install rolfedh-doc-utils
 ```
 
-**Option 2: pip with --user flag**
-```sh
+### Alternative Installation
+
+```bash
+# With pip user flag
 pip install --user rolfedh-doc-utils
-```
 
-**Option 3: Traditional pip (may require virtual environment)**
-```sh
-pip install rolfedh-doc-utils
-```
-
-### Upgrading
-
-To upgrade to the latest version:
-
-```sh
-# If installed with pipx:
-pipx upgrade rolfedh-doc-utils
-
-# If installed with pip:
-pip install --upgrade rolfedh-doc-utils  # or --user flag if needed
-```
-
-### For Development
-
-If you're developing or testing locally, install the package in editable mode:
-
-```sh
-# Clone the repository
+# For development
 git clone https://github.com/rolfedh/doc-utils.git
 cd doc-utils
-
-# Install in editable mode
 pip install -e .
 ```
 
-The following CLI tools are installed:
+## 🛠️ Available Tools
 
-* `check-scannability`
-* `archive-unused-files`
-* `archive-unused-images`
-* `find-unused-attributes`
-* `format-asciidoc-spacing`
+| Tool | Description | Usage |
+|------|-------------|-------|
+| **`format-asciidoc-spacing`** | Standardizes spacing after headings and around includes | `format-asciidoc-spacing --dry-run .` |
+| **`check-scannability`** | Analyzes readability (sentence/paragraph length) | `check-scannability --max-words 25` |
+| **`archive-unused-files`** | Finds and archives unreferenced .adoc files | `archive-unused-files --archive` |
+| **`archive-unused-images`** | Finds and archives unreferenced images | `archive-unused-images --archive` |
+| **`find-unused-attributes`** | Identifies unused attribute definitions | `find-unused-attributes attributes.adoc` |
 
-These tools can be run from any directory.
+## 📖 Documentation
 
-### Add to PATH (if needed)
+Comprehensive documentation is available at **[rolfedh.github.io/doc-utils](https://rolfedh.github.io/doc-utils/)**
 
-By default, CLI tools install to:
+- [Getting Started Guide](https://rolfedh.github.io/doc-utils/getting-started)
+- [Tools Reference](https://rolfedh.github.io/doc-utils/tools/)
+- [Best Practices](https://rolfedh.github.io/doc-utils/best-practices)
+- [Contributing](https://rolfedh.github.io/doc-utils/contributing)
 
-```sh
-$HOME/.local/bin
+## 💡 Common Workflows
+
+### Clean Up Documentation
+
+```bash
+# 1. Create a branch
+git checkout -b doc-cleanup
+
+# 2. Preview what would change
+format-asciidoc-spacing --dry-run .
+archive-unused-files
+archive-unused-images
+
+# 3. Apply changes
+format-asciidoc-spacing .
+archive-unused-files --archive
+archive-unused-images --archive
+
+# 4. Review and commit
+git diff
+git add -A && git commit -m "Clean up documentation"
 ```
 
-If this directory isn’t in your `PATH`, commands may not run. Append it to your shell configuration:
+### Check Documentation Quality
 
-```sh
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc   # or ~/.zshrc
-```
+```bash
+# Check readability
+check-scannability --max-words 30 --max-sentences 5
 
-Then reload your shell:
-
-```sh
-source ~/.bashrc   # or ~/.zshrc
-```
-
-## CLI Tools Overview
-
-### `check-scannability`
-
-Scans `.adoc` files in the current directory to report:
-
-* Sentences that exceed a length limit (default: 22 words)
-* Paragraphs with too many sentences (default: 3 sentences)
-* Supports exclusion of files and directories
-
-➡️ See [Scannability Checker for AsciiDoc Files](https://github.com/rolfedh/doc-utils/blob/main/check_scannability.md) for details.
-
----
-
-### `archive-unused-files`
-
-Scans the `./modules` and `./assemblies` directories for `.adoc` files that are not referenced. Optionally archives and deletes them.
-
-Works with both:
-- **OpenShift-docs style** repositories (uses `_topic_maps/*.yml` files)
-- **Traditional AsciiDoc** repositories (uses `master.adoc` files)
-
-➡️ See [Archive Unused AsciiDoc Files](https://github.com/rolfedh/doc-utils/blob/main/archive_unused_files.md).
-
----
-
-### `archive-unused-images`
-
-Finds unused image files (e.g., `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`) in the current directory and optionally archives and deletes them.
-
-➡️ See [Archive Unused Images](https://github.com/rolfedh/doc-utils/blob/main/archive_unused_images.md).
-
----
-
-### `find-unused-attributes`
-
-Scans an attributes file (e.g., `attributes.adoc`) for unused attribute definitions across all `.adoc` files in the current directory.
-
-➡️ See [Find Unused AsciiDoc Attributes](https://github.com/rolfedh/doc-utils/blob/main/find_unused_attributes.md).
-
----
-
-### `format-asciidoc-spacing`
-
-Ensures proper spacing in AsciiDoc files by adding blank lines after headings and around `include::` directives.
-
-Formatting rules:
-- Adds blank line after headings (`=`, `==`, `===`, etc.)
-- Adds blank lines before and after `include::` directives
-- Preserves existing spacing where appropriate
-
-Implemented as a Python script (`format-asciidoc-spacing.py`).
-
-➡️ See [AsciiDoc Spacing Formatter](https://github.com/rolfedh/doc-utils/blob/main/format_asciidoc_spacing.md).
-
-## Best Practices for Safe Usage
-
-### Before Running Any Tool:
-
-- **Create a feature branch:**
-   ```sh
-   git checkout -b doc-cleanup-$(date +%Y%m%d)
-   ```
-
-- **Commit any pending changes:**
-   ```sh
-   git add -A && git commit -m "Save work before cleanup"
-   ```
-
-- **Run tools in preview mode first:**
-   - For archive tools: Run without `--archive` to see what would be affected
-
-- **Review all changes and preview builds**
-
-- **Only merge after verification:**
-
-## Usage
-
-To run the tools after installation:
-
-```sh
-check-scannability --help
-archive-unused-files --help
+# Find unused attributes
 find-unused-attributes attributes.adoc
-format-asciidoc-spacing --help
+
+# Save results
+find-unused-attributes attributes.adoc --output unused.txt
 ```
 
-Or run them directly from source:
+## 🔧 Exclusions
 
-```sh
-python3 check_scannability.py
-python3 archive_unused_files.py
-python3 find_unused_attributes.py attributes.adoc
-python3 format-asciidoc-spacing.py
+All tools support excluding files and directories:
+
+```bash
+# Exclude specific directories
+archive-unused-files --exclude-dir ./temp --exclude-dir ./drafts
+
+# Exclude specific files
+check-scannability --exclude-file ./README.adoc
+
+# Use exclusion list file
+echo "./deprecated/" > .docutils-ignore
+archive-unused-images --exclude-list .docutils-ignore
 ```
 
-### Directory/File Exclusion
+## 🧪 Development
 
-All tools support excluding specific directories and files from scanning. You can use these options:
-
-1. **`--exclude-dir`** - Exclude specific directories (can be used multiple times):
-   ```sh
-   archive-unused-files --exclude-dir ./modules/temp --exclude-dir ./modules/old
-   ```
-
-2. **`--exclude-file`** - Exclude specific files (can be used multiple times):
-   ```sh
-   check-scannability --exclude-file ./README.adoc --exclude-file ./test.adoc
-   ```
-
-3. **`--exclude-list`** - Point to a text file containing exclusions:
-   ```sh
-   archive-unused-images --exclude-list .docutils-ignore
-   ```
-
-   The exclusion file format:
-   ```
-   # Comments are supported
-   ./modules/deprecated/
-   ./assemblies/archive/
-   ./images/temp/
-   specific-file.adoc
-   ```
-
-**Note:** When you exclude a parent directory, all its subdirectories are automatically excluded. Symbolic links are never followed during scanning.
-
-## Troubleshooting
-
-### ModuleNotFoundError
-
-If you see an error like `ModuleNotFoundError: No module named 'find_unused_attributes'`, this typically means:
-
-1. The package isn't installed. Run:
-   ```sh
-   pipx install rolfedh-doc-utils  # or pip install --user rolfedh-doc-utils
-   ```
-
-2. You're trying to run the script directly without installation. Either:
-   - Install the package first (see Installation section)
-   - Run the script using Python directly:
-     ```sh
-     python3 find_unused_attributes.py attributes.adoc
-     ```
-
-### Command not found
-
-If the command isn't found after installation, ensure `$HOME/.local/bin` is in your PATH (see "Add to PATH" section above).
-
-## Development
-
-### Running Tests
-
-The project includes a comprehensive test suite. To run tests:
-
-```sh
-# Install development dependencies
+```bash
+# Install dev dependencies
 pip install -r requirements-dev.txt
 
-# Run all tests
-python -m pytest tests/
-
-# Run with verbose output
+# Run tests
 python -m pytest tests/ -v
+
+# Run specific test
+python -m pytest tests/test_file_utils.py
 ```
 
-### Contributing
+## 🤝 Contributing
 
-Contributions are welcome! Please ensure:
-- All tests pass before submitting a PR
-- New features include appropriate tests
-- Code follows PEP 8 style guidelines
-- Documentation is updated as needed
+We welcome contributions! See our [Contributing Guide](https://rolfedh.github.io/doc-utils/contributing) for details.
 
-See [Contributing Guidelines](https://github.com/rolfedh/doc-utils/blob/main/CONTRIBUTING.md) for more details.
+Before submitting PRs:
+- ✅ All tests pass
+- ✅ Code follows PEP 8
+- ✅ Documentation updated
+- ✅ Changelog entry added
 
-## License
+## 📊 Project Status
 
-This project is licensed under the terms of the [LICENSE](https://github.com/rolfedh/doc-utils/blob/main/LICENSE).
+- **Latest Version**: 0.1.6
+- **Python Support**: 3.8+
+- **Test Coverage**: 66+ tests (100% passing)
+- **Dependencies**: Minimal (PyYAML for OpenShift-docs support)
+
+## 🔗 Resources
+
+- [Documentation](https://rolfedh.github.io/doc-utils/)
+- [PyPI Package](https://pypi.org/project/rolfedh-doc-utils/)
+- [Issue Tracker](https://github.com/rolfedh/doc-utils/issues)
+- [Changelog](https://github.com/rolfedh/doc-utils/blob/main/CHANGELOG.md)
+- [License](https://github.com/rolfedh/doc-utils/blob/main/LICENSE)
+
+## 📝 License
+
+This project is licensed under the terms specified in the [LICENSE](https://github.com/rolfedh/doc-utils/blob/main/LICENSE) file.
+
+---
+
+Created by [Rolfe Dlugy-Hegwer](https://github.com/rolfedh) for technical writers everywhere.
