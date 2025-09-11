@@ -230,10 +230,10 @@ format-asciidoc-spacing .
 git checkout -b fix-asciidoc-spacing
 
 # Preview changes
-./format-asciidoc-spacing.py --dry-run --verbose
+format-asciidoc-spacing --dry-run --verbose
 
 # Apply changes
-./format-asciidoc-spacing.py --verbose
+format-asciidoc-spacing --verbose
 
 # Review changes
 git diff
@@ -248,7 +248,7 @@ The script can be integrated into documentation workflows:
 
 ```bash
 # Check if files need formatting (returns non-zero if changes needed)
-./format-asciidoc-spacing.py --dry-run . && echo "Formatting is correct" || echo "Files need formatting"
+format-asciidoc-spacing --dry-run . && echo "Formatting is correct" || echo "Files need formatting"
 ```
 
 ## Edge Cases Handled
@@ -311,7 +311,7 @@ ASciiDoc spacing formatting complete!
 ### Permission Issues
 ```bash
 # Ensure script is executable
-chmod +x format-asciidoc-spacing.py
+chmod +x format_asciidoc_spacing.py
 
 # Check directory permissions
 ls -la target-directory/
@@ -320,7 +320,7 @@ ls -la target-directory/
 ### File Processing Issues
 ```bash
 # Use verbose mode to identify problematic files
-./format-asciidoc-spacing.py --verbose --dry-run problematic-file.adoc
+format-asciidoc-spacing --verbose --dry-run problematic-file.adoc
 
 # Check file encoding (script expects UTF-8)
 file problematic-file.adoc

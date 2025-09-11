@@ -203,7 +203,7 @@ export PATH="$HOME/.local/bin:$PATH"
 Ensure scripts are executable:
 
 ```bash
-chmod +x ~/.local/bin/format-asciidoc-spacing.py
+chmod +x ~/.local/bin/format_asciidoc_spacing.py
 ```
 
 ### Unexpected File Deletion
