@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.7] - 2025-09-11
+
+### Enhanced
+- Major improvements to `format-asciidoc-spacing` tool:
+  - Special handling for attribute includes near H1 headings (e.g., common-attributes.adoc)
+  - Ignores admonition block delimiters (====, ----, ...., ____) instead of treating them as headings
+  - Keeps comments directly above includes together as a unit with the include
+  - Keeps attributes directly above includes together as a unit with the include
+  - Treats conditional blocks (ifdef/ifndef/endif) as single units with proper spacing
+  - Consolidates multiple consecutive blank lines that would be inserted into a single blank line
+  - Improved detection of headings (requires space after = signs)
+
+### Changed
+- Cleaned up repository structure by archiving duplicate documentation files from root directory
+- Documentation for tools now centralized in `/docs/tools/` for GitHub Pages site
+
 ## [0.1.6] - 2025-09-10
 
 ### Added

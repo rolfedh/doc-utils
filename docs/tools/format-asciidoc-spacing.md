@@ -7,7 +7,7 @@ nav_order: 1
 
 # AsciiDoc Spacing Formatter
 
-A Python utility script that ensures proper spacing in AsciiDoc files by adding blank lines after headings and around `include::` directives.
+A Python utility script that ensures proper spacing in AsciiDoc files by intelligently adding blank lines after headings and around `include::` directives, with special handling for attributes, comments, conditionals, and admonition blocks.
 
 ## Purpose
 
@@ -53,6 +53,80 @@ include::modules/ref_12345.adoc[]
 include::modules/ref_4567.adoc[]
 
 More text follows.
+```
+
+### 3. Special Handling for Attribute Includes
+
+Attribute includes near the document header (H1) only get a single blank line after the heading, not additional lines around the include.
+
+**Before:**
+```asciidoc
+= Document Title
+include::_attributes/common-attributes.adoc[]
+:context: my-context
+```
+
+**After:**
+```asciidoc
+= Document Title
+
+include::_attributes/common-attributes.adoc[]
+:context: my-context
+```
+
+### 4. Comments and Attributes with Includes
+
+Comments and attributes directly above includes are kept together as a unit with the include.
+
+**Before:**
+```asciidoc
+Some text here.
+// This comment describes the include
+include::modules/important.adoc[]
+More text.
+
+Another paragraph.
+:FeatureName: Multi-network policies
+include::snippets/technology-preview.adoc[]
+```
+
+**After:**
+```asciidoc
+Some text here.
+
+// This comment describes the include
+include::modules/important.adoc[]
+
+More text.
+
+Another paragraph.
+
+:FeatureName: Multi-network policies
+include::snippets/technology-preview.adoc[]
+```
+
+### 5. Conditional Blocks
+
+Conditional blocks (ifdef/ifndef/endif) with includes are treated as single units with blank lines around the entire block.
+
+**Before:**
+```asciidoc
+Some content here.
+ifndef::openshift-rosa[]
+include::modules/standard-features.adoc[]
+endif::openshift-rosa[]
+More content.
+```
+
+**After:**
+```asciidoc
+Some content here.
+
+ifndef::openshift-rosa[]
+include::modules/standard-features.adoc[]
+endif::openshift-rosa[]
+
+More content.
 ```
 
 ## Usage
@@ -162,6 +236,7 @@ The script can be integrated into documentation workflows:
 - **Consecutive headings**: No blank line added between them
 - **Consecutive includes**: Proper spacing maintained between each
 - **Mixed content**: Smart handling of headings followed by includes
+- **Duplicate blank lines**: Consolidates multiple blank lines that would be inserted into a single blank line
 
 ### File Boundaries
 - **Beginning of file**: No blank line added before first heading
@@ -169,9 +244,11 @@ The script can be integrated into documentation workflows:
 - **Empty files**: Handled gracefully without errors
 
 ### Special Cases
-- **Comments**: AsciiDoc comments are preserved and don't interfere with spacing
-- **Code blocks**: Content within code blocks is never modified
-- **Existing spacing**: Multiple existing blank lines are preserved
+- **Admonition blocks**: Block delimiters (====, ----, ...., ____) are not treated as headings
+- **Comments with includes**: Comments directly above includes are kept together as a unit
+- **Attributes with includes**: Attributes directly above includes are kept together as a unit
+- **Conditional blocks**: ifdef/ifndef/endif blocks are treated as units with spacing around the entire block
+- **Attribute includes near H1**: Special handling for common-attributes.adoc includes at document start
 
 ## Output Examples
 
