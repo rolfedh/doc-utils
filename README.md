@@ -38,17 +38,35 @@ pip install -e .
 
 ## 🛠️ Available Tools
 
+**Note:** Commands use hyphens (`-`), while Python files use underscores (`_`). After installing with pipx, use the hyphenated commands directly.
+
 | Tool | Description | Usage |
 |------|-------------|-------|
-| **`format-asciidoc-spacing`** | Standardizes spacing after headings and around includes | `format-asciidoc-spacing --dry-run .` |
+| **`format-asciidoc-spacing`** | Standardizes spacing after headings and around includes | `format-asciidoc-spacing --dry-run modules/` |
 | **`check-scannability`** | Analyzes readability (sentence/paragraph length) | `check-scannability --max-words 25` |
-| **`archive-unused-files`** | Finds and archives unreferenced .adoc files | `archive-unused-files --archive` |
-| **`archive-unused-images`** | Finds and archives unreferenced images | `archive-unused-images --archive` |
+| **`archive-unused-files`** | Finds and archives unreferenced .adoc files | `archive-unused-files` (preview)<br>`archive-unused-files --archive` (execute) |
+| **`archive-unused-images`** | Finds and archives unreferenced images | `archive-unused-images` (preview)<br>`archive-unused-images --archive` (execute) |
 | **`find-unused-attributes`** | Identifies unused attribute definitions | `find-unused-attributes attributes.adoc` |
 
 ## 📖 Documentation
 
 Comprehensive documentation is available at **[rolfedh.github.io/doc-utils](https://rolfedh.github.io/doc-utils/)**
+
+### OpenShift-docs Example
+
+For OpenShift documentation repositories:
+
+```bash
+# Format spacing in specific directories
+format-asciidoc-spacing modules/
+format-asciidoc-spacing microshift_networking/
+
+# Preview changes first
+format-asciidoc-spacing --dry-run modules/networking/
+
+# Process specific file
+format-asciidoc-spacing modules/networking/about-networking.adoc
+```
 
 - [Getting Started Guide](https://rolfedh.github.io/doc-utils/getting-started)
 - [Tools Reference](https://rolfedh.github.io/doc-utils/tools/)

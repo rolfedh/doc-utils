@@ -131,23 +131,44 @@ More content.
 
 ## Usage
 
+### Installation with pipx (Recommended)
+
+```bash
+# Install with pipx for global availability
+pipx install rolfedh-doc-utils
+
+# After installation, run directly (no .py extension, use hyphens not underscores):
+format-asciidoc-spacing modules/
+```
+
 ### Basic Usage
 
 ```bash
 # Process current directory
-./format-asciidoc-spacing.py
+format-asciidoc-spacing
 
-# Process specific directory
-./format-asciidoc-spacing.py modules/
+# Process specific directory (e.g., OpenShift-docs structure)
+format-asciidoc-spacing modules/
+format-asciidoc-spacing microshift_networking/
 
 # Process single file
-./format-asciidoc-spacing.py assemblies/my-guide.adoc
+format-asciidoc-spacing modules/networking/about-networking.adoc
+```
+
+### Manual Script Usage (if not using pipx)
+
+```bash
+# Make executable first
+chmod +x format_asciidoc_spacing.py
+
+# Then run
+./format_asciidoc_spacing.py modules/
 ```
 
 ### Options
 
 ```bash
-./format-asciidoc-spacing.py [OPTIONS] [PATH]
+format-asciidoc-spacing [OPTIONS] [PATH]
 
 OPTIONS:
     -h, --help     Show help message
@@ -162,17 +183,17 @@ ARGUMENTS:
 
 **Preview changes without modifying files:**
 ```bash
-./format-asciidoc-spacing.py --dry-run modules/
+format-asciidoc-spacing --dry-run modules/
 ```
 
 **Process with detailed output:**
 ```bash
-./format-asciidoc-spacing.py --verbose assemblies/
+format-asciidoc-spacing --verbose modules/
 ```
 
 **Process all .adoc files recursively:**
 ```bash
-./format-asciidoc-spacing.py .
+format-asciidoc-spacing .
 ```
 
 ## Features
