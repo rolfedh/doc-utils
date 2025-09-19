@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.8] - 2025-09-19
+
+### Documentation
+- Added pipx upgrade instructions to README.md and getting-started.md
+- Fixed incorrect Python file name references in documentation
+- Improved release procedure in CLAUDE.md with better error handling and recovery steps
+- Enhanced documentation based on user feedback
+
 ## [0.1.7] - 2025-09-11
 
 ### Enhanced
