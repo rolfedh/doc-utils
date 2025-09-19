@@ -128,37 +128,58 @@ Follow these exact steps to release a new version:
    git push origin main --tags
    ```
 
-7. **Automatic Publishing to PyPI and GitHub Release**
-   - GitHub Action automatically:
-     - Publishes package to PyPI
-     - Creates GitHub Release (if not already created)
-     - Uploads distribution files to the release
-   - Monitor progress at: https://github.com/rolfedh/doc-utils/actions
+7. **Verify Automated Publishing**
+   - GitHub Action automatically publishes to PyPI and creates GitHub Release
+   - **IMPORTANT: Monitor the workflow** at: https://github.com/rolfedh/doc-utils/actions
+   - Check workflow status: `gh run list --workflow=pypi-publish.yml --limit 1`
    - Package will be available at: https://pypi.org/project/rolfedh-doc-utils/
    - GitHub Release will appear at: https://github.com/rolfedh/doc-utils/releases
 
-8. **Manual GitHub Release (Optional)**
-   If you want to create the release manually before the workflow runs:
+8. **If GitHub Release Creation Fails (Recovery Steps)**
+   If the workflow succeeds for PyPI but fails to create GitHub Release:
    ```bash
-   # Extract release notes from CHANGELOG.md for the new version
-   # Create release using GitHub CLI
-   gh release create vX.Y.Z --title "Release vX.Y.Z" --notes "Release notes here"
-   ```
-   Note: The workflow will detect existing releases and only upload distribution files
+   # Check if release exists
+   gh release view vX.Y.Z
 
-**Example for releasing v0.1.7:**
+   # If release doesn't exist, create it manually
+   gh release create vX.Y.Z --title "Release vX.Y.Z" --notes "$(awk '/^## \[X.Y.Z\]/{flag=1; next} /^## \[/{flag=0} flag' CHANGELOG.md)"
+
+   # Or with custom notes
+   gh release create vX.Y.Z --title "Release vX.Y.Z" --notes "Brief description
+
+   See CHANGELOG.md for full details."
+   ```
+
+9. **Verify Release is Latest**
+   ```bash
+   # Check that the new release shows as "Latest"
+   gh release list --limit 1
+   # Should show your new release with "Latest" label
+   ```
+
+**Example for releasing v0.1.8:**
 ```bash
-# 1. Update pyproject.toml: version = "0.1.7"
-# 2. Update CHANGELOG.md: Move unreleased items to ## [0.1.7] - YYYY-MM-DD
+# 1. Update pyproject.toml: version = "0.1.8"
+# 2. Update CHANGELOG.md: Move unreleased items to ## [0.1.8] - YYYY-MM-DD
 # 3. Test
 python -m pytest tests/ -v --tb=short
 # 4. Commit
-git add -A && git commit -am "Prepare release v0.1.7"
+git add -A && git commit -am "Prepare release v0.1.8"
 # 5. Tag
-git tag -a v0.1.7 -m "Release v0.1.7: Brief description"
+git tag -a v0.1.8 -m "Release v0.1.8: Brief description"
 # 6. Push (this triggers the workflow)
 git push origin main --tags
-# 7. Monitor the automated release at https://github.com/rolfedh/doc-utils/actions
+# 7. Monitor the automated release
+gh run list --workflow=pypi-publish.yml --limit 1
+# Wait for completion, then check the run status
+gh run view  # Will show the most recent run
+
+# 8. Verify the release
+gh release list --limit 1
+# Should show v0.1.8 with "Latest" label
+
+# 9. If release creation failed but PyPI succeeded, create manually:
+gh release create v0.1.8 --title "Release v0.1.8" --notes "See CHANGELOG.md for details"
 ```
 
 ## Development Guidelines

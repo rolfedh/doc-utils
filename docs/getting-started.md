@@ -27,6 +27,9 @@ python3 -m pipx ensurepath
 
 # Install doc-utils
 pipx install rolfedh-doc-utils
+
+# Upgrade to latest version
+pipx upgrade rolfedh-doc-utils
 ```
 
 ### Method 2: Using pip with --user flag

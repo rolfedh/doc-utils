@@ -21,7 +21,11 @@ These tools can modify or delete files. **Always:**
 ### Install with pipx (Recommended)
 
 ```bash
+# Install
 pipx install rolfedh-doc-utils
+
+# Upgrade to latest version
+pipx upgrade rolfedh-doc-utils
 ```
 
 ### Alternative Installation
