@@ -133,15 +133,18 @@ Follow these exact steps to release a new version:
    - **IMPORTANT: Monitor the workflow** at: https://github.com/rolfedh/doc-utils/actions
    - Check workflow status: `gh run list --workflow=pypi-publish.yml --limit 1`
    - Package will be available at: https://pypi.org/project/rolfedh-doc-utils/
-   - GitHub Release will appear at: https://github.com/rolfedh/doc-utils/releases
+   - GitHub Release should appear at: https://github.com/rolfedh/doc-utils/releases
 
-8. **If GitHub Release Creation Fails (Recovery Steps)**
-   If the workflow succeeds for PyPI but fails to create GitHub Release:
+8. **Known Issue: GitHub Release Creation May Fail**
+   **Current Status:** The workflow consistently fails at the GitHub Release creation step with a 403 error,
+   but PyPI publishing succeeds. This is a known permissions issue with the GitHub token.
+
+   **Always manually create the GitHub Release after pushing tags:**
    ```bash
-   # Check if release exists
-   gh release view vX.Y.Z
+   # Wait for workflow to complete (PyPI publish will succeed)
+   gh run watch
 
-   # If release doesn't exist, create it manually
+   # Then manually create the GitHub Release
    gh release create vX.Y.Z --title "Release vX.Y.Z" --notes "$(awk '/^## \[X.Y.Z\]/{flag=1; next} /^## \[/{flag=0} flag' CHANGELOG.md)"
 
    # Or with custom notes
@@ -150,6 +153,8 @@ Follow these exact steps to release a new version:
    See CHANGELOG.md for full details."
    ```
 
+   **Note:** This manual step ensures the GitHub Release is created correctly and shows as "Latest" on the repository page.
+
 9. **Verify Release is Latest**
    ```bash
    # Check that the new release shows as "Latest"
@@ -157,29 +162,32 @@ Follow these exact steps to release a new version:
    # Should show your new release with "Latest" label
    ```
 
-**Example for releasing v0.1.8:**
+**Example for releasing v0.1.9:**
 ```bash
-# 1. Update pyproject.toml: version = "0.1.8"
-# 2. Update CHANGELOG.md: Move unreleased items to ## [0.1.8] - YYYY-MM-DD
+# 1. Update pyproject.toml: version = "0.1.9"
+# 2. Update CHANGELOG.md: Move unreleased items to ## [0.1.9] - YYYY-MM-DD
 # 3. Test
 python -m pytest tests/ -v --tb=short
 # 4. Commit
-git add -A && git commit -am "Prepare release v0.1.8"
+git add -A && git commit -am "Prepare release v0.1.9"
 # 5. Tag
-git tag -a v0.1.8 -m "Release v0.1.8: Brief description"
+git tag -a v0.1.9 -m "Release v0.1.9: Brief description"
 # 6. Push (this triggers the workflow)
 git push origin main --tags
-# 7. Monitor the automated release
+
+# 7. Wait for PyPI publish (GitHub Release will fail - this is expected)
+gh run watch
+# or check status with:
 gh run list --workflow=pypi-publish.yml --limit 1
-# Wait for completion, then check the run status
-gh run view  # Will show the most recent run
 
-# 8. Verify the release
+# 8. Manually create GitHub Release (required due to known issue)
+gh release create v0.1.9 --title "Release v0.1.9" --notes "Brief description
+
+See CHANGELOG.md for full details."
+
+# 9. Verify the release shows as Latest
 gh release list --limit 1
-# Should show v0.1.8 with "Latest" label
-
-# 9. If release creation failed but PyPI succeeded, create manually:
-gh release create v0.1.8 --title "Release v0.1.8" --notes "See CHANGELOG.md for details"
+# Should show v0.1.9 with "Latest" label
 ```
 
 ## Development Guidelines
@@ -288,6 +296,21 @@ If you encounter `ModuleNotFoundError`, ensure:
 - Check that paths are normalized (absolute paths)
 - Verify parent directory exclusion logic in `file_utils.py`
 - Remember that excluding a parent excludes all children
+
+### Release Process Issues
+
+#### GitHub Release Creation Fails (403 Error)
+**Problem:** The GitHub Actions workflow fails at the "Create GitHub Release" step with a 403 (Forbidden) error, but PyPI publishing succeeds.
+
+**Cause:** The GITHUB_TOKEN permissions are insufficient for the softprops/action-gh-release@v1 action.
+
+**Solution:** Always manually create the GitHub release after the workflow completes:
+```bash
+# After workflow completes (check with: gh run list --workflow=pypi-publish.yml --limit 1)
+gh release create vX.Y.Z --title "Release vX.Y.Z" --notes "Release notes here"
+```
+
+**Prevention:** Consider updating the workflow to use the GitHub CLI directly or adjusting token permissions in repository settings.
 
 ## Contributing
 
