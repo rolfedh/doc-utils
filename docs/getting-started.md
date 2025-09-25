@@ -124,7 +124,7 @@ Check for unused attribute definitions:
 find-unused-attributes attributes.adoc
 ```
 
-### 5. Fix Vale LinkAttribute Violations
+### 5. Fix Vale LinkAttribute Issues
 
 Replace attribute references in link URLs for DITA compliance:
 

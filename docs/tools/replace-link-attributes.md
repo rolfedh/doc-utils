@@ -4,7 +4,7 @@ Replace AsciiDoc attributes within link URLs with their actual values.
 
 ## Purpose
 
-This tool helps resolve Vale AsciiDocDITA style violations for the `LinkAttribute` rule:
+This tool helps resolve Vale AsciiDocDITA style issues for the `LinkAttribute` rule:
 
 > **LinkAttribute**: DITA 1.3 does not allow references to reusable content in link URLs. Remove attribute references from the link or replace the entire link macro with an attribute reference.
 

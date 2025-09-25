@@ -12,7 +12,7 @@ doc-utils provides six specialized CLI tools for maintaining AsciiDoc documentat
 ## Available Tools
 
 ### 🔗 [replace-link-attributes](replace-link-attributes)
-Resolves Vale AsciiDocDITA LinkAttribute violations by replacing attribute references in link URLs with their actual values.
+Resolves Vale AsciiDocDITA LinkAttribute issues by replacing attribute references in link URLs with their actual values.
 
 **Key Features:**
 - Fixes Vale LinkAttribute rule: "DITA 1.3 does not allow references to reusable content in link URLs"
@@ -50,7 +50,7 @@ Analyzes document readability by checking sentence and paragraph length against 
 **Key Features:**
 - Configurable sentence length limits (default: 22 words)
 - Configurable paragraph length limits (default: 3 sentences)
-- Detailed reports showing specific violations
+- Detailed reports showing specific issues
 - Support for exclusion lists
 
 **Quick Usage:**

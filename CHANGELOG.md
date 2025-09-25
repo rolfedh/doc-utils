@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.9] - 2025-09-25
 
 ### Added
-- New `replace-link-attributes` tool for resolving Vale AsciiDocDITA LinkAttribute violations
+- New `replace-link-attributes` tool for resolving Vale AsciiDocDITA LinkAttribute issues
   - Replaces attribute references in link: and xref: macro URLs with their resolved values
   - Preserves link text unchanged (only modifies URLs)
   - Automatically discovers all attributes.adoc files in repository
