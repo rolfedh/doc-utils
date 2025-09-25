@@ -2,7 +2,7 @@
 layout: default
 title: check-scannability
 parent: Tools Reference
-nav_order: 2
+nav_order: 3
 ---
 
 # Scannability Checker for AsciiDoc Files

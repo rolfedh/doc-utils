@@ -2,7 +2,7 @@
 layout: default
 title: format-asciidoc-spacing
 parent: Tools Reference
-nav_order: 1
+nav_order: 2
 ---
 
 # AsciiDoc Spacing Formatter

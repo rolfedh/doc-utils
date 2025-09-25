@@ -1,3 +1,10 @@
+---
+layout: default
+title: replace-link-attributes
+parent: Tools Reference
+nav_order: 1
+---
+
 # replace-link-attributes
 
 Replace AsciiDoc attributes within link URLs with their actual values.
