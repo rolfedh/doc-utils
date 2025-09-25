@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.9] - 2025-09-25
+
+### Added
+- New `replace-link-attributes` tool for resolving Vale AsciiDocDITA LinkAttribute violations
+  - Replaces attribute references in link: and xref: macro URLs with their resolved values
+  - Preserves link text unchanged (only modifies URLs)
+  - Automatically discovers all attributes.adoc files in repository
+  - Interactive mode for selecting or specifying custom attribute files
+  - Supports any attribute file name/path via --attributes-file option
+  - Resolves nested attribute references automatically
+  - Dry-run mode to preview changes before applying
+  - Helps fix Vale LinkAttribute rule: "DITA 1.3 does not allow references to reusable content in link URLs"
+
+### Changed
+- Refactored `format-asciidoc-spacing` to follow project architecture pattern
+  - Core logic moved to `doc_utils/format_asciidoc_spacing.py` module
+  - CLI script now imports from module (separation of concerns)
+
 ## [0.1.8] - 2025-09-19
 
 ### Documentation
