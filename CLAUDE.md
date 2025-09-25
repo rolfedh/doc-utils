@@ -13,17 +13,25 @@ doc-utils/
 ├── doc_utils/              # Core library modules
 │   ├── __init__.py
 │   ├── file_utils.py       # File operations and exclusion handling
+│   ├── format_asciidoc_spacing.py # AsciiDoc spacing formatter logic
+│   ├── replace_link_attributes.py # Link attribute replacement logic
 │   ├── scannability.py     # Document readability checks
 │   ├── topic_map_parser.py # Parse OpenShift-docs topic maps
 │   ├── unused_adoc.py      # Find unused AsciiDoc files
 │   ├── unused_attributes.py # Find unused attributes
 │   └── unused_images.py    # Find unused images
+├── docs/                   # GitHub Pages documentation
+│   ├── tools/             # Tool-specific documentation
+│   │   ├── replace-link-attributes.md
+│   │   ├── format-asciidoc-spacing.md
+│   │   └── ...
+│   ├── getting-started.md
+│   └── index.md
 ├── tests/                  # Test suite
 │   ├── __init__.py
 │   ├── test_*.py          # Test files
 │   └── test_fixture_*.py  # Test fixtures
 ├── *.py                   # CLI entry point scripts
-├── *.md                   # Documentation for each tool
 ├── setup.py              # Custom installation hooks
 ├── pyproject.toml         # Package configuration
 ├── requirements-dev.txt   # Development dependencies (pytest, PyYAML)
@@ -37,16 +45,19 @@ doc-utils/
 
 ### CLI Tools
 
-1. **find-unused-attributes** - Scans AsciiDoc files to find unused attribute definitions
-2. **check-scannability** - Analyzes document readability by checking sentence/paragraph length
-3. **archive-unused-files** - Finds and optionally archives unreferenced AsciiDoc files
-4. **archive-unused-images** - Finds and optionally archives unreferenced image files
-5. **format-asciidoc-spacing** - Standardizes AsciiDoc formatting (blank lines after headings and around includes)
+1. **replace-link-attributes** - Resolves Vale LinkAttribute issues by replacing attributes in link URLs
+2. **find-unused-attributes** - Scans AsciiDoc files to find unused attribute definitions
+3. **check-scannability** - Analyzes document readability by checking sentence/paragraph length
+4. **archive-unused-files** - Finds and optionally archives unreferenced AsciiDoc files
+5. **archive-unused-images** - Finds and optionally archives unreferenced image files
+6. **format-asciidoc-spacing** - Standardizes AsciiDoc formatting (blank lines after headings and around includes)
 
 ### Core Modules
 
 - `doc_utils/file_utils.py` - Core file scanning, archiving, and exclusion list parsing
 - `doc_utils/topic_map_parser.py` - Parse OpenShift-docs style topic map YAML files
+- `doc_utils/replace_link_attributes.py` - Logic for replacing attributes in link URLs
+- `doc_utils/format_asciidoc_spacing.py` - Logic for formatting AsciiDoc spacing
 - `doc_utils/unused_attributes.py` - Logic for finding unused AsciiDoc attributes
 - `doc_utils/unused_adoc.py` - Logic for finding unused AsciiDoc files (supports both topic maps and master.adoc)
 - `doc_utils/unused_images.py` - Logic for finding unused images
@@ -89,6 +100,38 @@ mypy doc_utils/
 # Build distribution packages
 python -m build
 ```
+
+### Documentation Updates for New Features
+
+When adding a new tool or feature:
+
+1. **Create tool documentation** in `docs/tools/[tool-name].md` with Jekyll front matter:
+   ```yaml
+   ---
+   layout: default
+   title: tool-name
+   parent: Tools Reference
+   nav_order: X
+   ---
+   ```
+
+2. **Update `docs/tools/index.md`**:
+   - Update tool count in description
+   - Add tool entry with icon, description, and quick usage
+   - Add to help commands list
+
+3. **Update `docs/getting-started.md`**:
+   - Add to verify installation section
+   - Add usage example section
+
+4. **Update README.md**:
+   - Add to tools table with description and usage
+
+5. **Update CLAUDE.md** (this file):
+   - Add to CLI Tools list
+   - Add to Core Modules if new module created
+   - Add to Recent Improvements section
+   - Update Project Structure if needed
 
 ### Creating a New Release
 
@@ -337,6 +380,22 @@ When contributing to this project:
 - Regular expressions should be compiled once and reused
 
 ## Recent Improvements (Latest Refactoring)
+
+### New replace-link-attributes Tool (v0.1.9)
+1. **New CLI Tool**: `replace-link-attributes` for resolving Vale LinkAttribute issues
+   - Replaces attribute references in link: and xref: macro URLs with resolved values
+   - Preserves link text unchanged
+   - Interactive attribute file selection with auto-discovery
+   - Supports custom attribute file paths via --attributes-file option
+   - Resolves nested attribute references automatically
+   - Dry-run mode for previewing changes
+2. **Refactored format-asciidoc-spacing**: Now follows project architecture pattern
+   - Core logic moved to `doc_utils/format_asciidoc_spacing.py` module
+   - CLI script imports from module (separation of concerns)
+3. **Documentation Updates**:
+   - Added comprehensive documentation to GitHub Pages at `/tools/replace-link-attributes`
+   - Updated getting-started guide with new tool examples
+   - Fixed Jekyll front matter for proper GitHub Pages rendering
 
 ### New AsciiDoc Spacing Formatter (v0.1.6)
 1. **New CLI Tool**: `format-asciidoc-spacing` for standardizing AsciiDoc formatting
