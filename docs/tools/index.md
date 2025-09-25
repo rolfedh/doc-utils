@@ -7,9 +7,26 @@ has_children: true
 
 # Tools Reference
 
-doc-utils provides five specialized CLI tools for maintaining AsciiDoc documentation repositories. Each tool is designed to handle a specific aspect of documentation maintenance.
+doc-utils provides six specialized CLI tools for maintaining AsciiDoc documentation repositories. Each tool is designed to handle a specific aspect of documentation maintenance.
 
 ## Available Tools
+
+### 🔗 [replace-link-attributes](replace-link-attributes)
+Resolves Vale AsciiDocDITA LinkAttribute violations by replacing attribute references in link URLs with their actual values.
+
+**Key Features:**
+- Fixes Vale LinkAttribute rule: "DITA 1.3 does not allow references to reusable content in link URLs"
+- Replaces attributes in link: and xref: macros
+- Preserves link text unchanged
+- Interactive attribute file selection
+- Dry-run mode for previewing changes
+
+**Quick Usage:**
+```bash
+replace-link-attributes --dry-run
+```
+
+---
 
 ### 📝 [format-asciidoc-spacing](format-asciidoc-spacing)
 Standardizes AsciiDoc formatting by ensuring proper spacing after headings and around include directives.
@@ -163,6 +180,7 @@ All archive tools include built-in safety features:
 Each tool has a built-in help command:
 
 ```bash
+replace-link-attributes --help
 format-asciidoc-spacing --help
 check-scannability --help
 archive-unused-files --help
