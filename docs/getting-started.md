@@ -55,6 +55,7 @@ After installation, verify the tools are available:
 
 ```bash
 # Check individual tools
+replace-link-attributes --help
 format-asciidoc-spacing --help
 check-scannability --help
 archive-unused-files --help
@@ -121,6 +122,21 @@ Check for unused attribute definitions:
 
 ```bash
 find-unused-attributes attributes.adoc
+```
+
+### 5. Fix Vale LinkAttribute Violations
+
+Replace attribute references in link URLs for DITA compliance:
+
+```bash
+# Preview changes
+replace-link-attributes --dry-run
+
+# Apply changes interactively
+replace-link-attributes
+
+# Use specific attributes file
+replace-link-attributes --attributes-file common/attributes.adoc
 ```
 
 ## Safety Best Practices
