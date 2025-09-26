@@ -23,12 +23,19 @@ class TestFindUnusedAttributesCLI:
                 find_unused_attributes_main()
             assert exc_info.value.code == 0
     
-    def test_missing_required_argument(self):
-        """Test error when attributes file is not provided."""
-        with patch('sys.argv', ['find-unused-attributes']):
-            with pytest.raises(SystemExit) as exc_info:
-                find_unused_attributes_main()
-            assert exc_info.value.code == 2
+    def test_auto_discovery_no_files_found(self):
+        """Test auto-discovery when no attributes files are found."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Change to empty directory (no attributes files)
+            old_dir = os.getcwd()
+            os.chdir(tmpdir)
+            try:
+                with patch('sys.argv', ['find-unused-attributes']):
+                    # The function returns 1 when no files are found
+                    result = find_unused_attributes_main()
+                    assert result == 1
+            finally:
+                os.chdir(old_dir)
     
     def test_basic_functionality(self, capsys):
         """Test basic functionality of finding unused attributes."""

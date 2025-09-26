@@ -7,9 +7,28 @@ has_children: true
 
 # Tools Reference
 
-doc-utils provides seven specialized CLI tools for maintaining AsciiDoc documentation repositories. Each tool is designed to handle a specific aspect of documentation maintenance.
+doc-utils provides eight specialized CLI tools for maintaining AsciiDoc documentation repositories. Each tool is designed to handle a specific aspect of documentation maintenance.
 
 ## Available Tools
+
+### 🔍 [validate-links](validate-links) **[EXPERIMENTAL]**
+Validates all links in AsciiDoc documentation, checking for broken URLs and missing references.
+
+**Key Features:**
+- URL transposition for preview/staging validation
+- Concurrent link checking with caching
+- Resolves AsciiDoc attributes before validation
+- Supports external URLs, internal refs, and images
+- Multiple output formats (text, JSON, JUnit)
+
+**Quick Usage:**
+```bash
+validate-links --transpose "https://docs.redhat.com--https://preview.docs.redhat.com"
+```
+
+⚠️ **Note**: This is an experimental feature under active development.
+
+---
 
 ### 🔗 [extract-link-attributes](extract-link-attributes)
 Extracts link and xref macros containing attributes into reusable attribute definitions.
@@ -45,7 +64,7 @@ replace-link-attributes --dry-run
 
 ---
 
-### 📝 [format-asciidoc-spacing](format-asciidoc-spacing)
+### 📝 [format-asciidoc-spacing](format-asciidoc-spacing) **[EXPERIMENTAL]**
 Standardizes AsciiDoc formatting by ensuring proper spacing after headings and around include directives.
 
 **Key Features:**
@@ -58,6 +77,8 @@ Standardizes AsciiDoc formatting by ensuring proper spacing after headings and a
 ```bash
 format-asciidoc-spacing --dry-run modules/
 ```
+
+⚠️ **Note**: This is an experimental feature. Formatting rules may change based on feedback.
 
 ---
 
@@ -197,9 +218,10 @@ All archive tools include built-in safety features:
 Each tool has a built-in help command:
 
 ```bash
+validate-links --help  # [EXPERIMENTAL]
 extract-link-attributes --help
 replace-link-attributes --help
-format-asciidoc-spacing --help
+format-asciidoc-spacing --help  # [EXPERIMENTAL]
 check-scannability --help
 archive-unused-files --help
 archive-unused-images --help

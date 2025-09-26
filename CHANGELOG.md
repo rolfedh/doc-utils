@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.11] - 2025-09-26
+
+### Added
+- New `validate-links` tool [EXPERIMENTAL] for validating all documentation links
+  - URL transposition feature for validating against preview/staging environments
+  - Format: `--transpose "https://prod.com--https://preview.com"`
+  - Concurrent link checking with configurable parallelism
+  - Resolves AsciiDoc attributes before validation
+  - Validates external URLs, internal xrefs, and image paths
+  - Smart caching and retry logic for transient failures
+  - Multiple output formats (text, JSON, JUnit planned)
+  - `--fail-on-broken` option for CI/CD integration
+  - Marked as EXPERIMENTAL - interface and behavior may change
+
+### Enhanced
+- `find-unused-attributes` tool now includes auto-discovery feature
+  - Can run without specifying file: just use `find-unused-attributes`
+  - Interactive file selection when multiple attributes files are found
+  - Searches for common patterns: `**/attributes.adoc`, `**/*attributes.adoc`, etc.
+  - Backward compatible: can still specify file directly
+  - Better error handling with helpful messages for missing files
+  - Consistent with `replace-link-attributes` discovery behavior
+
+- `format-asciidoc-spacing` tool marked as [EXPERIMENTAL]
+  - Added experimental warning to documentation
+  - Formatting rules may evolve based on user feedback
+
+### Fixed
+- Improved error handling in `find-unused-attributes` for missing or invalid files
+  - Now provides clear error messages instead of Python tracebacks
+  - Validates file existence and permissions before processing
+
+### Documentation
+- Added comprehensive documentation for `validate-links` tool
+- Updated `find-unused-attributes` documentation with auto-discovery examples
+- Marked experimental features clearly in all documentation
+- Updated release process in CLAUDE.md to avoid duplicate GitHub release errors
+
 ## [0.1.10] - 2025-09-26
 
 ### Added

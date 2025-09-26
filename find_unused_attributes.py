@@ -1,23 +1,61 @@
 """
 Find Unused AsciiDoc Attributes
 
-Scans a user-specified attributes file (e.g., attributes.adoc) for attribute definitions (e.g., :version: 1.1), then recursively scans all .adoc files in the current directory (ignoring symlinks) for usages of those attributes (e.g., {version}).
+Scans an attributes file for attribute definitions (e.g., :version: 1.1), then recursively scans all .adoc files in the current directory (ignoring symlinks) for usages of those attributes (e.g., {version}).
+
+If no attributes file is specified, the tool will auto-discover attributes files in the repository and let you choose one interactively.
 
 Any attribute defined but not used in any .adoc file is reported as NOT USED in both the command line output and a timestamped output file.
 """
 
 import argparse
 import os
+import sys
 from datetime import datetime
-from doc_utils.unused_attributes import find_unused_attributes
+from doc_utils.unused_attributes import find_unused_attributes, find_attributes_files, select_attributes_file
 
 def main():
     parser = argparse.ArgumentParser(description='Find unused AsciiDoc attributes.')
-    parser.add_argument('attributes_file', help='Path to the attributes.adoc file to scan for attribute definitions.')
+    parser.add_argument(
+        'attributes_file',
+        nargs='?',  # Make it optional
+        help='Path to the attributes file. If not specified, auto-discovers attributes files.'
+    )
     parser.add_argument('-o', '--output', action='store_true', help='Write results to a timestamped txt file in your home directory.')
     args = parser.parse_args()
 
-    unused = find_unused_attributes(args.attributes_file, '.')
+    # Determine which attributes file to use
+    if args.attributes_file:
+        # User specified a file
+        attr_file = args.attributes_file
+    else:
+        # Auto-discover attributes files
+        print("Searching for attributes files...")
+        attributes_files = find_attributes_files('.')
+
+        if not attributes_files:
+            print("No attributes files found in the repository.")
+            print("You can specify a file directly: find-unused-attributes <path-to-attributes-file>")
+            return 1
+
+        attr_file = select_attributes_file(attributes_files)
+        if not attr_file:
+            print("No attributes file selected.")
+            return 1
+
+    try:
+        unused = find_unused_attributes(attr_file, '.')
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        print(f"\nPlease ensure the file '{attr_file}' exists.")
+        print("Usage: find-unused-attributes [<path-to-attributes-file>]")
+        return 1
+    except (ValueError, PermissionError) as e:
+        print(f"Error: {e}")
+        return 1
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return 1
 
     lines = [f":{attr}:  NOT USED" for attr in unused]
     output = '\n'.join(lines)
@@ -33,9 +71,12 @@ def main():
         home_dir = os.path.expanduser('~')
         filename = os.path.join(home_dir, f'unused_attributes_{timestamp}.txt')
         with open(filename, 'w', encoding='utf-8') as f:
-            f.write('Unused attributes in ' + args.attributes_file + '\n')
+            f.write('Unused attributes in ' + attr_file + '\n')
             f.write(output + '\n')
         print(f'Results written to: {filename}')
 
+    return 0
+
 if __name__ == '__main__':
-    main()
+    import sys
+    sys.exit(main())

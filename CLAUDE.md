@@ -45,21 +45,23 @@ doc-utils/
 
 ### CLI Tools
 
-1. **extract-link-attributes** - Extracts link/xref macros with attributes into reusable attribute definitions
-2. **replace-link-attributes** - Resolves Vale LinkAttribute issues by replacing attributes in link URLs
-3. **find-unused-attributes** - Scans AsciiDoc files to find unused attribute definitions
-4. **check-scannability** - Analyzes document readability by checking sentence/paragraph length
-5. **archive-unused-files** - Finds and optionally archives unreferenced AsciiDoc files
-6. **archive-unused-images** - Finds and optionally archives unreferenced image files
-7. **format-asciidoc-spacing** - Standardizes AsciiDoc formatting (blank lines after headings and around includes)
+1. **validate-links** [EXPERIMENTAL] - Validates all links in documentation with URL transposition for preview environments
+2. **extract-link-attributes** - Extracts link/xref macros with attributes into reusable attribute definitions
+3. **replace-link-attributes** - Resolves Vale LinkAttribute issues by replacing attributes in link URLs
+4. **find-unused-attributes** - Scans AsciiDoc files to find unused attribute definitions (now with auto-discovery)
+5. **check-scannability** - Analyzes document readability by checking sentence/paragraph length
+6. **archive-unused-files** - Finds and optionally archives unreferenced AsciiDoc files
+7. **archive-unused-images** - Finds and optionally archives unreferenced image files
+8. **format-asciidoc-spacing** [EXPERIMENTAL] - Standardizes AsciiDoc formatting (blank lines after headings and around includes)
 
 ### Core Modules
 
 - `doc_utils/file_utils.py` - Core file scanning, archiving, and exclusion list parsing
 - `doc_utils/topic_map_parser.py` - Parse OpenShift-docs style topic map YAML files
+- `doc_utils/validate_links.py` - Logic for validating links with URL transposition [EXPERIMENTAL]
 - `doc_utils/extract_link_attributes.py` - Logic for extracting link/xref macros into attributes
 - `doc_utils/replace_link_attributes.py` - Logic for replacing attributes in link URLs
-- `doc_utils/format_asciidoc_spacing.py` - Logic for formatting AsciiDoc spacing
+- `doc_utils/format_asciidoc_spacing.py` - Logic for formatting AsciiDoc spacing [EXPERIMENTAL]
 - `doc_utils/unused_attributes.py` - Logic for finding unused AsciiDoc attributes
 - `doc_utils/unused_adoc.py` - Logic for finding unused AsciiDoc files (supports both topic maps and master.adoc)
 - `doc_utils/unused_images.py` - Logic for finding unused images
@@ -377,6 +379,25 @@ When contributing to this project:
 
 ## Recent Improvements (Latest Refactoring)
 
+### Enhanced find-unused-attributes Tool (v0.1.11-dev)
+1. **Auto-discovery Feature**: Added automatic attributes file discovery
+   - Tool now works without specifying a file: just run `find-unused-attributes`
+   - Interactive file selection when multiple attributes files are found
+   - Searches for common patterns: `**/attributes.adoc`, `**/*attributes.adoc`, etc.
+   - Backward compatible: can still specify file directly
+   - Better error handling with helpful messages for missing files
+
+### New validate-links Tool [EXPERIMENTAL] (v0.1.11-dev)
+1. **New CLI Tool**: `validate-links` for validating all documentation links
+   - **EXPERIMENTAL**: This feature is under active development and may change
+   - URL transposition feature for validating against preview/staging environments
+   - Concurrent link checking with configurable parallelism
+   - Resolves AsciiDoc attributes before validation
+   - Validates external URLs, internal xrefs, and image paths
+   - Smart caching and retry logic for transient failures
+   - Multiple output formats (text, JSON, JUnit planned)
+   - `--fail-on-broken` option for CI/CD integration
+
 ### New extract-link-attributes Tool (v0.1.10)
 1. **New CLI Tool**: `extract-link-attributes` for creating reusable link attributes
    - Extracts link: and xref: macros containing attributes into attribute definitions
@@ -403,8 +424,9 @@ When contributing to this project:
    - Updated getting-started guide with new tool examples
    - Fixed Jekyll front matter for proper GitHub Pages rendering
 
-### New AsciiDoc Spacing Formatter (v0.1.6)
+### New AsciiDoc Spacing Formatter [EXPERIMENTAL] (v0.1.6)
 1. **New CLI Tool**: `format-asciidoc-spacing` for standardizing AsciiDoc formatting
+   - **EXPERIMENTAL**: Formatting rules may evolve based on user feedback
    - Automatically adds blank lines after headings (=, ==, ===, etc.)
    - Adds blank lines around include:: directives
    - Supports dry-run mode to preview changes

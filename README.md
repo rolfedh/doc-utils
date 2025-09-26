@@ -46,9 +46,10 @@ pip install -e .
 
 | Tool | Description | Usage |
 |------|-------------|-------|
+| **`validate-links`** [EXPERIMENTAL] | Validates all links in documentation, with URL transposition for preview environments | `validate-links --transpose "https://prod--https://preview"` |
 | **`extract-link-attributes`** | Extracts link/xref macros with attributes into reusable definitions | `extract-link-attributes --dry-run` |
 | **`replace-link-attributes`** | Resolves Vale LinkAttribute issues by replacing attributes in link URLs | `replace-link-attributes --dry-run` |
-| **`format-asciidoc-spacing`** | Standardizes spacing after headings and around includes | `format-asciidoc-spacing --dry-run modules/` |
+| **`format-asciidoc-spacing`** [EXPERIMENTAL] | Standardizes spacing after headings and around includes | `format-asciidoc-spacing --dry-run modules/` |
 | **`check-scannability`** | Analyzes readability (sentence/paragraph length) | `check-scannability --max-words 25` |
 | **`archive-unused-files`** | Finds and archives unreferenced .adoc files | `archive-unused-files` (preview)<br>`archive-unused-files --archive` (execute) |
 | **`archive-unused-images`** | Finds and archives unreferenced images | `archive-unused-images` (preview)<br>`archive-unused-images --archive` (execute) |

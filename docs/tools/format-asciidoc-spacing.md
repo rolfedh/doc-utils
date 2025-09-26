@@ -1,11 +1,13 @@
 ---
 layout: default
-title: format-asciidoc-spacing
+title: format-asciidoc-spacing [EXPERIMENTAL]
 parent: Tools Reference
 nav_order: 2
 ---
 
-# AsciiDoc Spacing Formatter
+# format-asciidoc-spacing [EXPERIMENTAL]
+
+⚠️ **EXPERIMENTAL FEATURE**: This tool is under active development. The formatting rules and behavior may change in future versions based on user feedback.
 
 A Python utility script that ensures proper spacing in AsciiDoc files by intelligently adding blank lines after headings and around `include::` directives, with special handling for attributes, comments, conditionals, and admonition blocks.
 

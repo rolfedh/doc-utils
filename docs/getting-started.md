@@ -55,9 +55,10 @@ After installation, verify the tools are available:
 
 ```bash
 # Check individual tools
+validate-links --help  # [EXPERIMENTAL]
 extract-link-attributes --help
 replace-link-attributes --help
-format-asciidoc-spacing --help
+format-asciidoc-spacing --help  # [EXPERIMENTAL]
 check-scannability --help
 archive-unused-files --help
 archive-unused-images --help
@@ -90,7 +91,7 @@ check-scannability
 check-scannability --max-words 30 --max-sentences 5
 ```
 
-### 2. Format AsciiDoc Spacing
+### 2. Format AsciiDoc Spacing [EXPERIMENTAL]
 
 Standardize spacing in your AsciiDoc files:
 
@@ -101,6 +102,8 @@ format-asciidoc-spacing --dry-run modules/
 # Apply formatting with verbose output
 format-asciidoc-spacing --verbose modules/
 ```
+
+⚠️ **Note**: This is an experimental feature. Formatting rules may evolve.
 
 ### 3. Find Unused Content
 
@@ -122,6 +125,10 @@ archive-unused-files --archive
 Check for unused attribute definitions:
 
 ```bash
+# Auto-discover attributes files (interactive)
+find-unused-attributes
+
+# Or specify a file directly
 find-unused-attributes attributes.adoc
 ```
 
@@ -146,7 +153,28 @@ extract-link-attributes \
   --scan-dir assemblies
 ```
 
-### 6. Fix Vale LinkAttribute Issues
+### 6. Validate Links [EXPERIMENTAL]
+
+Check all links in your documentation for broken URLs:
+
+```bash
+# Basic validation
+validate-links
+
+# Validate against preview environment
+validate-links --transpose "https://docs.redhat.com--https://preview.docs.redhat.com"
+
+# With multiple transpositions and options
+validate-links \
+  --transpose "https://docs.example.com--https://preview.docs.example.com" \
+  --transpose "https://api.example.com--https://api-staging.example.com" \
+  --attributes-file common-attributes.adoc \
+  --exclude-domain localhost
+```
+
+⚠️ **Note**: This is an experimental feature that may change.
+
+### 7. Fix Vale LinkAttribute Issues
 
 Replace attribute references in link URLs for DITA compliance:
 
