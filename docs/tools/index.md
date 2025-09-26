@@ -39,10 +39,14 @@ Extracts link and xref macros containing attributes into reusable attribute defi
 - Reuses existing attributes on subsequent runs
 - Interactive and non-interactive modes
 - Preserves macro type (link vs xref)
+- **NEW**: Validates link attributes for broken URLs
 
 **Quick Usage:**
 ```bash
 extract-link-attributes --dry-run
+
+# With link validation
+extract-link-attributes --validate-links --fail-on-broken
 ```
 
 ---

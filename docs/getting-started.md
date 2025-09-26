@@ -146,11 +146,16 @@ extract-link-attributes
 # Non-interactive extraction
 extract-link-attributes --non-interactive
 
+# Validate link attributes before extraction
+extract-link-attributes --validate-links
+
 # Use specific attributes file and directories
 extract-link-attributes \
   --attributes-file common-attributes.adoc \
   --scan-dir modules \
-  --scan-dir assemblies
+  --scan-dir assemblies \
+  --validate-links \
+  --fail-on-broken
 ```
 
 ### 6. Validate Links [EXPERIMENTAL]

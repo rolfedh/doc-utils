@@ -65,6 +65,18 @@ Examples:
         help='Enable verbose output'
     )
 
+    parser.add_argument(
+        '--validate-links',
+        action='store_true',
+        help='Validate URLs in link-* attributes before extraction'
+    )
+
+    parser.add_argument(
+        '--fail-on-broken',
+        action='store_true',
+        help='Exit extraction if broken links are found in attributes (requires --validate-links)'
+    )
+
     args = parser.parse_args()
 
     try:
@@ -72,7 +84,9 @@ Examples:
             attributes_file=args.attributes_file,
             scan_dirs=args.scan_dir,
             interactive=not args.non_interactive,
-            dry_run=args.dry_run
+            dry_run=args.dry_run,
+            validate_links=args.validate_links,
+            fail_on_broken=args.fail_on_broken
         )
 
         if not success:

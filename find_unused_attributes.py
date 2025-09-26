@@ -13,6 +13,7 @@ import os
 import sys
 from datetime import datetime
 from doc_utils.unused_attributes import find_unused_attributes, find_attributes_files, select_attributes_file
+from doc_utils.spinner import Spinner
 
 def main():
     parser = argparse.ArgumentParser(description='Find unused AsciiDoc attributes.')
@@ -30,8 +31,10 @@ def main():
         attr_file = args.attributes_file
     else:
         # Auto-discover attributes files
-        print("Searching for attributes files...")
+        spinner = Spinner("Searching for attributes files")
+        spinner.start()
         attributes_files = find_attributes_files('.')
+        spinner.stop()
 
         if not attributes_files:
             print("No attributes files found in the repository.")
@@ -44,7 +47,10 @@ def main():
             return 1
 
     try:
+        spinner = Spinner(f"Analyzing attributes in {os.path.basename(attr_file)}")
+        spinner.start()
         unused = find_unused_attributes(attr_file, '.')
+        spinner.stop(f"Found {len(unused)} unused attributes")
     except FileNotFoundError as e:
         print(f"Error: {e}")
         print(f"\nPlease ensure the file '{attr_file}' exists.")

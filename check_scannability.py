@@ -19,6 +19,7 @@ from datetime import datetime
 from doc_utils.scannability import check_scannability
 from doc_utils.file_utils import collect_files, parse_exclude_list_file
 
+from doc_utils.spinner import Spinner
 BASE_SENTENCE_WORD_LIMIT = 22
 BASE_PARAGRAPH_SENTENCE_LIMIT = 3
 

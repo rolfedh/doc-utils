@@ -114,6 +114,36 @@ extract-link-attributes --attributes-file common-attributes.adoc --non-interacti
 extract-link-attributes --dry-run
 ```
 
+### Validate Link Attributes
+
+**NEW**: Validate URLs in link attributes before extraction to ensure they're not broken:
+
+```bash
+# Validate existing link-* attributes
+extract-link-attributes --validate-links
+
+# Exit if broken links are found
+extract-link-attributes --validate-links --fail-on-broken
+
+# Combine with non-interactive mode for CI/CD
+extract-link-attributes \
+  --validate-links \
+  --fail-on-broken \
+  --non-interactive
+```
+
+When validation finds issues:
+```
+Validating links in common-attributes.adoc...
+✓ Validated 10 link attributes: 8 valid, 2 broken
+
+⚠️  Broken link attributes found:
+  Line 45: :link-old-api: https://api.example.com/v1/deleted
+  Line 67: :link-deprecated: https://legacy.example.com/old
+
+Stopping extraction due to broken links (--fail-on-broken)
+```
+
 ## Advanced Usage
 
 ### Specify Directories
@@ -161,6 +191,8 @@ extract-link-attributes
 | `--attributes-file FILE` | Path to attributes file (auto-discovered if not specified) |
 | `--scan-dir DIR` | Directory to scan (can be used multiple times, default: current) |
 | `--non-interactive` | Automatically use most common link text for variations |
+| `--validate-links` | Validate URLs in link-* attributes before extraction |
+| `--fail-on-broken` | Exit extraction if broken links are found (requires --validate-links) |
 | `--dry-run` | Preview changes without modifying files |
 | `-v, --verbose` | Enable verbose output |
 | `-h, --help` | Show help message |
@@ -276,6 +308,8 @@ jobs:
         run: |
           extract-link-attributes \
             --attributes-file common-attributes.adoc \
+            --validate-links \
+            --fail-on-broken \
             --non-interactive
 
       - name: Commit changes

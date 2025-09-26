@@ -12,6 +12,7 @@ from pathlib import Path
 from doc_utils.format_asciidoc_spacing import process_file, find_adoc_files
 
 
+from doc_utils.spinner import Spinner
 # Colors for output
 class Colors:
     RED = '\033[0;31m'

@@ -10,6 +10,9 @@ from typing import Dict, List, Set, Tuple, Optional
 from collections import defaultdict
 import unicodedata
 
+from .spinner import Spinner
+from .validate_links import LinkValidator
+
 
 def find_attribute_files(base_path: str = '.') -> List[str]:
     """Find potential attribute files in the repository."""
@@ -381,10 +384,73 @@ def prepare_file_updates(url_groups: Dict[str, List[Tuple[str, str, str, int]]],
     return dict(file_updates)
 
 
+def validate_link_attributes(attributes_file: str, fail_on_broken: bool = False) -> bool:
+    """
+    Validate URLs in link-* attributes.
+
+    Returns: True if validation passes (no broken links or fail_on_broken is False), False otherwise
+    """
+    if not os.path.exists(attributes_file):
+        return True  # No file to validate yet
+
+    print(f"\nValidating links in {attributes_file}...")
+    spinner = Spinner("Validating link attributes")
+    spinner.start()
+
+    # Extract link attributes from file
+    link_attributes = {}
+    with open(attributes_file, 'r', encoding='utf-8') as f:
+        for line_num, line in enumerate(f, 1):
+            # Match :link-*: URL patterns
+            match = re.match(r'^:(link-[a-zA-Z0-9_-]+):\s*(https?://[^\s]+)', line)
+            if match:
+                attr_name = match.group(1)
+                url = match.group(2).strip()
+                link_attributes[attr_name] = (url, line_num)
+
+    if not link_attributes:
+        spinner.stop("No link attributes to validate")
+        return True
+
+    # Validate each URL
+    validator = LinkValidator(timeout=10, retry=2, parallel=5)
+    broken_links = []
+
+    for attr_name, (url, line_num) in link_attributes.items():
+        try:
+            is_valid = validator.validate_url(url)
+            if not is_valid:
+                broken_links.append((attr_name, url, line_num))
+        except Exception as e:
+            broken_links.append((attr_name, url, line_num))
+
+    # Report results
+    total = len(link_attributes)
+    broken = len(broken_links)
+    valid = total - broken
+
+    spinner.stop(f"Validated {total} link attributes: {valid} valid, {broken} broken")
+
+    if broken_links:
+        print("\n⚠️  Broken link attributes found:")
+        for attr_name, url, line_num in broken_links:
+            print(f"  Line {line_num}: :{attr_name}: {url}")
+
+        if fail_on_broken:
+            print("\nStopping extraction due to broken links (--fail-on-broken)")
+            return False
+        else:
+            print("\nContinuing with extraction despite broken links...")
+
+    return True
+
+
 def extract_link_attributes(attributes_file: str = None,
                            scan_dirs: List[str] = None,
                            interactive: bool = True,
-                           dry_run: bool = False) -> bool:
+                           dry_run: bool = False,
+                           validate_links: bool = False,
+                           fail_on_broken: bool = False) -> bool:
     """
     Main function to extract link attributes.
 
@@ -410,13 +476,22 @@ def extract_link_attributes(attributes_file: str = None,
             if not attributes_file:
                 return False
 
+    # Validate existing link attributes if requested
+    if validate_links:
+        if not validate_link_attributes(attributes_file, fail_on_broken):
+            return False
+
     # Load existing attributes
+    spinner = Spinner("Loading existing attributes")
+    spinner.start()
     existing_attrs = load_existing_attributes(attributes_file)
-    print(f"Loaded {len(existing_attrs)} existing attributes")
+    spinner.stop(f"Loaded {len(existing_attrs)} existing attributes")
 
     # Collect all macros
-    print("\nScanning for link and xref macros with attributes...")
+    spinner = Spinner("Scanning for link and xref macros with attributes")
+    spinner.start()
     all_macros = collect_all_macros(scan_dirs)
+    spinner.stop()
 
     if not all_macros:
         print("No link or xref macros with attributes found.")
@@ -425,8 +500,10 @@ def extract_link_attributes(attributes_file: str = None,
     print(f"Found {len(all_macros)} link/xref macros with attributes")
 
     # Group by URL
+    spinner = Spinner("Grouping macros by URL")
+    spinner.start()
     url_groups = group_macros_by_url(all_macros)
-    print(f"Grouped into {len(url_groups)} unique URLs")
+    spinner.stop(f"Grouped into {len(url_groups)} unique URLs")
 
     # Create new attributes
     new_attributes = create_attributes(url_groups, existing_attrs, interactive)
@@ -434,6 +511,37 @@ def extract_link_attributes(attributes_file: str = None,
     if not new_attributes:
         print("No new attributes to create.")
         return True
+
+    # Validate new attributes before writing if requested
+    if validate_links and not dry_run:
+        print("\nValidating new link attributes...")
+        spinner = Spinner("Validating new URLs")
+        spinner.start()
+
+        validator = LinkValidator(timeout=10, retry=2, parallel=5)
+        broken_new = []
+
+        for attr_name, attr_value in new_attributes.items():
+            # Extract URL from attribute value (could be link: or xref:)
+            url_match = re.search(r'(https?://[^\[]+)', attr_value)
+            if url_match:
+                url = url_match.group(1).strip()
+                try:
+                    if not validator.validate_url(url):
+                        broken_new.append((attr_name, url))
+                except Exception:
+                    broken_new.append((attr_name, url))
+
+        spinner.stop(f"Validated {len(new_attributes)} new attributes")
+
+        if broken_new:
+            print("\n⚠️  Broken URLs in new attributes:")
+            for attr_name, url in broken_new:
+                print(f"  :{attr_name}: {url}")
+
+            if fail_on_broken:
+                print("\nStopping due to broken URLs in new attributes (--fail-on-broken)")
+                return False
 
     # Update attribute file
     update_attribute_file(attributes_file, new_attributes, dry_run)
@@ -443,7 +551,11 @@ def extract_link_attributes(attributes_file: str = None,
     file_updates = prepare_file_updates(url_groups, all_attributes)
 
     # Replace macros
-    replace_macros_with_attributes(file_updates, dry_run)
+    if file_updates:
+        spinner = Spinner(f"Updating {len(file_updates)} files")
+        spinner.start()
+        replace_macros_with_attributes(file_updates, dry_run)
+        spinner.stop(f"Updated {len(file_updates)} files")
 
     if dry_run:
         print("\n[DRY RUN] No files were modified. Run without --dry-run to apply changes.")

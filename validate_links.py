@@ -12,6 +12,7 @@ import argparse
 import sys
 import json
 from doc_utils.validate_links import LinkValidator, parse_transpositions, format_results
+from doc_utils.spinner import Spinner
 
 
 def main():
@@ -155,11 +156,16 @@ Examples:
 
     try:
         # Run validation
+        spinner = Spinner("Validating links")
+        spinner.start()
         results = validator.validate_all(
             scan_dirs=args.scan_dir,
             attributes_file=args.attributes_file,
             exclude_domains=args.exclude_domains
         )
+        total = results['summary']['total']
+        valid = results['summary']['valid']
+        spinner.stop(f"Validated {total} links: {valid} valid")
 
         # Format output
         if args.format == 'json':

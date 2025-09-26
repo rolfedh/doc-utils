@@ -19,6 +19,7 @@ from doc_utils.replace_link_attributes import (
     replace_link_attributes_in_file,
     find_adoc_files
 )
+from doc_utils.spinner import Spinner
 
 
 def prompt_for_attributes_file(attributes_files: list[Path]) -> Optional[Path]:
@@ -120,30 +121,33 @@ def main():
             print(f"Error: Specified attributes file not found: {attributes_file}")
             sys.exit(1)
     else:
-        print("\nSearching for attributes.adoc files...")
+        spinner = Spinner("Searching for attributes.adoc files")
+        spinner.start()
         attributes_files = find_attributes_files(repo_root)
+        spinner.stop()
         attributes_file = prompt_for_attributes_file(attributes_files)
 
         if not attributes_file:
             print("Operation cancelled.")
             sys.exit(0)
 
-    print(f"\nLoading attributes from: {attributes_file}")
+    spinner = Spinner(f"Loading attributes from {attributes_file.name}")
+    spinner.start()
     attributes = load_attributes(attributes_file)
 
     if not attributes:
-        print("No attributes found in the file.")
+        spinner.stop("No attributes found in the file", success=False)
         sys.exit(1)
 
-    print(f"Found {len(attributes)} attributes")
-
     # Resolve nested references
-    print("Resolving nested attribute references...")
     attributes = resolve_nested_attributes(attributes)
+    spinner.stop(f"Loaded and resolved {len(attributes)} attributes")
 
     # Find all AsciiDoc files
-    print(f"\nSearching for *.adoc files in {repo_root}")
+    spinner = Spinner(f"Searching for .adoc files in {repo_root}")
+    spinner.start()
     adoc_files = find_adoc_files(repo_root)
+    spinner.stop()
 
     # Exclude the attributes file itself
     adoc_files = [f for f in adoc_files if f != attributes_file]
@@ -157,14 +161,17 @@ def main():
     total_replacements = 0
     files_modified = 0
 
+    spinner = Spinner(f"Processing {len(adoc_files)} files")
+    spinner.start()
+
     for file_path in adoc_files:
         replacements = replace_link_attributes_in_file(file_path, attributes, args.dry_run)
         if replacements > 0:
             rel_path = file_path.relative_to(repo_root)
-            prefix = "[DRY RUN] " if args.dry_run else ""
-            print(f"  {prefix}Modified {rel_path}: {replacements} replacements")
             total_replacements += replacements
             files_modified += 1
+
+    spinner.stop(f"Processed {len(adoc_files)} files")
 
     # Summary
     print(f"\nSummary:")

@@ -11,6 +11,7 @@ import argparse
 from doc_utils.unused_adoc import find_unused_adoc
 from doc_utils.file_utils import parse_exclude_list_file
 
+from doc_utils.spinner import Spinner
 def main():
     parser = argparse.ArgumentParser(
         description='Archive unused AsciiDoc files.',

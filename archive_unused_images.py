@@ -10,6 +10,7 @@ import argparse
 from doc_utils.unused_images import find_unused_images
 from doc_utils.file_utils import parse_exclude_list_file
 
+from doc_utils.spinner import Spinner
 def main():
     parser = argparse.ArgumentParser(description='Archive unused image files.')
     parser.add_argument('--archive', action='store_true', help='Move the files to a dated zip in the archive directory.')

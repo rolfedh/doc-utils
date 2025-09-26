@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.12] - 2025-09-26
+
+### Added
+- Link validation feature for `extract-link-attributes` tool
+  - New `--validate-links` option to validate URLs in link-* attributes before extraction
+  - New `--fail-on-broken` option to exit if broken links are found
+  - Validates both existing link attributes and newly created attributes
+  - Reports broken links with line numbers for easy fixing
+  - Useful for CI/CD pipelines to ensure link quality
+
+- Visual progress indicators (spinners) for all tools
+  - Added animated spinners to show progress during long operations
+  - Provides better user feedback when processing many files
+  - Thread-based implementation for smooth performance
+  - Shows success/failure indicators when operations complete
+
+### Enhanced
+- `find-unused-attributes` auto-discovery improvements
+  - Better error messages for troubleshooting
+  - Clearer output when no attributes files are found
+
+### Fixed
+- Improved error handling across all tools
+- Fixed display issues with spinner output clearing
+- Replaced "abort/aborting" terminology with "exit/stopping" throughout codebase
+
+### Documentation
+- Added comprehensive documentation for link validation feature
+- Updated GitHub Pages with validation examples
+- Enhanced CI/CD integration examples with validation flags
+
 ## [0.1.11] - 2025-09-26
 
 ### Added
