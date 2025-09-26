@@ -45,17 +45,19 @@ doc-utils/
 
 ### CLI Tools
 
-1. **replace-link-attributes** - Resolves Vale LinkAttribute issues by replacing attributes in link URLs
-2. **find-unused-attributes** - Scans AsciiDoc files to find unused attribute definitions
-3. **check-scannability** - Analyzes document readability by checking sentence/paragraph length
-4. **archive-unused-files** - Finds and optionally archives unreferenced AsciiDoc files
-5. **archive-unused-images** - Finds and optionally archives unreferenced image files
-6. **format-asciidoc-spacing** - Standardizes AsciiDoc formatting (blank lines after headings and around includes)
+1. **extract-link-attributes** - Extracts link/xref macros with attributes into reusable attribute definitions
+2. **replace-link-attributes** - Resolves Vale LinkAttribute issues by replacing attributes in link URLs
+3. **find-unused-attributes** - Scans AsciiDoc files to find unused attribute definitions
+4. **check-scannability** - Analyzes document readability by checking sentence/paragraph length
+5. **archive-unused-files** - Finds and optionally archives unreferenced AsciiDoc files
+6. **archive-unused-images** - Finds and optionally archives unreferenced image files
+7. **format-asciidoc-spacing** - Standardizes AsciiDoc formatting (blank lines after headings and around includes)
 
 ### Core Modules
 
 - `doc_utils/file_utils.py` - Core file scanning, archiving, and exclusion list parsing
 - `doc_utils/topic_map_parser.py` - Parse OpenShift-docs style topic map YAML files
+- `doc_utils/extract_link_attributes.py` - Logic for extracting link/xref macros into attributes
 - `doc_utils/replace_link_attributes.py` - Logic for replacing attributes in link URLs
 - `doc_utils/format_asciidoc_spacing.py` - Logic for formatting AsciiDoc spacing
 - `doc_utils/unused_attributes.py` - Logic for finding unused AsciiDoc attributes
@@ -380,6 +382,16 @@ When contributing to this project:
 - Regular expressions should be compiled once and reused
 
 ## Recent Improvements (Latest Refactoring)
+
+### New extract-link-attributes Tool (v0.1.10)
+1. **New CLI Tool**: `extract-link-attributes` for creating reusable link attributes
+   - Extracts link: and xref: macros containing attributes into attribute definitions
+   - Handles link text variations with interactive selection
+   - Reuses existing attributes on subsequent runs (idempotent)
+   - Generates meaningful attribute names from URLs
+   - Supports both interactive and non-interactive modes
+   - Preserves macro type (link vs xref) in attribute values
+   - Dry-run mode for previewing changes
 
 ### New replace-link-attributes Tool (v0.1.9)
 1. **New CLI Tool**: `replace-link-attributes` for resolving Vale LinkAttribute issues

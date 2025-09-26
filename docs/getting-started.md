@@ -55,6 +55,7 @@ After installation, verify the tools are available:
 
 ```bash
 # Check individual tools
+extract-link-attributes --help
 replace-link-attributes --help
 format-asciidoc-spacing --help
 check-scannability --help
@@ -124,7 +125,28 @@ Check for unused attribute definitions:
 find-unused-attributes attributes.adoc
 ```
 
-### 5. Fix Vale LinkAttribute Issues
+### 5. Extract Links to Attributes
+
+Create reusable attribute definitions from link and xref macros:
+
+```bash
+# Preview what would be extracted
+extract-link-attributes --dry-run
+
+# Extract links interactively
+extract-link-attributes
+
+# Non-interactive extraction
+extract-link-attributes --non-interactive
+
+# Use specific attributes file and directories
+extract-link-attributes \
+  --attributes-file common-attributes.adoc \
+  --scan-dir modules \
+  --scan-dir assemblies
+```
+
+### 6. Fix Vale LinkAttribute Issues
 
 Replace attribute references in link URLs for DITA compliance:
 

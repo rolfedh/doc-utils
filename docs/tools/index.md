@@ -7,9 +7,26 @@ has_children: true
 
 # Tools Reference
 
-doc-utils provides six specialized CLI tools for maintaining AsciiDoc documentation repositories. Each tool is designed to handle a specific aspect of documentation maintenance.
+doc-utils provides seven specialized CLI tools for maintaining AsciiDoc documentation repositories. Each tool is designed to handle a specific aspect of documentation maintenance.
 
 ## Available Tools
+
+### 🔗 [extract-link-attributes](extract-link-attributes)
+Extracts link and xref macros containing attributes into reusable attribute definitions.
+
+**Key Features:**
+- Creates centralized link management in attributes files
+- Handles link text variations intelligently
+- Reuses existing attributes on subsequent runs
+- Interactive and non-interactive modes
+- Preserves macro type (link vs xref)
+
+**Quick Usage:**
+```bash
+extract-link-attributes --dry-run
+```
+
+---
 
 ### 🔗 [replace-link-attributes](replace-link-attributes)
 Resolves Vale AsciiDocDITA LinkAttribute issues by replacing attribute references in link URLs with their actual values.
@@ -180,6 +197,7 @@ All archive tools include built-in safety features:
 Each tool has a built-in help command:
 
 ```bash
+extract-link-attributes --help
 replace-link-attributes --help
 format-asciidoc-spacing --help
 check-scannability --help

@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.10] - 2025-09-26
+
+### Added
+- New `extract-link-attributes` tool for creating reusable link attribute definitions
+  - Extracts link: and xref: macros containing attributes into attribute definitions
+  - Handles link text variations with interactive selection mode
+  - Reuses existing attributes on subsequent runs (idempotent operation)
+  - Generates meaningful attribute names from URLs
+  - Supports both interactive and non-interactive modes
+  - Preserves macro type (link vs xref) in attribute values
+  - Automatically discovers attribute files or allows custom specification
+  - Dry-run mode to preview changes before applying
+  - Replaces original macros with attribute references throughout documentation
+  - Complementary tool to `replace-link-attributes` for complete link management workflow
+
+### Documentation
+- Added comprehensive documentation for `extract-link-attributes` tool
+- Updated all documentation to include the new tool
+- Enhanced tool descriptions and usage examples
+
 ## [0.1.9] - 2025-09-25
 
 ### Added

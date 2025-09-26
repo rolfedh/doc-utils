@@ -46,6 +46,7 @@ pip install -e .
 
 | Tool | Description | Usage |
 |------|-------------|-------|
+| **`extract-link-attributes`** | Extracts link/xref macros with attributes into reusable definitions | `extract-link-attributes --dry-run` |
 | **`replace-link-attributes`** | Resolves Vale LinkAttribute issues by replacing attributes in link URLs | `replace-link-attributes --dry-run` |
 | **`format-asciidoc-spacing`** | Standardizes spacing after headings and around includes | `format-asciidoc-spacing --dry-run modules/` |
 | **`check-scannability`** | Analyzes readability (sentence/paragraph length) | `check-scannability --max-words 25` |

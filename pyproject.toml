@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rolfedh-doc-utils"
-version = "0.1.9"
+version = "0.1.10"
 description = "CLI tools for AsciiDoc documentation projects"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -21,10 +21,11 @@ archive-unused-images = "archive_unused_images:main"
 find-unused-attributes = "find_unused_attributes:main"
 format-asciidoc-spacing = "format_asciidoc_spacing:main"
 replace-link-attributes = "replace_link_attributes:main"
+extract-link-attributes = "extract_link_attributes:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["doc_utils*"]
 
 [tool.setuptools]
-py-modules = ["find_unused_attributes", "check_scannability", "archive_unused_files", "archive_unused_images", "format_asciidoc_spacing", "replace_link_attributes"]
+py-modules = ["find_unused_attributes", "check_scannability", "archive_unused_files", "archive_unused_images", "format_asciidoc_spacing", "replace_link_attributes", "extract_link_attributes"]
