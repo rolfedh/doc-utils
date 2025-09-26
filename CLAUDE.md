@@ -180,59 +180,41 @@ Follow these exact steps to release a new version:
    - Package will be available at: https://pypi.org/project/rolfedh-doc-utils/
    - GitHub Release should appear at: https://github.com/rolfedh/doc-utils/releases
 
-8. **Known Issue: GitHub Release Creation May Fail**
-   **Current Status:** The workflow consistently fails at the GitHub Release creation step with a 403 error,
-   but PyPI publishing succeeds. This is a known permissions issue with the GitHub token.
-
-   **Always manually create the GitHub Release after pushing tags:**
+8. **Verify Release Status**
    ```bash
-   # Wait for workflow to complete (PyPI publish will succeed)
-   gh run watch
+   # Check that the workflow completed successfully
+   gh run list --workflow=pypi-publish.yml --limit 1
 
-   # Then manually create the GitHub Release
-   gh release create vX.Y.Z --title "Release vX.Y.Z" --notes "$(awk '/^## \[X.Y.Z\]/{flag=1; next} /^## \[/{flag=0} flag' CHANGELOG.md)"
-
-   # Or with custom notes
-   gh release create vX.Y.Z --title "Release vX.Y.Z" --notes "Brief description
-
-   See CHANGELOG.md for full details."
-   ```
-
-   **Note:** This manual step ensures the GitHub Release is created correctly and shows as "Latest" on the repository page.
-
-9. **Verify Release is Latest**
-   ```bash
-   # Check that the new release shows as "Latest"
+   # Verify the GitHub Release was created and is marked as "Latest"
    gh release list --limit 1
-   # Should show your new release with "Latest" label
+
+   # Verify PyPI package is available
+   pip index versions rolfedh-doc-utils | head -5
    ```
 
-**Example for releasing v0.1.9:**
+   **Note:** As of v0.1.9, the GitHub Actions workflow successfully creates both the PyPI release and GitHub Release automatically. Manual creation is no longer needed unless the workflow fails.
+
+**Example for releasing v0.1.11:**
 ```bash
-# 1. Update pyproject.toml: version = "0.1.9"
-# 2. Update CHANGELOG.md: Move unreleased items to ## [0.1.9] - YYYY-MM-DD
+# 1. Update pyproject.toml: version = "0.1.11"
+# 2. Update CHANGELOG.md: Move unreleased items to ## [0.1.11] - YYYY-MM-DD
 # 3. Test
 python -m pytest tests/ -v --tb=short
 # 4. Commit
-git add -A && git commit -am "Prepare release v0.1.9"
+git add -A && git commit -am "Prepare release v0.1.11"
 # 5. Tag
-git tag -a v0.1.9 -m "Release v0.1.9: Brief description"
+git tag -a v0.1.11 -m "Release v0.1.11: Brief description"
 # 6. Push (this triggers the workflow)
 git push origin main --tags
 
-# 7. Wait for PyPI publish (GitHub Release will fail - this is expected)
+# 7. Monitor the workflow
 gh run watch
 # or check status with:
 gh run list --workflow=pypi-publish.yml --limit 1
 
-# 8. Manually create GitHub Release (required due to known issue)
-gh release create v0.1.9 --title "Release v0.1.9" --notes "Brief description
-
-See CHANGELOG.md for full details."
-
-# 9. Verify the release shows as Latest
-gh release list --limit 1
-# Should show v0.1.9 with "Latest" label
+# 8. Verify the release
+gh release list --limit 1  # Should show v0.1.11 with "Latest" label
+pip index versions rolfedh-doc-utils | head -3  # Should show v0.1.11 as latest
 ```
 
 ## Development Guidelines
