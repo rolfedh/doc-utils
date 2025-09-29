@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.13] - 2025-09-29
+
+### Enhanced
+- **extract-link-attributes** - Now replaces link macros with existing attribute references
+  - Previously only created new attributes and skipped existing ones
+  - Now replaces link macros even when matching attributes already exist
+  - Useful for cleaning up existing documentation
+  - Provides clear feedback on created vs reused attributes
+  - Makes the tool more useful for ongoing maintenance
+
 ## [0.1.12] - 2025-09-26
 
 ### Added

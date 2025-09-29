@@ -217,9 +217,10 @@ class TestCreateAttributes:
         }
         existing_attrs = {}
 
-        new_attrs = create_attributes(url_groups, existing_attrs, interactive=False)
+        new_attrs, existing_matched = create_attributes(url_groups, existing_attrs, interactive=False)
 
         assert len(new_attrs) == 2
+        assert len(existing_matched) == 0
         # Check that attributes were created
         attr_values = list(new_attrs.values())
         assert any("link:https://example.com/{version}/guide.html[Guide]" in v for v in attr_values)
@@ -236,9 +237,11 @@ class TestCreateAttributes:
             "existing-link": "link:https://example.com/guide.html[Existing Guide]"
         }
 
-        new_attrs = create_attributes(url_groups, existing_attrs, interactive=False)
+        new_attrs, existing_matched = create_attributes(url_groups, existing_attrs, interactive=False)
 
         assert len(new_attrs) == 0
+        assert len(existing_matched) == 1
+        assert "existing-link" in existing_matched
         captured = capsys.readouterr()
         assert "already has attribute" in captured.out
 
