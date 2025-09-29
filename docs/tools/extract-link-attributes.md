@@ -13,6 +13,8 @@ Extract link and xref macros containing attributes into reusable attribute defin
 
 The `extract-link-attributes` tool finds all `link:` and `xref:` macros whose URLs contain AsciiDoc attributes (like `{version}` or `{base-url}`), creates attribute definitions for them, and replaces the macros with attribute references throughout your documentation.
 
+**NEW**: The tool now also replaces existing link macros with attribute references when matching attributes already exist, making it useful for both initial extraction and ongoing maintenance.
+
 This tool is the complement to `replace-link-attributes`:
 - **extract-link-attributes**: Creates attributes FROM link macros (this tool)
 - **replace-link-attributes**: Replaces attributes IN link macros with resolved values
@@ -23,9 +25,10 @@ This tool is the complement to `replace-link-attributes`:
 - **Extracts** link/xref macros with attributes in their URLs
 - **Creates** reusable attribute definitions
 - **Handles** link text variations intelligently
-- **Replaces** macros with attribute references
+- **Replaces** macros with attribute references (both new and existing)
 - **Preserves** macro type (link vs xref)
 - **Reuses** existing attributes on subsequent runs
+- **Smart replacement** - replaces link macros with existing attributes when URLs match
 
 ## When to Use
 
@@ -34,6 +37,7 @@ Use this tool when you want to:
 - **Improve maintainability** - Update URLs in one place instead of many
 - **Ensure consistency** - All references to the same URL use the same attribute
 - **Follow DRY principle** - Don't Repeat Yourself for link definitions
+- **Clean up existing docs** - Replace verbose link macros with concise attribute references
 
 ## How It Works
 
@@ -74,14 +78,27 @@ When the same URL appears with different link text:
 - Automatically uses the most common text variation
 
 ### 4. Replacement
-Replaces all occurrences with attribute references:
+The tool replaces macros with attribute references in two scenarios:
 
+**A) New attributes created:**
 ```asciidoc
 // Before:
 See link:https://docs.example.com/{version}/guide.html[User Guide] for details.
 
-// After:
+// After (new attribute created):
 See {link-docs-example-guide} for details.
+```
+
+**B) Existing attributes matched:**
+```asciidoc
+// Existing attribute in attributes.adoc:
+:link-telemetry-micrometer-to-opente: link:{quarkusio-guides}/telemetry-micrometer-to-opentelemetry[Micrometer and OpenTelemetry extension]
+
+// Before in your .adoc file:
+For more information, see the {ProductName} link:{quarkusio-guides}/telemetry-micrometer-to-opentelemetry[Micrometer and OpenTelemetry extension] guide.
+
+// After (existing attribute used):
+For more information, see the {ProductName} {link-telemetry-micrometer-to-opente} guide.
 ```
 
 ## Basic Usage
@@ -251,10 +268,33 @@ Added 1 attribute to common-attributes.adoc
 Updated modules/new-chapter.adoc: 3 replacements
 Updated assemblies/new-guide.adoc: 5 replacements
 
-Successfully extracted 1 link attribute
+Successfully processed 3 link attributes:
+  - Created 1 new attribute
+  - Replaced macros using 2 existing attributes
 ```
 
-### Example 3: Creating Attributes File
+### Example 3: Using Existing Attributes Only
+
+```bash
+# When no new attributes are needed (all URLs match existing ones)
+$ extract-link-attributes --scan-dir modules/rn --attributes-file common/attributes.adoc
+
+Loaded 394 existing attributes
+
+Scanning for link and xref macros with attributes...
+Found 14 link/xref macros with attributes
+Grouped into 14 unique URLs
+
+URL already has attribute {link-telemetry-micrometer-to-opente}: {quarkusio-guides}/telemetry-micrometer-to-opentelemetry
+URL already has attribute {link-step-up-authentication}: {URL_OIDC_AUTHENTICATION}/#step-up-authentication
+[... 12 more existing URLs ...]
+
+Updated 9 files: 14 total replacements
+
+Successfully replaced macros using 14 existing link attributes
+```
+
+### Example 4: Creating Attributes File
 
 ```bash
 $ extract-link-attributes

@@ -257,13 +257,14 @@ def collect_all_macros(scan_dirs: List[str] = None) -> List[Tuple[str, str, str,
 
 def create_attributes(url_groups: Dict[str, List[Tuple[str, str, str, int]]],
                      existing_attrs: Dict[str, str],
-                     interactive: bool = True) -> Dict[str, str]:
+                     interactive: bool = True) -> Tuple[Dict[str, str], Dict[str, str]]:
     """
-    Create new attributes for each unique URL.
+    Create new attributes for each unique URL and track existing ones.
 
-    Returns: Dict[attribute_name, attribute_value]
+    Returns: Tuple[new_attributes, existing_matching_attributes]
     """
     new_attributes = {}
+    existing_matching_attributes = {}
     existing_attr_names = set(existing_attrs.keys())
     counter = 1
 
@@ -273,6 +274,7 @@ def create_attributes(url_groups: Dict[str, List[Tuple[str, str, str, int]]],
         for attr_name, attr_value in existing_attrs.items():
             if url in attr_value:
                 existing_attr = attr_name
+                existing_matching_attributes[attr_name] = attr_value
                 break
 
         if existing_attr:
@@ -296,7 +298,7 @@ def create_attributes(url_groups: Dict[str, List[Tuple[str, str, str, int]]],
 
         print(f"Created attribute: :{attr_name}: {attr_value}")
 
-    return new_attributes
+    return new_attributes, existing_matching_attributes
 
 
 def update_attribute_file(file_path: str, new_attributes: Dict[str, str], dry_run: bool = False):
@@ -505,15 +507,15 @@ def extract_link_attributes(attributes_file: str = None,
     url_groups = group_macros_by_url(all_macros)
     spinner.stop(f"Grouped into {len(url_groups)} unique URLs")
 
-    # Create new attributes
-    new_attributes = create_attributes(url_groups, existing_attrs, interactive)
+    # Create new attributes and track existing ones
+    new_attributes, existing_matching_attributes = create_attributes(url_groups, existing_attrs, interactive)
 
-    if not new_attributes:
-        print("No new attributes to create.")
+    if not new_attributes and not existing_matching_attributes:
+        print("No new attributes to create and no existing attributes match found URLs.")
         return True
 
     # Validate new attributes before writing if requested
-    if validate_links and not dry_run:
+    if validate_links and not dry_run and new_attributes:
         print("\nValidating new link attributes...")
         spinner = Spinner("Validating new URLs")
         spinner.start()
@@ -543,10 +545,11 @@ def extract_link_attributes(attributes_file: str = None,
                 print("\nStopping due to broken URLs in new attributes (--fail-on-broken)")
                 return False
 
-    # Update attribute file
-    update_attribute_file(attributes_file, new_attributes, dry_run)
+    # Update attribute file (only if there are new attributes)
+    if new_attributes:
+        update_attribute_file(attributes_file, new_attributes, dry_run)
 
-    # Prepare file updates
+    # Prepare file updates (include both new and existing matching attributes)
     all_attributes = {**existing_attrs, **new_attributes}
     file_updates = prepare_file_updates(url_groups, all_attributes)
 
@@ -560,6 +563,14 @@ def extract_link_attributes(attributes_file: str = None,
     if dry_run:
         print("\n[DRY RUN] No files were modified. Run without --dry-run to apply changes.")
     else:
-        print(f"\nSuccessfully extracted {len(new_attributes)} link attributes")
+        total_processed = len(new_attributes) + len(existing_matching_attributes)
+        if new_attributes and existing_matching_attributes:
+            print(f"\nSuccessfully processed {total_processed} link attributes:")
+            print(f"  - Created {len(new_attributes)} new attributes")
+            print(f"  - Replaced macros using {len(existing_matching_attributes)} existing attributes")
+        elif new_attributes:
+            print(f"\nSuccessfully extracted {len(new_attributes)} link attributes")
+        elif existing_matching_attributes:
+            print(f"\nSuccessfully replaced macros using {len(existing_matching_attributes)} existing link attributes")
 
     return True
