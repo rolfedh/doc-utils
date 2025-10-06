@@ -102,6 +102,12 @@ def main():
         type=str,
         help='Path to attributes.adoc file (skips interactive selection)'
     )
+    parser.add_argument(
+        '--macro-type',
+        choices=['link', 'xref', 'both'],
+        default='both',
+        help='Type of macros to process: link, xref, or both (default: both)'
+    )
 
     args = parser.parse_args()
 
@@ -165,7 +171,7 @@ def main():
     spinner.start()
 
     for file_path in adoc_files:
-        replacements = replace_link_attributes_in_file(file_path, attributes, args.dry_run)
+        replacements = replace_link_attributes_in_file(file_path, attributes, args.dry_run, args.macro_type)
         if replacements > 0:
             rel_path = file_path.relative_to(repo_root)
             total_replacements += replacements

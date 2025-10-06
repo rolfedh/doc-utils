@@ -65,8 +65,18 @@ def resolve_nested_attributes(attributes: Dict[str, str], max_iterations: int = 
     return attributes
 
 
-def replace_link_attributes_in_file(file_path: Path, attributes: Dict[str, str], dry_run: bool = False) -> int:
-    """Replace attribute references within link macros in a single file."""
+def replace_link_attributes_in_file(file_path: Path, attributes: Dict[str, str], dry_run: bool = False, macro_type: str = 'both') -> int:
+    """
+    Replace attribute references within link macros in a single file.
+
+    Args:
+        file_path: Path to the file to process
+        attributes: Dictionary of attribute definitions
+        dry_run: Preview changes without modifying files
+        macro_type: Type of macros to process - 'link', 'xref', or 'both' (default: 'both')
+
+    Returns: Number of replacements made
+    """
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
@@ -75,14 +85,23 @@ def replace_link_attributes_in_file(file_path: Path, attributes: Dict[str, str],
 
     # Find all link macros containing attributes in the URL portion only
     # Match link: and xref: macros, capturing URL and text separately
-    link_patterns = [
+    link_patterns = []
+
+    if macro_type in ('link', 'both'):
         # link:url[text] - replace only in URL portion
-        (r'link:([^[\]]*)\[([^\]]*)\]', 'link'),
+        link_patterns.append((r'link:([^[\]]*)\[([^\]]*)\]', 'link'))
+
+    if macro_type in ('xref', 'both'):
         # xref:target[text] - replace only in target portion
-        (r'xref:([^[\]]*)\[([^\]]*)\]', 'xref'),
-        # link:url[] or xref:target[] - replace in URL/target portion
-        (r'(link|xref):([^[\]]*)\[\]', 'empty_text')
-    ]
+        link_patterns.append((r'xref:([^[\]]*)\[([^\]]*)\]', 'xref'))
+
+    # Handle empty text cases based on macro type
+    if macro_type == 'both':
+        link_patterns.append((r'(link|xref):([^[\]]*)\[\]', 'empty_text'))
+    elif macro_type == 'link':
+        link_patterns.append((r'(link):([^[\]]*)\[\]', 'empty_text'))
+    elif macro_type == 'xref':
+        link_patterns.append((r'(xref):([^[\]]*)\[\]', 'empty_text'))
 
     for pattern, link_type in link_patterns:
         matches = list(re.finditer(pattern, content))

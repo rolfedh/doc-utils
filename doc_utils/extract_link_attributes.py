@@ -85,9 +85,13 @@ def load_existing_attributes(file_path: str) -> Dict[str, str]:
     return attributes
 
 
-def find_link_macros(file_path: str) -> List[Tuple[str, str, str, int]]:
+def find_link_macros(file_path: str, macro_type: str = 'both') -> List[Tuple[str, str, str, int]]:
     """
     Find all link: and xref: macros containing attributes in their URLs.
+
+    Args:
+        file_path: Path to the file to scan
+        macro_type: Type of macros to find - 'link', 'xref', or 'both' (default: 'both')
 
     Returns list of tuples: (full_macro, url, link_text, line_number)
     """
@@ -97,10 +101,13 @@ def find_link_macros(file_path: str) -> List[Tuple[str, str, str, int]]:
         for line_num, line in enumerate(f, 1):
             # Pattern to match link: and xref: macros
             # Matches: (link|xref):url[text] where url contains {attribute}
-            patterns = [
-                r'(link:([^[\]]*\{[^}]+\}[^[\]]*)\[([^\]]*)\])',
-                r'(xref:([^[\]]*\{[^}]+\}[^[\]]*)\[([^\]]*)\])'
-            ]
+            patterns = []
+
+            if macro_type in ('link', 'both'):
+                patterns.append(r'(link:([^[\]]*\{[^}]+\}[^[\]]*)\[([^\]]*)\])')
+
+            if macro_type in ('xref', 'both'):
+                patterns.append(r'(xref:([^[\]]*\{[^}]+\}[^[\]]*)\[([^\]]*)\])')
 
             for pattern in patterns:
                 for match in re.finditer(pattern, line, re.IGNORECASE):
@@ -228,9 +235,13 @@ def select_link_text(url: str, variations: List[Tuple[str, str, str, int]], inte
             return most_common[0]
 
 
-def collect_all_macros(scan_dirs: List[str] = None) -> List[Tuple[str, str, str, str, int]]:
+def collect_all_macros(scan_dirs: List[str] = None, macro_type: str = 'both') -> List[Tuple[str, str, str, str, int]]:
     """
     Collect all link/xref macros with attributes from all .adoc files.
+
+    Args:
+        scan_dirs: Directories to scan (default: current directory)
+        macro_type: Type of macros to find - 'link', 'xref', or 'both' (default: 'both')
 
     Returns: List[(file_path, full_macro, url, link_text, line_number)]
     """
@@ -248,7 +259,7 @@ def collect_all_macros(scan_dirs: List[str] = None) -> List[Tuple[str, str, str,
             for file in files:
                 if file.endswith('.adoc'):
                     file_path = os.path.join(root, file)
-                    macros = find_link_macros(file_path)
+                    macros = find_link_macros(file_path, macro_type)
                     for full_macro, url, link_text, line_num in macros:
                         all_macros.append((file_path, full_macro, url, link_text, line_num))
 
@@ -452,9 +463,19 @@ def extract_link_attributes(attributes_file: str = None,
                            interactive: bool = True,
                            dry_run: bool = False,
                            validate_links: bool = False,
-                           fail_on_broken: bool = False) -> bool:
+                           fail_on_broken: bool = False,
+                           macro_type: str = 'both') -> bool:
     """
     Main function to extract link attributes.
+
+    Args:
+        attributes_file: Path to attributes file
+        scan_dirs: Directories to scan
+        interactive: Enable interactive mode
+        dry_run: Preview changes without modifying files
+        validate_links: Validate URLs before extraction
+        fail_on_broken: Exit if broken links found
+        macro_type: Type of macros to process - 'link', 'xref', or 'both' (default: 'both')
 
     Returns: True if successful, False otherwise
     """
@@ -490,16 +511,17 @@ def extract_link_attributes(attributes_file: str = None,
     spinner.stop(f"Loaded {len(existing_attrs)} existing attributes")
 
     # Collect all macros
-    spinner = Spinner("Scanning for link and xref macros with attributes")
+    macro_desc = {'link': 'link', 'xref': 'xref', 'both': 'link and xref'}[macro_type]
+    spinner = Spinner(f"Scanning for {macro_desc} macros with attributes")
     spinner.start()
-    all_macros = collect_all_macros(scan_dirs)
+    all_macros = collect_all_macros(scan_dirs, macro_type)
     spinner.stop()
 
     if not all_macros:
-        print("No link or xref macros with attributes found.")
+        print(f"No {macro_desc} macros with attributes found.")
         return True
 
-    print(f"Found {len(all_macros)} link/xref macros with attributes")
+    print(f"Found {len(all_macros)} {macro_desc} macros with attributes")
 
     # Group by URL
     spinner = Spinner("Grouping macros by URL")

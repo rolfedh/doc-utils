@@ -77,6 +77,13 @@ Examples:
         help='Exit extraction if broken links are found in attributes (requires --validate-links)'
     )
 
+    parser.add_argument(
+        '--macro-type',
+        choices=['link', 'xref', 'both'],
+        default='both',
+        help='Type of macros to process: link, xref, or both (default: both)'
+    )
+
     args = parser.parse_args()
 
     try:
@@ -86,7 +93,8 @@ Examples:
             interactive=not args.non_interactive,
             dry_run=args.dry_run,
             validate_links=args.validate_links,
-            fail_on_broken=args.fail_on_broken
+            fail_on_broken=args.fail_on_broken,
+            macro_type=args.macro_type
         )
 
         if not success:

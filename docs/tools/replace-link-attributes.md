@@ -63,6 +63,19 @@ replace-link-attributes --dry-run
 replace-link-attributes --path /path/to/docs
 ```
 
+### Process specific macro types
+
+```bash
+# Process only link: macros (ignore xref:)
+replace-link-attributes --macro-type link
+
+# Process only xref: macros (ignore link:)
+replace-link-attributes --macro-type xref
+
+# Process both (default behavior)
+replace-link-attributes --macro-type both
+```
+
 ## Examples
 
 ### Before and after
@@ -107,6 +120,7 @@ replace-link-attributes
 - `--dry-run`, `-n`: Preview changes without modifying files
 - `--path`, `-p PATH`: Repository path to search (default: current directory)
 - `--attributes-file`, `-a FILE`: Path to attributes file (skips interactive selection)
+- `--macro-type {link,xref,both}`: Type of macros to process: link, xref, or both (default: both)
 - `--help`, `-h`: Show help message
 
 ## Features

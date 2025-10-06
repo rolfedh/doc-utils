@@ -90,6 +90,36 @@ Regular link: link:https://example.com/guide.html[Guide]
         macros = find_link_macros(str(test_file))
         assert len(macros) == 0
 
+    def test_find_only_link_macros(self, tmp_path):
+        """Test finding only link macros when macro_type='link'."""
+        test_file = tmp_path / "test.adoc"
+        test_file.write_text("""
+= Test Document
+
+See link:https://example.com/{version}/guide.html[Guide].
+Also check xref:{base-url}/intro.html[Intro].
+""")
+
+        macros = find_link_macros(str(test_file), macro_type='link')
+
+        assert len(macros) == 1
+        assert macros[0][0] == "link:https://example.com/{version}/guide.html[Guide]"
+
+    def test_find_only_xref_macros(self, tmp_path):
+        """Test finding only xref macros when macro_type='xref'."""
+        test_file = tmp_path / "test.adoc"
+        test_file.write_text("""
+= Test Document
+
+See link:https://example.com/{version}/guide.html[Guide].
+Also check xref:{base-url}/intro.html[Intro].
+""")
+
+        macros = find_link_macros(str(test_file), macro_type='xref')
+
+        assert len(macros) == 1
+        assert macros[0][0] == "xref:{base-url}/intro.html[Intro]"
+
 
 class TestGenerateAttributeName:
     """Tests for generate_attribute_name function."""
@@ -317,7 +347,7 @@ And xref:{base-url}/intro.html[Introduction] for overview.
 
         # Check output
         captured = capsys.readouterr()
-        assert "Found 3 link/xref macros" in captured.out
+        assert "Found 3 link and xref macros" in captured.out
         assert "Grouped into 2 unique URLs" in captured.out
         assert "[DRY RUN]" in captured.out
 

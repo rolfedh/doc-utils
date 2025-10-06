@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.14] - 2025-10-06
+
+### Added
+- **Macro type filtering** - Both `extract-link-attributes` and `replace-link-attributes` now support `--macro-type` option
+  - New `--macro-type {link,xref,both}` option to limit operations to specific macro types
+  - Process only `link:` macros with `--macro-type link`
+  - Process only `xref:` macros with `--macro-type xref`
+  - Process both (default) with `--macro-type both`
+  - Useful when you need to handle external links vs internal cross-references differently
+
+### Enhanced
+- Added comprehensive test coverage for macro type filtering
+  - New tests for `find_link_macros()` with macro_type parameter
+  - New tests for `replace_link_attributes_in_file()` with macro_type parameter
+  - All 112 tests passing
+
+### Documentation
+- Updated GitHub Pages documentation for both tools with macro type filtering examples
+- Added usage examples for `--macro-type` option
+
 ## [0.1.13] - 2025-09-29
 
 ### Enhanced

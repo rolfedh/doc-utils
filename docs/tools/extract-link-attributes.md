@@ -176,6 +176,19 @@ extract-link-attributes \
   --non-interactive
 ```
 
+### Process Specific Macro Types
+
+```bash
+# Process only link: macros (ignore xref:)
+extract-link-attributes --macro-type link
+
+# Process only xref: macros (ignore link:)
+extract-link-attributes --macro-type xref
+
+# Process both (default behavior)
+extract-link-attributes --macro-type both
+```
+
 ### Handling Reruns
 
 The tool intelligently handles repeated execution:
@@ -210,6 +223,7 @@ extract-link-attributes
 | `--non-interactive` | Automatically use most common link text for variations |
 | `--validate-links` | Validate URLs in link-* attributes before extraction |
 | `--fail-on-broken` | Exit extraction if broken links are found (requires --validate-links) |
+| `--macro-type {link,xref,both}` | Type of macros to process: link, xref, or both (default: both) |
 | `--dry-run` | Preview changes without modifying files |
 | `-v, --verbose` | Enable verbose output |
 | `-h, --help` | Show help message |
