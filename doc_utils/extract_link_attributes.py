@@ -235,13 +235,14 @@ def select_link_text(url: str, variations: List[Tuple[str, str, str, int]], inte
             return most_common[0]
 
 
-def collect_all_macros(scan_dirs: List[str] = None, macro_type: str = 'both') -> List[Tuple[str, str, str, str, int]]:
+def collect_all_macros(scan_dirs: List[str] = None, macro_type: str = 'both', exclude_files: List[str] = None) -> List[Tuple[str, str, str, str, int]]:
     """
     Collect all link/xref macros with attributes from all .adoc files.
 
     Args:
         scan_dirs: Directories to scan (default: current directory)
         macro_type: Type of macros to find - 'link', 'xref', or 'both' (default: 'both')
+        exclude_files: List of file paths to exclude from scanning (typically all attributes files)
 
     Returns: List[(file_path, full_macro, url, link_text, line_number)]
     """
@@ -249,6 +250,13 @@ def collect_all_macros(scan_dirs: List[str] = None, macro_type: str = 'both') ->
         scan_dirs = ['.']
 
     all_macros = []
+
+    # Normalize all exclude file paths
+    exclude_paths = set()
+    if exclude_files:
+        for file in exclude_files:
+            if file:  # Check for None or empty string
+                exclude_paths.add(os.path.abspath(file))
 
     for scan_dir in scan_dirs:
         for root, _, files in os.walk(scan_dir):
@@ -259,6 +267,9 @@ def collect_all_macros(scan_dirs: List[str] = None, macro_type: str = 'both') ->
             for file in files:
                 if file.endswith('.adoc'):
                     file_path = os.path.join(root, file)
+                    # Skip any attributes files to prevent self-referencing
+                    if exclude_paths and os.path.abspath(file_path) in exclude_paths:
+                        continue
                     macros = find_link_macros(file_path, macro_type)
                     for full_macro, url, link_text, line_num in macros:
                         all_macros.append((file_path, full_macro, url, link_text, line_num))
@@ -510,11 +521,20 @@ def extract_link_attributes(attributes_file: str = None,
     existing_attrs = load_existing_attributes(attributes_file)
     spinner.stop(f"Loaded {len(existing_attrs)} existing attributes")
 
-    # Collect all macros
+    # Find all attributes files to exclude from processing
+    all_attribute_files = find_attribute_files()
+
+    # Notify user about excluded files if there are multiple
+    if len(all_attribute_files) > 1:
+        print(f"Excluding {len(all_attribute_files)} attributes files from processing:")
+        for f in all_attribute_files:
+            print(f"  - {f}")
+
+    # Collect all macros, excluding ALL attributes files
     macro_desc = {'link': 'link', 'xref': 'xref', 'both': 'link and xref'}[macro_type]
     spinner = Spinner(f"Scanning for {macro_desc} macros with attributes")
     spinner.start()
-    all_macros = collect_all_macros(scan_dirs, macro_type)
+    all_macros = collect_all_macros(scan_dirs, macro_type, exclude_files=all_attribute_files)
     spinner.stop()
 
     if not all_macros:

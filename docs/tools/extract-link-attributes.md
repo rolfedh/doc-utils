@@ -29,6 +29,7 @@ This tool is the complement to `replace-link-attributes`:
 - **Preserves** macro type (link vs xref)
 - **Reuses** existing attributes on subsequent runs
 - **Smart replacement** - replaces link macros with existing attributes when URLs match
+- **Protects ALL attributes files** - automatically excludes all attributes files from being modified
 
 ## When to Use
 
@@ -189,6 +190,39 @@ extract-link-attributes --macro-type xref
 extract-link-attributes --macro-type both
 ```
 
+### Handling Multiple Attributes Files
+
+When your repository contains multiple attributes files (e.g., `common-attributes.adoc`, module-specific attributes), the tool:
+
+1. **Discovers all attributes files** using common naming patterns
+2. **Prompts for selection** of which file to update with new attributes
+3. **Automatically excludes ALL attributes files** from being scanned/modified
+4. **Shows exclusion list** when multiple attributes files exist
+
+This prevents attributes files from having their own link/xref macros replaced, which would create self-referencing loops.
+
+Example with multiple attributes files:
+```bash
+$ extract-link-attributes
+
+Multiple attribute files found. Please select one:
+  1. docs/common-attributes.adoc
+  2. modules/product-attributes.adoc
+  3. assemblies/api-attributes.adoc
+
+Enter your choice (1-3): 1
+
+Excluding 3 attributes files from processing:
+  - docs/common-attributes.adoc
+  - modules/product-attributes.adoc
+  - assemblies/api-attributes.adoc
+
+# The tool will:
+# - Update ONLY docs/common-attributes.adoc with new attributes
+# - NOT modify any link/xref macros in ANY of the 3 attributes files
+# - Process all other .adoc files normally
+```
+
 ### Handling Reruns
 
 The tool intelligently handles repeated execution:
@@ -200,6 +234,8 @@ The tool intelligently handles repeated execution:
 2. **New URLs**: Creates new attributes only for URLs not already in the attributes file
 
 3. **Idempotent**: Running multiple times is safe and won't create duplicates
+
+4. **Attributes files protected**: All attributes files are always excluded from modification
 
 Example scenario:
 ```bash
@@ -381,6 +417,7 @@ jobs:
 - Ensure your links contain attributes (e.g., `{version}`)
 - Check that you're scanning the right directories
 - Verify `.adoc` file extensions
+- Note: Attributes files themselves are automatically excluded from scanning
 
 ### Wrong link text selected
 - Use interactive mode to manually select
@@ -390,6 +427,11 @@ jobs:
 - The tool generates names from URLs
 - You can manually rename attributes after extraction
 - Just ensure you update all references
+
+### Self-referencing attributes (Fixed)
+- **Previous bug**: Attributes would become self-referencing (e.g., `:link-foo: {link-foo}`)
+- **Now fixed**: ALL attributes files are automatically excluded from processing
+- This prevents the tool from replacing macros within any attributes file
 
 ## Related Tools
 

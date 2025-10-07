@@ -24,6 +24,7 @@ When converting AsciiDoc to DITA, link and xref macros cannot contain attribute 
 - Preserves link text exactly as written (only modifies URLs)
 - Resolves nested attribute references automatically
 - Supports both `link:url[text]` and `xref:target[text]` formats
+- **Protects ALL attributes files** - automatically excludes all attributes files from being modified
 
 ## Installation
 
@@ -43,7 +44,8 @@ The tool will:
 1. Search for `attributes.adoc` files in your repository
 2. Present options if multiple files are found
 3. Allow you to specify a custom file path if needed
-4. Process all AsciiDoc files and replace attribute references in links
+4. **Automatically exclude ALL attributes files** from being modified
+5. Process all other AsciiDoc files and replace attribute references in links
 
 ### Specify attributes file directly
 
@@ -75,6 +77,35 @@ replace-link-attributes --macro-type xref
 # Process both (default behavior)
 replace-link-attributes --macro-type both
 ```
+
+### Handling multiple attributes files
+
+When your repository contains multiple attributes files, the tool:
+- Discovers all attributes files during the search
+- Lets you select which one to use for attribute resolution
+- **Automatically excludes ALL attributes files from being modified**
+- Shows which files are being excluded when multiple exist
+
+Example with multiple attributes files:
+```bash
+$ replace-link-attributes
+
+Multiple attributes.adoc files found:
+  1. docs/attributes.adoc
+  2. modules/attributes.adoc
+  3. common/attributes.adoc
+
+Select an attributes file (1-3), or enter a custom path: 1
+
+Excluding 3 attributes files from processing:
+  - docs/attributes.adoc
+  - modules/attributes.adoc
+  - common/attributes.adoc
+
+Found 45 AsciiDoc files to process
+```
+
+This ensures that attributes files themselves are never modified, preventing issues where attribute definitions could have their own attributes resolved.
 
 ## Examples
 

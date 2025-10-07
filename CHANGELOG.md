@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.15] - 2025-10-07
+
+### Fixed
+- **extract-link-attributes** - Fixed critical bug where attributes files would become self-referencing
+  - Previously, the tool would replace attribute values with self-references (e.g., `:link-foo: {link-foo}`)
+  - Now automatically excludes ALL attributes files from being scanned/modified
+  - Shows which attributes files are being excluded when multiple exist
+  - Prevents any attributes file from having its link/xref macros replaced
+
+- **replace-link-attributes** - Enhanced to exclude ALL attributes files from processing
+  - Previously only excluded the selected attributes file
+  - Now excludes all discovered attributes files to prevent unwanted modifications
+  - Shows exclusion list when multiple attributes files exist
+  - Ensures attributes files are treated as definition files, not content files
+
+### Enhanced
+- Both tools now follow consistent safety principles for handling attributes files
+- Improved user feedback showing which files are being excluded from processing
+
 ## [0.1.14] - 2025-10-06
 
 ### Added

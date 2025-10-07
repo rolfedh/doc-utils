@@ -155,8 +155,18 @@ def main():
     adoc_files = find_adoc_files(repo_root)
     spinner.stop()
 
-    # Exclude the attributes file itself
-    adoc_files = [f for f in adoc_files if f != attributes_file]
+    # Find ALL attributes files to exclude from processing
+    all_attribute_files = find_attributes_files(repo_root)
+    exclude_paths = {f.resolve() for f in all_attribute_files}
+
+    # Notify user about excluded files if there are multiple
+    if len(all_attribute_files) > 1:
+        print(f"Excluding {len(all_attribute_files)} attributes files from processing:")
+        for f in all_attribute_files:
+            print(f"  - {f.relative_to(repo_root)}")
+
+    # Exclude ALL attributes files, not just the selected one
+    adoc_files = [f for f in adoc_files if f.resolve() not in exclude_paths]
 
     print(f"Found {len(adoc_files)} AsciiDoc files to process")
 
