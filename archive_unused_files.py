@@ -9,10 +9,13 @@ For full documentation and usage examples, see archive_unused_files.md in this d
 
 import argparse
 from doc_utils.unused_adoc import find_unused_adoc
+from doc_utils.version_check import check_version_on_startup
 from doc_utils.file_utils import parse_exclude_list_file
 
 from doc_utils.spinner import Spinner
 def main():
+    # Check for updates (non-blocking, won't interfere with tool operation)
+    check_version_on_startup()
     parser = argparse.ArgumentParser(
         description='Archive unused AsciiDoc files.',
         epilog='By default, automatically discovers all modules and assemblies directories in the repository.'

@@ -19,6 +19,7 @@ from doc_utils.replace_link_attributes import (
     replace_link_attributes_in_file,
     find_adoc_files
 )
+from doc_utils.version_check import check_version_on_startup
 from doc_utils.spinner import Spinner
 
 
@@ -83,6 +84,8 @@ def prompt_for_attributes_file(attributes_files: list[Path]) -> Optional[Path]:
 
 
 def main():
+    # Check for updates (non-blocking, won't interfere with tool operation)
+    check_version_on_startup()
     parser = argparse.ArgumentParser(
         description='Replace AsciiDoc attributes within link macros with their actual values.'
     )

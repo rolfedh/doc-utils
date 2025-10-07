@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.16] - 2025-10-07
+
+### Added
+- **Automatic update notifications** - All CLI tools now check for updates on PyPI
+  - Non-blocking check that won't interfere with tool operation
+  - Shows notification when a newer version is available
+  - Caches check results for 24 hours to minimize network requests
+  - Can be disabled with `DOC_UTILS_NO_VERSION_CHECK=1` environment variable
+  - Automatically skipped in CI environments or non-terminal contexts
+
+### Enhanced
+- Added `version_check.py` module with intelligent caching and error handling
+- Update notifications use stderr to avoid interfering with tool output
+
 ## [0.1.15] - 2025-10-07
 
 ### Fixed

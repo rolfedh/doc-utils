@@ -17,6 +17,7 @@ import sys
 import argparse
 from datetime import datetime
 from doc_utils.scannability import check_scannability
+from doc_utils.version_check import check_version_on_startup
 from doc_utils.file_utils import collect_files, parse_exclude_list_file
 
 from doc_utils.spinner import Spinner
@@ -27,6 +28,8 @@ def print_help():
     print(__doc__)
 
 def main():
+    # Check for updates (non-blocking, won't interfere with tool operation)
+    check_version_on_startup()
     # Manual check for -h or --help to display the full docstring
     if '-h' in sys.argv or '--help' in sys.argv:
         print_help()

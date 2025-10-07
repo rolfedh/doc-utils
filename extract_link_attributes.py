@@ -10,9 +10,12 @@ attribute references.
 import argparse
 import sys
 from doc_utils.extract_link_attributes import extract_link_attributes
+from doc_utils.version_check import check_version_on_startup
 
 
 def main():
+    # Check for updates (non-blocking, won't interfere with tool operation)
+    check_version_on_startup()
     """Main entry point for the extract-link-attributes CLI tool."""
     parser = argparse.ArgumentParser(
         description='Extract link and xref macros containing attributes into attribute definitions',

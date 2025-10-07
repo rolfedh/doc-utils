@@ -157,10 +157,26 @@ Before submitting PRs:
 
 ## 📊 Project Status
 
-- **Latest Version**: 0.1.6
+- **Latest Version**: 0.1.16 (with automatic update notifications)
 - **Python Support**: 3.8+
-- **Test Coverage**: 66+ tests (100% passing)
+- **Test Coverage**: 112+ tests (100% passing)
 - **Dependencies**: Minimal (PyYAML for OpenShift-docs support)
+
+### 🔔 Update Notifications
+
+All tools now check for updates automatically and notify you when a new version is available:
+
+```
+📦 Update available: 0.1.15 → 0.1.16
+   Run: pip install --upgrade rolfedh-doc-utils
+```
+
+To disable update checks, set the environment variable:
+```bash
+export DOC_UTILS_NO_VERSION_CHECK=1
+```
+
+Update checks are cached for 24 hours to minimize network requests.
 
 ## 🔗 Resources
 

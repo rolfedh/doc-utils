@@ -8,10 +8,13 @@ For full documentation and usage examples, see archive_unused_files.md in this d
 
 import argparse
 from doc_utils.unused_images import find_unused_images
+from doc_utils.version_check import check_version_on_startup
 from doc_utils.file_utils import parse_exclude_list_file
 
 from doc_utils.spinner import Spinner
 def main():
+    # Check for updates (non-blocking, won't interfere with tool operation)
+    check_version_on_startup()
     parser = argparse.ArgumentParser(description='Archive unused image files.')
     parser.add_argument('--archive', action='store_true', help='Move the files to a dated zip in the archive directory.')
     parser.add_argument('--exclude-dir', action='append', default=[], help='Directory to exclude (can be used multiple times).')

@@ -12,10 +12,13 @@ import argparse
 import sys
 import json
 from doc_utils.validate_links import LinkValidator, parse_transpositions, format_results
+from doc_utils.version_check import check_version_on_startup
 from doc_utils.spinner import Spinner
 
 
 def main():
+    # Check for updates (non-blocking, won't interfere with tool operation)
+    check_version_on_startup()
     """Main entry point for the validate-links CLI tool."""
     parser = argparse.ArgumentParser(
         description='Validate links in AsciiDoc documentation',

@@ -10,6 +10,7 @@ import sys
 from pathlib import Path
 
 from doc_utils.format_asciidoc_spacing import process_file, find_adoc_files
+from doc_utils.version_check import check_version_on_startup
 
 
 from doc_utils.spinner import Spinner
@@ -27,6 +28,8 @@ def print_colored(message: str, color: str = Colors.NC) -> None:
 
 
 def main():
+    # Check for updates (non-blocking, won't interfere with tool operation)
+    check_version_on_startup()
     """Main entry point"""
     parser = argparse.ArgumentParser(
         description="Format AsciiDoc files to ensure proper spacing",

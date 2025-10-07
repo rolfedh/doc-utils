@@ -14,8 +14,11 @@ import sys
 from datetime import datetime
 from doc_utils.unused_attributes import find_unused_attributes, find_attributes_files, select_attributes_file
 from doc_utils.spinner import Spinner
+from doc_utils.version_check import check_version_on_startup
 
 def main():
+    # Check for updates (non-blocking, won't interfere with tool operation)
+    check_version_on_startup()
     parser = argparse.ArgumentParser(description='Find unused AsciiDoc attributes.')
     parser.add_argument(
         'attributes_file',
