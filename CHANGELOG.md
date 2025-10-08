@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.17] - 2025-10-08
+
+### Fixed
+- **find-unused-attributes** - Fixed critical bug where conditional attributes were misidentified as unused
+  - Now detects attributes used in `ifdef::attr[]`, `ifndef::attr[]`, and `endif::attr[]` directives
+  - Previously only detected `{attribute}` text substitution references
+  - Fixes false positives for conditional attributes like `:rh-only:`, `:downstream:`, `:no-*:`
+  - Reduces incorrect "unused" reports by correctly identifying attributes used for conditional content inclusion/exclusion
+
+### Added
+- **find-unused-attributes** - New `--comment-out` option to safely mark unused attributes
+  - Comments out unused attributes with `// Unused` prefix instead of deleting them
+  - Interactive confirmation prompt before modifying files
+  - Preserves all formatting, comments, and blank lines
+  - Non-destructive approach allows easy restoration by removing comment prefix
+  - Git-friendly workflow for managing attribute cleanup
+
+### Enhanced
+- Added comprehensive test coverage for conditional directive detection (5 new tests)
+- Added test coverage for comment-out functionality (3 new tests)
+- Updated documentation with examples for both conditional directives and comment-out feature
+- All 120 tests pass
+
 ## [0.1.16] - 2025-10-07
 
 ### Added
