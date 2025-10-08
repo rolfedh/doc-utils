@@ -15,6 +15,29 @@ from pathlib import Path
 from typing import Set, List, Optional
 
 def parse_attributes_file(attr_file: str) -> Set[str]:
+    # AsciiDoc configuration attributes that control the processor itself
+    # These should be ignored as they won't appear in content
+    IGNORED_ATTRIBUTES = {
+        'data-uri',
+        'doctype',
+        'experimental',
+        'idprefix',
+        'imagesdir',
+        'includes',
+        'sectanchors',
+        'sectlinks',
+        'source-highlighter',
+        'linkattrs',
+        'toclevels',
+        'idseparator',
+        'icons',
+        'iconsdir',
+        'generated-dir',
+        'code-examples',
+        'doc-guides',
+        'doc-examples',
+    }
+
     attributes = set()
 
     # Check if file exists
@@ -30,7 +53,10 @@ def parse_attributes_file(attr_file: str) -> Set[str]:
             for line in f:
                 match = re.match(r'^:([\w-]+):', line.strip())
                 if match:
-                    attributes.add(match.group(1))
+                    attr_name = match.group(1)
+                    # Skip ignored configuration attributes
+                    if attr_name not in IGNORED_ATTRIBUTES:
+                        attributes.add(attr_name)
     except PermissionError:
         raise PermissionError(f"Permission denied reading file: {attr_file}")
     except UnicodeDecodeError as e:

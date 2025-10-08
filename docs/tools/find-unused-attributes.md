@@ -191,6 +191,49 @@ After running with `--comment-out`:
 - **Non-destructive**: Commented-out attributes can be easily restored by removing the `// Unused` prefix
 - **Git-friendly**: Work in a git branch so you can easily revert if needed
 
+## AsciiDoc Configuration Attributes
+
+Some AsciiDoc attributes control how the documentation processor works rather than appearing directly in your content. These attributes may be reported as unused by the tool, but they are critical to your documentation build.
+
+**Examples from a typical attributes file:**
+
+```asciidoc
+// AsciiDoc settings
+:data-uri!:
+:doctype: book
+:experimental:
+:idprefix:
+:imagesdir: resources/images
+:includes: resources/snippets
+:sectanchors!:
+:sectlinks:
+:source-highlighter: highlightjs
+:linkattrs:
+:toclevels: 3
+:idseparator: -
+:icons: font
+:iconsdir: images/icons/
+:generated-dir: _generated
+:code-examples: _generated/examples
+:doc-guides:
+:quarkusio-guides: {url-quarkusio-guides}
+:doc-examples: examples
+:includes: _includes
+```
+
+**What these do:**
+- `:idprefix:` - Removes underscore prefix from auto-generated section IDs (e.g., `startup-checks` instead of `_startup-checks`)
+- `:idseparator: -` - Uses hyphens in auto-generated IDs
+- `:doctype: book` - Sets document structure type
+- `:experimental:` - Enables keyboard shortcuts and UI macros
+- `:icons: font` - Uses font-based icons instead of images
+- `:source-highlighter:` - Configures code syntax highlighting
+- `:toclevels:` - Controls table of contents depth
+- `:sectlinks:` - Makes section headings clickable
+- `:linkattrs:` - Allows attributes in link text
+
+**⚠️ Important**: Never comment out or remove these attributes without testing your documentation build. They don't appear in content files but are essential for correct rendering. Always review preview builds after making changes.
+
 ## Notes
 
 - Only `.adoc` files in the current directory and its subdirectories are scanned.
@@ -198,9 +241,9 @@ After running with `--comment-out`:
 - The tool detects attributes used in:
   - Text substitution: `{attribute-name}`
   - Conditional directives: `ifdef::attribute[]`, `ifndef::attribute[]`, `endif::attribute[]`
-- The script does not modify any files.
+- The script does not modify any files (unless you use `--comment-out`).
 - This tool does not currently support file/directory exclusions.
-- **Known limitation**: AsciiDoc configuration attributes (e.g., `:doctype:`, `:experimental:`, `:icons:`) may be reported as unused since they configure the processor itself rather than being referenced in content.
+- **Known limitation**: AsciiDoc configuration attributes (e.g., `:doctype:`, `:experimental:`, `:icons:`) may be reported as unused since they configure the processor itself rather than being referenced in content. See the section above for details.
 
 ---
 
