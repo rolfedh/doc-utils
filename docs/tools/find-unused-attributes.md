@@ -11,16 +11,23 @@ nav_order: 6
 >
 > While this tool only reports unused attributes and doesn't modify files, when cleaning up attributes:
 > 1. **Create a git branch first**: `git checkout -b cleanup-attributes`
-> 2. **Review the report carefully** - some attributes may be used in conditional includes
+> 2. **Review the report carefully** - some attributes may be used in ways the tool cannot detect
 > 3. **Search for each attribute** before removing it from your attributes file
 > 4. **Test your documentation build** after removing attributes
 > 5. **Check preview builds** to ensure no broken attribute references
 
-This tool scans an attributes file for attribute definitions (e.g., `:version: 1.1`). It then recursively scans all `.adoc` files in the current directory (ignoring symlinks) for usages of those attributes (e.g., `{version}`).
+This tool scans an attributes file for attribute definitions (e.g., `:version: 1.1`). It then recursively scans all `.adoc` files in the current directory (ignoring symlinks) for usages of those attributes.
 
 **NEW: Auto-discovery Feature** - If no attributes file is specified, the tool will automatically search for attributes files in your repository and let you choose one interactively.
 
 Any attribute defined in the attributes file but not used in any `.adoc` file is reported as **NOT USED** in both the command line output and a timestamped output file (if requested).
+
+## What This Tool Detects
+
+The tool searches for attributes used in two ways:
+
+1. **Attribute references**: `{attribute-name}` - used for text substitution
+2. **Conditional directives**: `ifdef::attribute[]`, `ifndef::attribute[]`, `endif::attribute[]` - used for conditional content inclusion/exclusion
 
 ## Installation
 
@@ -34,21 +41,26 @@ You can run the tool from anywhere using:
 
 ```sh
 # With auto-discovery (NEW)
-find-unused-attributes [-o|--output]
+find-unused-attributes [-o|--output] [-c|--comment-out]
 
 # With explicit path (backward compatible)
-find-unused-attributes attributes.adoc [-o|--output]
+find-unused-attributes attributes.adoc [-o|--output] [-c|--comment-out]
 ```
 
 Or, if running from source:
 
 ```sh
 # With auto-discovery
-python3 find_unused_attributes.py [-o|--output]
+python3 find_unused_attributes.py [-o|--output] [-c|--comment-out]
 
 # With explicit path
-python3 find_unused_attributes.py attributes.adoc [-o|--output]
+python3 find_unused_attributes.py attributes.adoc [-o|--output] [-c|--comment-out]
 ```
+
+### Options
+
+- `-o, --output`: Write results to a timestamped txt file in your home directory
+- `-c, --comment-out`: Comment out unused attributes in the attributes file with "// Unused" prefix (requires confirmation)
 
 ## Auto-discovery Feature
 
@@ -84,7 +96,9 @@ The auto-discovery searches for common patterns like:
 
 It automatically excludes hidden directories and build directories (`.archive`, `target`, `build`, `node_modules`).
 
-## Example
+## Examples
+
+### Example 1: Attribute References
 
 Suppose `attributes.adoc` contains:
 
@@ -101,15 +115,92 @@ Unused attributes:
 :unused:  NOT USED
 ```
 
+### Example 2: Conditional Directives
+
+Suppose `attributes.adoc` contains:
+
+```
+:downstream:
+:rh-only:
+:no-feature-x:
+:truly-unused:
+```
+
+And your `.adoc` files contain:
+
+```asciidoc
+ifdef::downstream[]
+This content only appears in downstream builds.
+endif::downstream[]
+
+ifndef::no-feature-x[]
+Documentation for Feature X.
+endif::no-feature-x[]
+```
+
+The output will be:
+
+```
+Unused attributes:
+:truly-unused:  NOT USED
+```
+
+The attributes `:downstream:`, `:rh-only:`, and `:no-feature-x:` are correctly recognized as used because they appear in conditional directives.
+
+### Output File
+
 If you use `-o`, a file like `~/unused_attributes_20250611123456.txt` will be created with the same content.
+
+## Comment Out Feature
+
+The `--comment-out` option allows you to automatically comment out unused attributes in your attributes file. This is safer than deleting them, as you can easily uncomment them if needed.
+
+### Usage
+
+```sh
+find-unused-attributes common/attributes.adoc --comment-out
+```
+
+The tool will:
+1. Show you the list of unused attributes
+2. Ask for confirmation before modifying the file
+3. Comment out each unused attribute with `// Unused` prefix
+
+### Example
+
+Before:
+```asciidoc
+:version: 1.0
+:product: MyApp
+:unused-attr: some value
+:rh-only:
+```
+
+After running with `--comment-out`:
+```asciidoc
+:version: 1.0
+:product: MyApp
+// Unused :unused-attr: some value
+:rh-only:
+```
+
+### Safety Features
+
+- **Confirmation prompt**: You must confirm before any changes are made
+- **Preserves formatting**: All other lines, comments, and blank lines remain unchanged
+- **Non-destructive**: Commented-out attributes can be easily restored by removing the `// Unused` prefix
+- **Git-friendly**: Work in a git branch so you can easily revert if needed
 
 ## Notes
 
 - Only `.adoc` files in the current directory and its subdirectories are scanned.
 - Symlinks are ignored.
-- Attribute names are matched as `{name}` in `.adoc` files.
+- The tool detects attributes used in:
+  - Text substitution: `{attribute-name}`
+  - Conditional directives: `ifdef::attribute[]`, `ifndef::attribute[]`, `endif::attribute[]`
 - The script does not modify any files.
 - This tool does not currently support file/directory exclusions.
+- **Known limitation**: AsciiDoc configuration attributes (e.g., `:doctype:`, `:experimental:`, `:icons:`) may be reported as unused since they configure the processor itself rather than being referenced in content.
 
 ---
 

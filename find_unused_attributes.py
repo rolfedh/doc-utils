@@ -12,7 +12,7 @@ import argparse
 import os
 import sys
 from datetime import datetime
-from doc_utils.unused_attributes import find_unused_attributes, find_attributes_files, select_attributes_file
+from doc_utils.unused_attributes import find_unused_attributes, find_attributes_files, select_attributes_file, comment_out_unused_attributes
 from doc_utils.spinner import Spinner
 from doc_utils.version_check import check_version_on_startup
 
@@ -26,6 +26,7 @@ def main():
         help='Path to the attributes file. If not specified, auto-discovers attributes files.'
     )
     parser.add_argument('-o', '--output', action='store_true', help='Write results to a timestamped txt file in your home directory.')
+    parser.add_argument('-c', '--comment-out', action='store_true', help='Comment out unused attributes in the attributes file with "// Unused".')
     args = parser.parse_args()
 
     # Determine which attributes file to use
@@ -83,6 +84,16 @@ def main():
             f.write('Unused attributes in ' + attr_file + '\n')
             f.write(output + '\n')
         print(f'Results written to: {filename}')
+
+    if args.comment_out and output:
+        # Ask for confirmation before modifying the file
+        print(f'\nThis will comment out {len(unused)} unused attributes in: {attr_file}')
+        response = input('Continue? (y/n): ').strip().lower()
+        if response == 'y':
+            commented_count = comment_out_unused_attributes(attr_file, unused)
+            print(f'Commented out {commented_count} unused attributes in: {attr_file}')
+        else:
+            print('Operation cancelled.')
 
     return 0
 

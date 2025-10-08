@@ -50,11 +50,20 @@ def find_adoc_files(root_dir: str) -> List[str]:
 
 def scan_for_attribute_usage(adoc_files: List[str], attributes: Set[str]) -> Set[str]:
     used = set()
+    # Pattern for attribute references: {attribute-name}
     attr_pattern = re.compile(r'\{([\w-]+)\}')
+    # Patterns for conditional directives: ifdef::attr[], ifndef::attr[], endif::attr[]
+    conditional_pattern = re.compile(r'(?:ifdef|ifndef|endif)::([\w-]+)\[')
+
     for file in adoc_files:
         with open(file, 'r', encoding='utf-8') as f:
             for line in f:
+                # Check for {attribute} references
                 for match in attr_pattern.findall(line):
+                    if match in attributes:
+                        used.add(match)
+                # Check for ifdef::attribute[], ifndef::attribute[], endif::attribute[]
+                for match in conditional_pattern.findall(line):
                     if match in attributes:
                         used.add(match)
     return used
@@ -136,3 +145,44 @@ def find_unused_attributes(attr_file: str, adoc_root: str = '.') -> List[str]:
     used = scan_for_attribute_usage(adoc_files, attributes)
     unused = sorted(attributes - used)
     return unused
+
+
+def comment_out_unused_attributes(attr_file: str, unused_attrs: List[str]) -> int:
+    """
+    Comment out unused attributes in the attributes file.
+
+    Args:
+        attr_file: Path to the attributes file
+        unused_attrs: List of unused attribute names
+
+    Returns:
+        Number of attributes commented out
+    """
+    if not unused_attrs:
+        return 0
+
+    # Read the file
+    with open(attr_file, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+
+    # Create a set for faster lookup
+    unused_set = set(unused_attrs)
+    commented_count = 0
+
+    # Process each line
+    new_lines = []
+    for line in lines:
+        # Check if this line defines an attribute
+        match = re.match(r'^:([\w-]+):', line)
+        if match and match.group(1) in unused_set:
+            # Comment out this line
+            new_lines.append(f'// Unused {line}')
+            commented_count += 1
+        else:
+            new_lines.append(line)
+
+    # Write back to the file
+    with open(attr_file, 'w', encoding='utf-8') as f:
+        f.writelines(new_lines)
+
+    return commented_count
