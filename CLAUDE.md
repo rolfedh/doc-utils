@@ -379,6 +379,14 @@ When contributing to this project:
 
 ## Recent Improvements (Latest Refactoring)
 
+### Ignored Configuration Attributes (v0.1.18)
+1. **AsciiDoc Configuration Attributes**: Enhanced `find-unused-attributes` to ignore processor configuration attributes
+   - Added IGNORED_ATTRIBUTES set in `unused_attributes.py`
+   - Automatically skips attributes like `:idprefix:`, `:doctype:`, `:experimental:`, `:icons:`, etc.
+   - Prevents false positives for attributes that configure AsciiDoc processor behavior
+   - Configuration attributes don't appear in content but are essential for correct rendering
+   - Documentation updated with examples and warnings about these critical attributes
+
 ### Enhanced find-unused-attributes Tool (v0.1.11-dev)
 1. **Auto-discovery Feature**: Added automatic attributes file discovery
    - Tool now works without specifying a file: just run `find-unused-attributes`
