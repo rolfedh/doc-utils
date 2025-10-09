@@ -36,7 +36,7 @@ In the beginning...
 
 ### 2. Blank Lines Around Include Directives
 
-Adds blank lines before and after `include::` directives to separate them from surrounding content.
+Adds blank lines before and after `include::` directives to separate them from surrounding content. This includes adding blank lines between consecutive include statements.
 
 **Before:**
 ```asciidoc
@@ -78,14 +78,14 @@ include::_attributes/common-attributes.adoc[]
 
 ### 4. Comments and Attributes with Includes
 
-Comments and attributes directly above includes are kept together as a unit with the include.
+Comments and attributes directly above includes are kept together as a unit with the include. When a comment precedes an include, blank lines are added before the comment (to separate from previous content), but not between the comment and the include.
 
 **Before:**
 ```asciidoc
-Some text here.
-// This comment describes the include
-include::modules/important.adoc[]
-More text.
+include::modules/first.adoc[leveloffset=+1]
+// This comment describes the second include
+include::modules/second.adoc[leveloffset=+1]
+include::modules/third.adoc[leveloffset=+1]
 
 Another paragraph.
 :FeatureName: Multi-network policies
@@ -94,12 +94,12 @@ include::snippets/technology-preview.adoc[]
 
 **After:**
 ```asciidoc
-Some text here.
+include::modules/first.adoc[leveloffset=+1]
 
-// This comment describes the include
-include::modules/important.adoc[]
+// This comment describes the second include
+include::modules/second.adoc[leveloffset=+1]
 
-More text.
+include::modules/third.adoc[leveloffset=+1]
 
 Another paragraph.
 
@@ -109,11 +109,12 @@ include::snippets/technology-preview.adoc[]
 
 ### 5. Conditional Blocks
 
-Conditional blocks (ifdef/ifndef/endif) with includes are treated as single units with blank lines around the entire block.
+Conditional blocks (ifdef/ifndef/endif) are treated as single units with blank lines around the entire block. Comments preceding conditional blocks are kept together as a logical unit.
 
 **Before:**
 ```asciidoc
 Some content here.
+// This module does not apply to OSD/ROSA
 ifndef::openshift-rosa[]
 include::modules/standard-features.adoc[]
 endif::openshift-rosa[]
@@ -124,11 +125,54 @@ More content.
 ```asciidoc
 Some content here.
 
+// This module does not apply to OSD/ROSA
 ifndef::openshift-rosa[]
 include::modules/standard-features.adoc[]
 endif::openshift-rosa[]
 
 More content.
+```
+
+### 6. Comment Blocks and Block Titles
+
+Comment blocks (delimited by `////`) and block titles (like `.Prerequisites`, `.Additional resources`) receive proper spacing.
+
+**Before:**
+```asciidoc
+////
+This is a comment block explaining the following content.
+////
+.Prerequisites
+
+* Item 1
+* Item 2
+
+[role="_additional-resources"]
+.Additional resources
+////
+Optional section for additional links.
+////
+* link:https://example.com[Example]
+```
+
+**After:**
+```asciidoc
+////
+This is a comment block explaining the following content.
+////
+
+.Prerequisites
+
+* Item 1
+* Item 2
+
+[role="_additional-resources"]
+.Additional resources
+////
+Optional section for additional links.
+////
+
+* link:https://example.com[Example]
 ```
 
 ## Usage
@@ -257,9 +301,11 @@ format-asciidoc-spacing --dry-run . && echo "Formatting is correct" || echo "Fil
 
 ### Consecutive Elements
 - **Consecutive headings**: No blank line added between them
-- **Consecutive includes**: Proper spacing maintained between each
+- **Consecutive includes**: Blank lines added between each include statement
 - **Mixed content**: Smart handling of headings followed by includes
 - **Duplicate blank lines**: Consolidates multiple blank lines that would be inserted into a single blank line
+- **Comments with conditionals**: Comments directly preceding conditional blocks stay together as a unit
+- **Comments with includes**: Comments directly preceding includes stay together as a unit
 
 ### File Boundaries
 - **Beginning of file**: No blank line added before first heading
@@ -268,9 +314,13 @@ format-asciidoc-spacing --dry-run . && echo "Formatting is correct" || echo "Fil
 
 ### Special Cases
 - **Admonition blocks**: Block delimiters (====, ----, ...., ____) are not treated as headings
+- **Comment blocks**: Comment blocks (`////`) get blank line after closing delimiter
+- **Block titles**: Block titles (`.Title`) get blank line before them, unless preceded by a role block
+- **Role blocks**: Role blocks (`[role="..."]`) are recognized but don't add extra spacing
 - **Comments with includes**: Comments directly above includes are kept together as a unit
 - **Attributes with includes**: Attributes directly above includes are kept together as a unit
 - **Conditional blocks**: ifdef/ifndef/endif blocks are treated as units with spacing around the entire block
+- **Comments with conditionals**: Comments directly preceding conditionals stay together without intervening blank lines
 - **Attribute includes near H1**: Special handling for common-attributes.adoc includes at document start
 
 ## Output Examples

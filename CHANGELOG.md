@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.19] - 2025-10-09
+
+### Enhanced
+- **format-asciidoc-spacing** - Significant improvements to spacing logic based on modular-docs templates
+  - Now adds blank lines between consecutive include statements for better visual separation
+  - Comments preceding includes stay together as a logical unit (no blank line between comment and include)
+  - Comments preceding conditional blocks (ifdef/ifndef) stay together without intervening blank lines
+  - Added support for comment block spacing (blank line after closing `////` delimiter)
+  - Added support for block title spacing (blank line before `.Title` blocks like `.Prerequisites`)
+  - Role blocks (`[role="..."]`) are now recognized and handled appropriately
+  - Improved handling of heading spacing (no blank line added when followed by comment block)
+  - All spacing rules now align with Red Hat modular documentation templates
+
+### Fixed
+- **format-asciidoc-spacing** - Fixed edge cases in spacing logic
+  - Standalone comments and attributes now handled correctly
+  - Block titles no longer add extra spacing when preceded by role blocks
+  - Better detection of logical groupings (comment+include, comment+conditional)
+
+## [0.1.18] - 2025-10-08
+
+### Added
+- Initial release tracking (version sync fix)
+
 ## [0.1.17] - 2025-10-08
 
 ### Fixed

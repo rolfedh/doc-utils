@@ -39,6 +39,7 @@ def process_file(file_path: Path, dry_run: bool = False, verbose: bool = False) 
     changes_made = False
     in_block = False  # Track if we're inside a block (admonition, listing, etc.)
     in_conditional = False  # Track if we're inside a conditional block
+    in_comment_block = False  # Track if we're inside a //// comment block
 
     for i, current_line in enumerate(lines):
         prev_line = lines[i-1] if i > 0 else ""
@@ -48,9 +49,11 @@ def process_file(file_path: Path, dry_run: bool = False, verbose: bool = False) 
         if re.match(r'^(ifdef::|ifndef::)', current_line):
             in_conditional = True
             # Add blank line before conditional if needed
+            # Don't add if previous line is a comment (they form a logical unit)
             if (prev_line and
                 not re.match(r'^\s*$', prev_line) and
-                not re.match(r'^(ifdef::|ifndef::|endif::)', prev_line)):
+                not re.match(r'^(ifdef::|ifndef::|endif::)', prev_line) and
+                not re.match(r'^//', prev_line)):
                 new_lines.append("")
                 changes_made = True
                 if verbose:
@@ -70,19 +73,55 @@ def process_file(file_path: Path, dry_run: bool = False, verbose: bool = False) 
                 if verbose:
                     messages.append("  Added blank line after conditional block")
 
+        # Check for comment block delimiters (////)
+        elif re.match(r'^////+$', current_line):
+            in_comment_block = not in_comment_block  # Toggle comment block state
+            new_lines.append(current_line)
+
+            # If we're closing a comment block, add blank line after if needed
+            if not in_comment_block:
+                if (next_line and
+                    not re.match(r'^\s*$', next_line) and
+                    not re.match(r'^////+$', next_line)):
+                    new_lines.append("")
+                    changes_made = True
+                    if verbose:
+                        messages.append("  Added blank line after comment block")
+
         # Check for block delimiters (====, ----, ...., ____)
         # These are used for admonitions, listing blocks, literal blocks, etc.
         elif re.match(r'^(====+|----+|\.\.\.\.+|____+)$', current_line):
             in_block = not in_block  # Toggle block state
             new_lines.append(current_line)
+
+        # Check for role blocks ([role="..."])
+        # Role blocks don't need special spacing - they're followed directly by content
+        elif not in_block and not in_comment_block and re.match(r'^\[role=', current_line):
+            new_lines.append(current_line)
+
+        # Check for block titles (.Title)
+        elif not in_block and not in_comment_block and re.match(r'^\.[A-Z]', current_line):
+            # Add blank line before block title if needed
+            if (prev_line and
+                not re.match(r'^\s*$', prev_line) and
+                not re.match(r'^=+\s+', prev_line) and
+                not re.match(r'^\[role=', prev_line)):  # Don't add if previous is heading, empty, or role block
+                new_lines.append("")
+                changes_made = True
+                if verbose:
+                    truncated = current_line[:50] + "..." if len(current_line) > 50 else current_line
+                    messages.append(f"  Added blank line before block title: {truncated}")
+            new_lines.append(current_line)
+
         # Check if current line is a heading (but not if we're in a block)
         elif not in_block and re.match(r'^=+\s+', current_line):
             new_lines.append(current_line)
 
-            # Check if next line is not empty and not another heading
+            # Check if next line is not empty, not another heading, and not a comment block
             if (next_line and
                 not re.match(r'^=+\s+', next_line) and
-                not re.match(r'^\s*$', next_line)):
+                not re.match(r'^\s*$', next_line) and
+                not re.match(r'^////+$', next_line)):  # Don't add if next is comment block
                 new_lines.append("")
                 changes_made = True
                 if verbose:
@@ -98,15 +137,19 @@ def process_file(file_path: Path, dry_run: bool = False, verbose: bool = False) 
                 # Check if next line is an include directive
                 if next_line and re.match(r'^include::', next_line):
                     # This comment belongs to the include, add blank line before comment if needed
+                    # This includes when previous line is an include (to separate include blocks)
                     if (prev_line and
                         not re.match(r'^\s*$', prev_line) and
                         not re.match(r'^//', prev_line) and
-                        not re.match(r'^:', prev_line)):  # Don't add if previous is attribute
+                        not re.match(r'^:', prev_line)):
                         new_lines.append("")
                         changes_made = True
                         if verbose:
                             messages.append("  Added blank line before comment above include")
-                new_lines.append(current_line)
+                    new_lines.append(current_line)
+                else:
+                    # Standalone comment, just add it
+                    new_lines.append(current_line)
 
         # Check if current line is an attribute (starts with :)
         elif re.match(r'^:', current_line):
@@ -125,7 +168,10 @@ def process_file(file_path: Path, dry_run: bool = False, verbose: bool = False) 
                         changes_made = True
                         if verbose:
                             messages.append("  Added blank line before attribute above include")
-                new_lines.append(current_line)
+                    new_lines.append(current_line)
+                else:
+                    # Standalone attribute, just add it
+                    new_lines.append(current_line)
 
         # Check if current line is an include directive
         elif re.match(r'^include::', current_line):
@@ -155,10 +201,10 @@ def process_file(file_path: Path, dry_run: bool = False, verbose: bool = False) 
                 if not (is_attribute_include and is_near_h1):
                     # Don't add blank line if there's a comment or attribute above (it was handled by the comment/attribute logic)
                     if not has_comment_above and not has_attribute_above:
-                        # Add blank line before include if previous line is not empty and not an include
+                        # Add blank line before include if previous line is not empty
+                        # This includes adding blank lines between consecutive includes
                         if (prev_line and
-                            not re.match(r'^\s*$', prev_line) and
-                            not re.match(r'^include::', prev_line)):
+                            not re.match(r'^\s*$', prev_line)):
                             new_lines.append("")
                             changes_made = True
                             if verbose:
