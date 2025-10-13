@@ -15,6 +15,7 @@ from datetime import datetime
 from doc_utils.unused_attributes import find_unused_attributes, find_attributes_files, select_attributes_file, comment_out_unused_attributes
 from doc_utils.spinner import Spinner
 from doc_utils.version_check import check_version_on_startup
+from doc_utils.version import __version__
 
 def main():
     # Check for updates (non-blocking, won't interfere with tool operation)
@@ -27,6 +28,7 @@ def main():
     )
     parser.add_argument('-o', '--output', action='store_true', help='Write results to a timestamped txt file in your home directory.')
     parser.add_argument('-c', '--comment-out', action='store_true', help='Comment out unused attributes in the attributes file with "// Unused".')
+    parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
     args = parser.parse_args()
 
     # Determine which attributes file to use

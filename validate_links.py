@@ -13,6 +13,7 @@ import sys
 import json
 from doc_utils.validate_links import LinkValidator, parse_transpositions, format_results
 from doc_utils.version_check import check_version_on_startup
+from doc_utils.version import __version__
 from doc_utils.spinner import Spinner
 
 
@@ -132,6 +133,7 @@ Examples:
         action='store_true',
         help='Exit with error code if broken links are found'
     )
+    parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
 
     args = parser.parse_args()
 

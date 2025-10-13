@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.20] - 2025-10-13
+
+### Added
+- **New `doc-utils` command** - Main CLI hub for discovering and accessing all tools
+  - `doc-utils --help` shows comprehensive help with all tools listed
+  - `doc-utils --list` displays quick list of available tools
+  - `doc-utils --version` shows package version
+  - Provides single entry point for users to discover functionality
+- **Version flag support** - All 8 CLI tools now support `--version` flag
+  - Centralized version management in `doc_utils/version.py`
+  - Version synchronized with `pyproject.toml`
+  - Example: `find-unused-attributes --version` → `find-unused-attributes 0.1.20`
+
+### Enhanced
+- **Smart upgrade notifications** - Update notifications now detect installation method
+  - Automatically detects whether package was installed with `pipx` or `pip`
+  - Recommends appropriate upgrade command (`pipx upgrade` or `pip install --upgrade`)
+  - Respects user's chosen installation method
+  - Detection checks `sys.prefix` and `PIPX_HOME` environment variable
+
+### Added
+- **Test coverage** - Added 12 new tests for version checking functionality
+  - Tests for installation method detection
+  - Tests for version parsing and comparison
+  - Tests for notification display logic
+  - Total test count increased from 120 to 132 tests (100% passing)
+
 ## [0.1.19] - 2025-10-09
 
 ### Enhanced

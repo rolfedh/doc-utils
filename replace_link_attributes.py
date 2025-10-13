@@ -20,6 +20,7 @@ from doc_utils.replace_link_attributes import (
     find_adoc_files
 )
 from doc_utils.version_check import check_version_on_startup
+from doc_utils.version import __version__
 from doc_utils.spinner import Spinner
 
 
@@ -111,6 +112,7 @@ def main():
         default='both',
         help='Type of macros to process: link, xref, or both (default: both)'
     )
+    parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
 
     args = parser.parse_args()
 

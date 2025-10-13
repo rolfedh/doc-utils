@@ -24,6 +24,9 @@ These tools can modify or delete files. **Always:**
 # Install
 pipx install rolfedh-doc-utils
 
+# Verify installation
+doc-utils --version
+
 # Upgrade to latest version
 pipx upgrade rolfedh-doc-utils
 ```
@@ -41,6 +44,18 @@ pip install -e .
 ```
 
 ## 🛠️ Available Tools
+
+### Quick Reference
+
+Run `doc-utils` to see all available tools and their descriptions:
+
+```bash
+doc-utils --help     # Show comprehensive help
+doc-utils --list     # List all tools
+doc-utils --version  # Show version
+```
+
+### Individual Tools
 
 **Note:** Commands use hyphens (`-`), while Python files use underscores (`_`). After installing with pipx, use the hyphenated commands directly.
 
@@ -164,11 +179,11 @@ Before submitting PRs:
 
 ### 🔔 Update Notifications
 
-All tools now check for updates automatically and notify you when a new version is available:
+All tools automatically check for updates and notify you when a new version is available. The notification will recommend the appropriate upgrade command based on how you installed the package:
 
 ```
-📦 Update available: 0.1.15 → 0.1.16
-   Run: pip install --upgrade rolfedh-doc-utils
+📦 Update available: 0.1.19 → 0.1.20
+   Run: pipx upgrade rolfedh-doc-utils
 ```
 
 To disable update checks, set the environment variable:

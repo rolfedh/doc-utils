@@ -11,6 +11,7 @@ from pathlib import Path
 
 from doc_utils.format_asciidoc_spacing import process_file, find_adoc_files
 from doc_utils.version_check import check_version_on_startup
+from doc_utils.version import __version__
 
 
 from doc_utils.spinner import Spinner
@@ -63,6 +64,7 @@ Examples:
         action='store_true',
         help='Show detailed output'
     )
+    parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
 
     args = parser.parse_args()
 

@@ -136,6 +136,26 @@ def check_for_update(force_check: bool = False) -> Optional[str]:
     return None
 
 
+def detect_install_method() -> str:
+    """
+    Detect how the package was installed.
+
+    Returns:
+        'pipx', 'pip', or 'unknown'
+    """
+    # Check if running from pipx venv
+    if 'pipx' in sys.prefix:
+        return 'pipx'
+
+    # Check PIPX_HOME environment variable
+    pipx_home = os.environ.get('PIPX_HOME') or os.path.join(Path.home(), '.local', 'pipx')
+    if pipx_home and str(Path(sys.prefix)).startswith(str(Path(pipx_home))):
+        return 'pipx'
+
+    # Default to pip
+    return 'pip'
+
+
 def show_update_notification(latest_version: str, current_version: str = None):
     """Show update notification to user."""
     if not current_version:
@@ -144,9 +164,17 @@ def show_update_notification(latest_version: str, current_version: str = None):
         except Exception:
             current_version = 'unknown'
 
+    # Detect installation method and recommend appropriate upgrade command
+    install_method = detect_install_method()
+
     # Use stderr to avoid interfering with tool output
     print(f"\n📦 Update available: {current_version} → {latest_version}", file=sys.stderr)
-    print(f"   Run: pip install --upgrade rolfedh-doc-utils", file=sys.stderr)
+
+    if install_method == 'pipx':
+        print(f"   Run: pipx upgrade rolfedh-doc-utils", file=sys.stderr)
+    else:
+        print(f"   Run: pip install --upgrade rolfedh-doc-utils", file=sys.stderr)
+
     print("", file=sys.stderr)
 
 

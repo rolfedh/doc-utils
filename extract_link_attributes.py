@@ -11,6 +11,7 @@ import argparse
 import sys
 from doc_utils.extract_link_attributes import extract_link_attributes
 from doc_utils.version_check import check_version_on_startup
+from doc_utils.version import __version__
 
 
 def main():
@@ -86,6 +87,7 @@ Examples:
         default='both',
         help='Type of macros to process: link, xref, or both (default: both)'
     )
+    parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
 
     args = parser.parse_args()
 
