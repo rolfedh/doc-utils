@@ -175,8 +175,14 @@ def process_file(file_path: Path, dry_run: bool = False, verbose: bool = False) 
 
         # Check if current line is an include directive
         elif re.match(r'^include::', current_line):
-            # Skip special handling if we're inside a conditional block
+            # Handle includes inside conditional blocks
             if in_conditional:
+                # Add blank line between consecutive includes within conditional blocks
+                if prev_line and re.match(r'^include::', prev_line):
+                    new_lines.append("")
+                    changes_made = True
+                    if verbose:
+                        messages.append("  Added blank line between includes in conditional block")
                 new_lines.append(current_line)
             else:
                 # Check if this is an attribute include (contains "attribute" in the path)
