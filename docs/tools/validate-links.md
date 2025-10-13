@@ -1,13 +1,11 @@
 ---
 layout: default
-title: validate-links [EXPERIMENTAL]
+title: validate-links
 parent: Tools Reference
 nav_order: 8
 ---
 
-# validate-links [EXPERIMENTAL]
-
-⚠️ **EXPERIMENTAL FEATURE**: This tool is new and under active development. The interface and behavior may change in future versions. Please report issues and provide feedback.
+# validate-links
 
 Validate links in AsciiDoc documentation, checking for broken URLs and missing references.
 

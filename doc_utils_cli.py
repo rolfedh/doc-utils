@@ -15,7 +15,7 @@ from doc_utils.version_check import check_version_on_startup
 TOOLS = [
     {
         'name': 'validate-links',
-        'description': 'Validates all links in documentation with URL transposition [EXPERIMENTAL]',
+        'description': 'Validates all links in documentation with URL transposition',
         'example': 'validate-links --transpose "https://prod--https://preview"'
     },
     {
@@ -30,7 +30,7 @@ TOOLS = [
     },
     {
         'name': 'format-asciidoc-spacing',
-        'description': 'Standardizes spacing after headings and around includes [EXPERIMENTAL]',
+        'description': 'Standardizes spacing after headings and around includes',
         'example': 'format-asciidoc-spacing --dry-run modules/'
     },
     {

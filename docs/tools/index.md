@@ -11,7 +11,7 @@ doc-utils provides eight specialized CLI tools for maintaining AsciiDoc document
 
 ## Available Tools
 
-### 🔍 [validate-links](validate-links) **[EXPERIMENTAL]**
+### 🔍 [validate-links](validate-links)
 Validates all links in AsciiDoc documentation, checking for broken URLs and missing references.
 
 **Key Features:**
@@ -25,8 +25,6 @@ Validates all links in AsciiDoc documentation, checking for broken URLs and miss
 ```bash
 validate-links --transpose "https://docs.redhat.com--https://preview.docs.redhat.com"
 ```
-
-⚠️ **Note**: This is an experimental feature under active development.
 
 ---
 
@@ -68,7 +66,7 @@ replace-link-attributes --dry-run
 
 ---
 
-### 📝 [format-asciidoc-spacing](format-asciidoc-spacing) **[EXPERIMENTAL]**
+### 📝 [format-asciidoc-spacing](format-asciidoc-spacing)
 Standardizes AsciiDoc formatting by ensuring proper spacing after headings and around include directives.
 
 **Key Features:**
@@ -81,8 +79,6 @@ Standardizes AsciiDoc formatting by ensuring proper spacing after headings and a
 ```bash
 format-asciidoc-spacing --dry-run modules/
 ```
-
-⚠️ **Note**: This is an experimental feature. Formatting rules may change based on feedback.
 
 ---
 
@@ -222,10 +218,10 @@ All archive tools include built-in safety features:
 Each tool has a built-in help command:
 
 ```bash
-validate-links --help  # [EXPERIMENTAL]
+validate-links --help
 extract-link-attributes --help
 replace-link-attributes --help
-format-asciidoc-spacing --help  # [EXPERIMENTAL]
+format-asciidoc-spacing --help
 check-scannability --help
 archive-unused-files --help
 archive-unused-images --help
