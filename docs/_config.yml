@@ -41,6 +41,8 @@ gh_edit_view_mode: "tree"
 
 # Navigation structure
 nav_sort: case_insensitive
+# Keep parent nodes expanded by default
+nav_fold: false
 
 # Auxiliary links for the header
 aux_links:
