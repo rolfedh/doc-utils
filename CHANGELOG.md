@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.21] - 2025-10-13
+
+### Enhanced
+- **format-asciidoc-spacing** - Now adds blank lines between consecutive includes within conditional blocks
+  - Previously, includes inside `ifdef::`/`ifndef::` blocks were left untouched
+  - Now adds visual separation between includes enclosed in conditionals
+  - Improves readability and maintains consistency with non-conditional includes
+  - Example: Consecutive includes in `ifdef::openshift-rosa[]` blocks now have blank lines between them
+
+### Changed
+- **Documentation** - Removed `[EXPERIMENTAL]` tags from tools now considered stable
+  - `validate-links` - No longer marked as experimental
+  - `format-asciidoc-spacing` - No longer marked as experimental
+  - Updated all documentation, README, and CLI help text
+
+### Fixed
+- **GitHub Pages** - Navigation now keeps "Tools Reference" section expanded by default
+  - Added `nav_fold: false` configuration for better user experience
+  - All 8 tools visible in left navigation without clicking to expand
+
 ## [0.1.20] - 2025-10-13
 
 ### Added
