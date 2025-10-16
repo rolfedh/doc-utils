@@ -146,11 +146,20 @@ Follow these exact steps to release a new version:
    # Edit pyproject.toml and change version = "X.Y.Z" to new version
    ```
 
-2. **Update CHANGELOG.md**
+2. **Update CHANGELOG.md** ⚠️ **IMPORTANT - DO NOT FORGET!**
    ```bash
-   # Move items from [Unreleased] to new version section with date
+   # Add new version section with date
    # Format: ## [X.Y.Z] - YYYY-MM-DD
+   # Document all changes under appropriate categories:
+   #   ### Added - New features
+   #   ### Changed - Changes in existing functionality
+   #   ### Enhanced - Improvements to existing features
+   #   ### Fixed - Bug fixes
+   #   ### Documentation - Documentation changes
+   #   ### Removed - Removed features
+   # Include detailed descriptions with specific changes made
    ```
+   **Claude Code Reminder:** Always update CHANGELOG.md when releasing! Check git log since last release to ensure nothing is missed.
 
 3. **Run full test suite**
    ```bash

@@ -7,6 +7,81 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.24] - 2025-10-16
+
+### Added
+- **convert-callouts-to-deflist** - New `--format` option to choose output format
+  - `--format deflist` (default): Definition list with "where:" prefix
+  - `--format bullets`: Bulleted list following Red Hat style guide format
+  - Bulleted format uses `* \`element\`: explanation` syntax with proper indentation
+  - Both formats support all existing features (merged callouts, optional markers, etc.)
+  - See: https://redhat-documentation.github.io/supplementary-style-guide/#explain-commands-variables-in-code-blocks
+
+### Enhanced
+- **Documentation** - Improved navigation visibility on GitHub Pages
+  - All 9 tool pages now visible at top level of navigation (not hidden under collapsed section)
+  - Tools grouped together immediately after "Tools Reference" overview page
+  - Navigation order: Home → Getting Started → Tools Reference → 9 tool pages → Best Practices → Contributing
+  - Better discoverability and user experience
+
+### Documentation
+- Added "Output Formats" section with examples of both deflist and bullets formats
+- Added guidance on when to use each format
+- Updated Options, Best Practices, and Example Workflow sections
+
+## [0.1.23] - 2025-10-16
+
+### Added
+- **convert-callouts-to-deflist** - Automatic merging of multiple callouts on same line
+  - When multiple callouts appear on one line (e.g., `@BasicAuthentication <1> <2>`), their explanations are now merged
+  - Uses AsciiDoc list continuation marker (`+`) to combine related explanations
+  - Results in cleaner, more semantic output without duplicate definition list terms
+  - Follows AsciiDoc best practices for merging related list items
+
+### Fixed
+- **convert-callouts-to-deflist** - Fixed detection of all callouts when multiple appear on one line
+  - Previously only detected the last callout, causing warnings like "code has [2, 3, 4], explanations have [1, 2, 3, 4]"
+  - Updated regex pattern from `<(\d+)>\s*$` to `<(\d+)>` to match all callouts
+  - Modified `extract_callouts_from_code()` to use `finditer()` for finding all matches
+  - Enhanced `remove_callouts_from_code()` to strip trailing whitespace after removing multiple callouts
+
+### Enhanced
+- **convert-callouts-to-deflist** - Complete refactoring to support callout grouping
+  - Added `CalloutGroup` dataclass to group callouts by their source code line
+  - Modified `extract_callouts_from_code()` to return `List[CalloutGroup]` instead of `Dict[int, str]`
+  - Updated `create_definition_list()` to merge explanations for grouped callouts
+  - Updated `validate_callouts()` to work with `CalloutGroup` structure
+
+### Documentation
+- Added Example 3 showing multiple callouts being merged with continuation markers
+- Added prominent ⚠️ REVIEW CAREFULLY warnings about merged callouts
+- Added "Why This Matters" and "When to Review" sections
+- Updated Edge Cases, Technical Details, and Processing Algorithm sections
+- Clarified Limitations about multi-line explanation support
+
+## [0.1.22] - 2025-10-16
+
+### Added
+- **convert-callouts-to-deflist** - New tool for converting AsciiDoc callouts to definition list format
+  - Converts code blocks with callout-style annotations (`<1>`, `<2>`, etc.) to cleaner definition list format
+  - Uses "where:" prefix for semantic clarity
+  - Automatically extracts user-replaceable values from code (e.g., `<my-secret>`)
+  - Falls back to using actual code lines when no replaceable values found
+  - Validates that callout numbers in code match explanation numbers
+  - Supports optional markers ("Optional." or "(Optional)")
+  - Handles non-sequential callout numbers
+  - Preserves legitimate angle brackets (Java generics, heredoc syntax)
+  - Processes all `.adoc` files recursively by default
+  - Supports exclusion lists for directories and files
+  - Dry-run mode for previewing changes
+  - Displays warnings for callout mismatches with file and line numbers
+  - Automatically excludes `.vale` directory by default
+
+### Documentation
+- Added comprehensive documentation for convert-callouts-to-deflist tool
+- Includes transformation examples, usage patterns, and edge cases
+- Updated Tools Reference index with new tool
+
 ## [0.1.21] - 2025-10-13
 
 ### Enhanced
