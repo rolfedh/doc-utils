@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Best Practices
-nav_order: 4
+nav_order: 13
 ---
 
 # Best Practices for Using doc-utils
