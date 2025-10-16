@@ -1,0 +1,432 @@
+---
+layout: default
+title: convert-callouts-to-deflist
+parent: Tools Reference
+nav_order: 9
+---
+
+# Convert Callouts to Definition Lists
+
+Converts AsciiDoc code blocks with callout-style annotations to a cleaner definition list format with "where:" prefix.
+
+## Overview
+
+Traditional AsciiDoc callouts use numbered markers (`<1>`, `<2>`, etc.) in code blocks with corresponding explanation lines below. This format can be visually cluttered and harder to maintain. This tool converts them to a cleaner definition list format that uses the actual code lines as terms.
+
+**Important:** This tool is designed to assist your conversion efforts. You must:
+- Carefully review all content changes before committing them to ensure accuracy and readability
+- Pay attention to any warnings displayed during processing
+- Review the warning summary at the end and address any callout mismatches before re-running
+- Test documentation builds after converting to verify correctness
+
+## Installation
+
+Install with the doc-utils package:
+
+```bash
+pipx install rolfedh-doc-utils
+```
+
+Then run directly as a command:
+
+```bash
+convert-callouts-to-deflist [options] [path]
+```
+
+The tool automatically processes all `.adoc` files recursively in the specified directory (or current directory by default).
+
+## Transformation Examples
+
+### Example 1: Callouts with User-Replaceable Values
+
+**Before (Callout Style):**
+```asciidoc
+[source,yaml]
+----
+apiVersion: v1
+kind: Secret
+metadata:
+  name: <my-secret> <1>
+data:
+  key: <my-key> <2>
+----
+<1> The secret name
+<2> The secret key value
+```
+
+**After (Definition List Style):**
+```asciidoc
+[source,yaml]
+----
+apiVersion: v1
+kind: Secret
+metadata:
+  name: <my-secret>
+data:
+  key: <my-key>
+----
+
+where:
+
+`<my-secret>`::
+The secret name
+
+`<my-key>`::
+The secret key value
+```
+
+### Example 2: Callouts Explaining Code Lines
+
+**Before (Callout Style):**
+```asciidoc
+[source,java]
+----
+httpSecurity
+    .get("/public/*").permit() <1>
+    .path("/admin/*").roles("admin") <2>
+    .path("/forbidden").authorization().deny(); <3>
+----
+<1> Permits all GET requests to paths matching `/public/*` without authentication.
+<2> Restricts access to users with the `admin` role.
+<3> Denies all access to the `/forbidden` path.
+```
+
+**After (Definition List Style):**
+```asciidoc
+[source,java]
+----
+httpSecurity
+    .get("/public/*").permit()
+    .path("/admin/*").roles("admin")
+    .path("/forbidden").authorization().deny();
+----
+
+where:
+
+`.get("/public/*").permit()`::
+Permits all GET requests to paths matching `/public/*` without authentication.
+
+`.path("/admin/*").roles("admin")`::
+Restricts access to users with the `admin` role.
+
+`.path("/forbidden").authorization().deny();`::
+Denies all access to the `/forbidden` path.
+```
+
+## Usage
+
+### Process All Files in Current Directory (Default)
+
+```bash
+convert-callouts-to-deflist
+```
+
+Automatically scans all `.adoc` files recursively in the current directory.
+
+### Process Specific Directory
+
+```bash
+convert-callouts-to-deflist modules/
+```
+
+### Process Single File
+
+```bash
+convert-callouts-to-deflist assemblies/my-guide.adoc
+```
+
+### Preview Changes (Dry Run)
+
+```bash
+convert-callouts-to-deflist --dry-run
+```
+
+Shows what would be changed without modifying files.
+
+### Exclude Directories
+
+```bash
+convert-callouts-to-deflist --exclude-dir archive --exclude-dir temp
+```
+
+Excludes specified directories from processing. Note: `.vale` is excluded by default.
+
+### Use Exclusion List File
+
+```bash
+convert-callouts-to-deflist --exclude-list .docutils-ignore
+```
+
+Example `.docutils-ignore` file:
+```
+# Directories to exclude
+.vale/
+archive/
+temp/
+
+# Specific files
+test-file.adoc
+```
+
+### Verbose Mode
+
+```bash
+convert-callouts-to-deflist --verbose
+```
+
+Shows detailed processing information.
+
+## Options
+
+- `path` - File or directory to process (default: current directory)
+- `-n, --dry-run` - Preview changes without modifying files
+- `-v, --verbose` - Enable detailed logging
+- `--exclude-dir DIR` - Exclude directory (can be used multiple times)
+- `--exclude-file FILE` - Exclude file (can be used multiple times)
+- `--exclude-list FILE` - Load exclusion list from file
+- `-h, --help` - Show help message
+
+## Features
+
+### Intelligent Value Extraction
+
+The script extracts user-replaceable values from code:
+
+1. **Primary Method**: Extracts angle-bracket enclosed replacement values (`<value>`) from the code line.
+2. **Fallback**: If no replacement value found in code, extracts the line of code.
+3. **Heredoc-aware**: Ignores heredoc syntax (`<<EOF`) and only captures user values
+
+### Validation and Safety
+
+The script validates callouts before converting:
+
+- Ensures callout numbers in code match explanation numbers
+- Skips blocks where numbers don't match (prevents false conversions)
+- Preserves legitimate angle brackets (e.g., Java generics like `List<String>`)
+- Non-destructive: Always test with `--dry-run` first
+
+### Optional Markers
+
+Preserves optional markers from explanations:
+
+**Input:**
+```asciidoc
+<2> Optional. The name of the ConfigMap
+```
+
+**Output:**
+```asciidoc
+`<config-name>`::
+Optional. The name of the ConfigMap
+```
+
+### Non-Sequential Callouts
+
+Handles non-sequential callout numbers correctly:
+
+```asciidoc
+<1> First item
+<3> Third item
+<5> Fifth item
+```
+
+## Edge Cases Handled
+
+1. **Multiple code blocks** - Processes each block independently
+2. **Non-sequential numbers** - Handles callouts like `<1>`, `<3>`, `<5>`
+3. **Heredoc syntax** - Ignores `<<EOF` and similar patterns
+4. **Legitimate angle brackets** - Skips Java generics, comparison operators, etc.
+5. **Mixed content** - Preserves text before and after code blocks
+6. **Different delimiters** - Supports both `----` and `....` code block delimiters
+7. **No language specified** - Works with `[source]` blocks without language
+8. **Callout mismatches** - Skips blocks where numbers don't align and displays a warning with file and line numbers
+9. **Vale fixtures** - Automatically excludes `.vale` directory by default
+
+### Callout Mismatch Warnings
+
+When the tool detects a mismatch between callout numbers in code and their explanations, it displays a warning immediately and skips that code block:
+
+```
+WARNING: my-file.adoc lines 141-145: Callout mismatch: code has [1, 2], explanations have [1, 3]
+```
+
+At the end of processing, a summary of all warnings is displayed:
+
+```
+Processed 147 AsciiDoc file(s)
+Would modify 3 file(s) with 3 code block conversion(s)
+
+⚠️  2 Warning(s):
+  WARNING: file1.adoc lines 15-19: Callout mismatch: code has [1, 2], explanations have [2, 3]
+  WARNING: file2.adoc lines 141-145: Callout mismatch: code has [1, 2], explanations have [1, 3]
+```
+
+This prevents incorrect conversions when:
+- Callout numbers are non-consecutive in the code but explanations use different numbers
+- An explanation is missing for a callout in the code
+- An explanation exists for a callout that's not in the code
+
+
+## Real-World Example
+
+### Complex Secret Configuration
+
+**Before:**
+```asciidoc
+[source,yaml]
+----
+cat <<EOF | oc -n {my-product-namespace} create -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: <my-product-database-certificates-secrets> <1>
+type: Opaque
+stringData:
+  postgres-ca.pem: |-
+    -----BEGIN CERTIFICATE-----
+    <ca-certificate-key> <2>
+  postgres-key.key: |-
+    -----BEGIN CERTIFICATE-----
+    <tls-private-key> <3>
+  postgres-crt.pem: |-
+    -----BEGIN CERTIFICATE-----
+    <tls-certificate-key> <4>
+EOF
+----
+<1> Specifies the name of the certificate secret.
+<2> Specifies the CA certificate key.
+<3> Optional. Specifies the TLS private key.
+<4> Optional. Specifies the TLS certificate key.
+```
+
+**After:**
+```asciidoc
+[source,yaml]
+----
+cat <<EOF | oc -n {my-product-namespace} create -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: <my-product-database-certificates-secrets>
+type: Opaque
+stringData:
+  postgres-ca.pem: |-
+    -----BEGIN CERTIFICATE-----
+    <ca-certificate-key>
+  postgres-key.key: |-
+    -----BEGIN CERTIFICATE-----
+    <tls-private-key>
+  postgres-crt.pem: |-
+    -----BEGIN CERTIFICATE-----
+    <tls-certificate-key>
+EOF
+----
+
+where:
+
+`<my-product-database-certificates-secrets>`::
+Specifies the name of the certificate secret.
+
+`<ca-certificate-key>`::
+Specifies the CA certificate key.
+
+`<tls-private-key>` Optional::
+Specifies the TLS private key.
+
+`<tls-certificate-key>` Optional::
+Specifies the TLS certificate key.
+```
+
+## Technical Details
+
+### Pattern Matching
+
+- **Code block detection**: `^\[source(?:,\s*(\w+))?\]` followed by `----` or `....`
+- **Callout in code**: `<(\d+)>\s*$` at end of line
+- **Callout explanation**: `^<(\d+)>\s+(.+)$`
+- **User values**: `(?<!<)<([a-zA-Z][^>]*)>` (excludes heredoc syntax)
+
+### Processing Algorithm
+
+1. Parse document and identify all code blocks
+2. For each code block:
+   - Extract callout numbers and associated values from code
+   - Extract callout explanations following the block
+   - Validate that numbers match
+   - If valid:
+     - Remove callout markers from code
+     - Create definition list from callouts
+     - Replace old explanations with definition list
+3. Process blocks in reverse order to maintain line numbers
+
+## Limitations
+
+- Only processes AsciiDoc files
+- Requires exact `<N>` format for callouts (numbers only)
+- Callout explanations must immediately follow code blocks
+- Cannot handle multi-line callout explanations
+
+## Testing
+
+The repository includes a comprehensive test file: `test-callouts.adoc`
+
+Run tests:
+```bash
+python3 convert-callouts-to-deflist.py test-callouts.adoc /tmp/output.adoc -v
+```
+
+The test file includes:
+- Basic callouts
+- Optional markers
+- Complex examples with multiple values
+- Non-sequential numbers
+- Legitimate angle brackets (should be skipped)
+- Mixed content scenarios
+- Different code block delimiters
+- Callout mismatches (should be skipped)
+
+## Best Practices
+
+1. **Always work in a git branch** before converting files
+2. **Use `--dry-run` first** to preview what will be changed
+3. **Review changes with `git diff`** before committing
+4. **Test documentation builds** after converting
+5. **Start with a small batch** to verify behavior
+
+## Example Workflow
+
+```bash
+# Create a feature branch
+git checkout -b convert-callouts
+
+# Preview changes on entire repository (.vale is excluded by default)
+cd ~/rhbquarkus
+convert-callouts-to-deflist --dry-run
+
+# Example output:
+# Found 292 AsciiDoc file(s) to process
+# Would modify: asciidoc/logging.adoc (3 code block(s))
+# Would modify: asciidoc/security-jwt.adoc (3 code block(s))
+# ...
+# Would modify 19 file(s) with 104 code block conversion(s)
+
+# Process a specific directory
+convert-callouts-to-deflist --dry-run asciidoc/
+
+# Convert files
+convert-callouts-to-deflist
+
+# Review changes
+git diff
+
+# Test build
+./scripts/build-docs.sh
+
+# Commit changes
+git add .
+git commit -m "Convert callouts to definition list format"
+```
+
+---
+
+See the main [Tools Reference](index) for more documentation utilities.

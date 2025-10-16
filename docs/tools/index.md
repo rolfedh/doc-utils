@@ -7,7 +7,7 @@ has_children: true
 
 # Tools Reference
 
-doc-utils provides eight specialized CLI tools for maintaining AsciiDoc documentation repositories. Each tool is designed to handle a specific aspect of documentation maintenance.
+doc-utils provides nine specialized CLI tools for maintaining AsciiDoc documentation repositories. Each tool is designed to handle a specific aspect of documentation maintenance.
 
 ## Available Tools
 
@@ -153,6 +153,29 @@ find-unused-attributes attributes.adoc
 find-unused-attributes attributes.adoc --output unused.txt
 ```
 
+---
+
+### 🔄 [convert-callouts-to-deflist](convert-callouts-to-deflist)
+Converts AsciiDoc code blocks with callout-style annotations to cleaner definition list format.
+
+**Key Features:**
+- Converts callouts (`<1>`, `<2>`) to definition lists with "where:" prefix
+- Automatically scans all `.adoc` files recursively
+- Intelligent value extraction from code and explanations
+- Preserves optional markers and non-sequential callouts
+- Validation ensures callout numbers match
+- Exclusion list support for directories and files
+- Heredoc-aware pattern matching
+
+**Quick Usage:**
+```bash
+# Process current directory (.vale excluded by default)
+convert-callouts-to-deflist --dry-run
+
+# Process specific directory with additional exclusions
+convert-callouts-to-deflist --dry-run --exclude-dir archive modules/
+```
+
 ## Common Options
 
 All tools support these common options for excluding files and directories:
@@ -226,4 +249,5 @@ check-scannability --help
 archive-unused-files --help
 archive-unused-images --help
 find-unused-attributes --help
+convert-callouts-to-deflist --help
 ```

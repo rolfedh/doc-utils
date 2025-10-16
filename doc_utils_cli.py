@@ -53,6 +53,11 @@ TOOLS = [
         'description': 'Identifies unused attribute definitions in AsciiDoc files',
         'example': 'find-unused-attributes  # auto-discovers attributes files'
     },
+    {
+        'name': 'convert-callouts-to-deflist',
+        'description': 'Converts callout-style annotations to definition list format',
+        'example': 'convert-callouts-to-deflist --dry-run modules/'
+    },
 ]
 
 

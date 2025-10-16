@@ -1,0 +1,147 @@
+= Test File for Callout Conversion
+
+This file contains various callout patterns to test the converter.
+
+== Test 1: Basic Callouts
+
+[source,yaml]
+----
+apiVersion: v1
+kind: Secret
+metadata:
+  name: <my-secret> <1>
+data:
+  key: <my-key> <2>
+----
+<1> The secret name
+<2> The secret key value
+
+== Test 2: With Optional Markers
+
+[source,bash]
+----
+cat <<EOF | oc -n <namespace> create -f - <1>
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: <config-name> <2>
+  labels:
+    app: <app-label> <3>
+EOF
+----
+<1> The namespace where resources are created
+<2> Optional. The name of the ConfigMap
+<3> Optional: Application label for filtering
+
+== Test 3: Complex Example with Multiple Values
+
+[source,yaml]
+----
+cat <<EOF | oc -n {my-product-namespace} create -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: <my-product-database-certificates-secrets> <1>
+type: Opaque
+stringData:
+  postgres-ca.pem: |-
+    -----BEGIN CERTIFICATE-----
+    <ca-certificate-key> <2>
+  postgres-key.key: |-
+    -----BEGIN CERTIFICATE-----
+    <tls-private-key> <3>
+  postgres-crt.pem: |-
+    -----BEGIN CERTIFICATE-----
+    <tls-certificate-key> <4>
+    # ...
+EOF
+----
+<1> Specifies the name of the certificate secret.
+<2> Specifies the CA certificate key.
+<3> Optional. Specifies the TLS private key.
+<4> Optional. Specifies the TLS certificate key.
+
+== Test 4: Non-Sequential Callout Numbers
+
+[source,java]
+----
+public class Example {
+    private String name = "<user-name>"; <1>
+    private int port = <port-number>; <3>
+    private String host = "<hostname>"; <5>
+}
+----
+<1> The user's name
+<3> The port number for connections
+<5> The target hostname
+
+== Test 5: Code with Legitimate Angle Brackets (Should NOT Convert)
+
+[source,java]
+----
+List<String> items = new ArrayList<>();
+Map<String, Object> config = new HashMap<>();
+----
+
+This block has no callouts, so it should remain unchanged.
+
+== Test 6: Mixed Content
+
+Some text before the code block.
+
+[source,properties]
+----
+quarkus.datasource.db-kind=<db-type> <1>
+quarkus.datasource.username=<db-user> <2>
+quarkus.datasource.password=<db-password> <3>
+----
+<1> Database type (postgresql, mysql, etc.)
+<2> Database username
+<3> Database password
+
+Some text after the code block.
+
+== Test 7: Code Block with Dots Delimiter
+
+[source,text]
+....
+Configuration:
+  server: <server-url> <1>
+  timeout: <timeout-value> <2>
+....
+<1> The server URL
+<2> Optional. Timeout in seconds
+
+== Test 8: Code Block Without Language
+
+[source]
+----
+Step 1: Configure <setting-name> <1>
+Step 2: Verify <output-value> <2>
+----
+<1> The setting to configure
+<2> Expected output value
+
+== Test 9: Multiple Code Blocks in Sequence
+
+[source,bash]
+----
+export VAR=<value> <1>
+----
+<1> Environment variable value
+
+[source,bash]
+----
+echo <message> <1>
+----
+<1> Message to display
+
+== Test 10: Callout Mismatch (Should Skip)
+
+[source,yaml]
+----
+name: <value> <1>
+key: <key-value> <2>
+----
+<1> The name value
+<3> This doesn't match - should skip this block
