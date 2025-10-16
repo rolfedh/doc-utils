@@ -14,7 +14,8 @@ Converts AsciiDoc code blocks with callout-style annotations to a cleaner defini
 Traditional AsciiDoc callouts use numbered markers (`<1>`, `<2>`, etc.) in code blocks with corresponding explanation lines below. This format can be visually cluttered and harder to maintain. This tool converts them to a cleaner definition list format that uses the actual code lines as terms.
 
 **Important:** This tool is designed to assist your conversion efforts. You must:
-- Carefully review all content changes before committing them to ensure accuracy and readability
+- **Carefully review all content changes** before committing them to ensure accuracy and readability
+- **Pay special attention to merged callouts** - when multiple callouts appear on the same line, their explanations are automatically merged (see example below)
 - Pay attention to any warnings displayed during processing
 - Review the warning summary at the end and address any callout mismatches before re-running
 - Test documentation builds after converting to verify correctness
@@ -112,6 +113,60 @@ Restricts access to users with the `admin` role.
 `.path("/forbidden").authorization().deny();`::
 Denies all access to the `/forbidden` path.
 ```
+
+### Example 3: Multiple Callouts on Same Line (Merged Explanations)
+
+**⚠️ REVIEW CAREFULLY:** When multiple callouts appear on the same code line, the tool automatically merges their explanations into a single definition list entry using AsciiDoc's list continuation marker (`+`). This behavior is correct for most cases, but you should verify that the merged explanations read naturally together.
+
+**Before (Callout Style):**
+```asciidoc
+[source,java]
+----
+@Path("hello")
+public class HelloResource {
+    @BasicAuthentication <1> <2>
+    @Path("basic")
+    public String basicAuthMechanism() {
+        return "basic";
+    }
+}
+----
+<1> Enables basic authentication for this endpoint.
+<2> Authentication is required by default when using this annotation.
+```
+
+**After (Definition List Style - Merged):**
+```asciidoc
+[source,java]
+----
+@Path("hello")
+public class HelloResource {
+    @BasicAuthentication
+    @Path("basic")
+    public String basicAuthMechanism() {
+        return "basic";
+    }
+}
+----
+
+where:
+
+`@BasicAuthentication`::
+Enables basic authentication for this endpoint.
++
+Authentication is required by default when using this annotation.
+```
+
+**Why This Matters:**
+- Both callouts reference the **same code element** (`@BasicAuthentication`)
+- Their explanations are **semantically related** (the first explains what it does, the second adds important context)
+- The merged format is cleaner and avoids duplicate terms in the definition list
+- The `+` continuation marker properly connects the related explanations
+
+**When to Review:**
+- If the merged explanations feel redundant or repetitive
+- If the explanations would read better as separate items (consider refactoring the callouts in the source)
+- If the order of explanations affects understanding (they merge in callout number order)
 
 ## Usage
 
@@ -233,14 +288,15 @@ Handles non-sequential callout numbers correctly:
 ## Edge Cases Handled
 
 1. **Multiple code blocks** - Processes each block independently
-2. **Non-sequential numbers** - Handles callouts like `<1>`, `<3>`, `<5>`
-3. **Heredoc syntax** - Ignores `<<EOF` and similar patterns
-4. **Legitimate angle brackets** - Skips Java generics, comparison operators, etc.
-5. **Mixed content** - Preserves text before and after code blocks
-6. **Different delimiters** - Supports both `----` and `....` code block delimiters
-7. **No language specified** - Works with `[source]` blocks without language
-8. **Callout mismatches** - Skips blocks where numbers don't align and displays a warning with file and line numbers
-9. **Vale fixtures** - Automatically excludes `.vale` directory by default
+2. **Multiple callouts on same line** - Automatically merges explanations using AsciiDoc `+` continuation marker
+3. **Non-sequential numbers** - Handles callouts like `<1>`, `<3>`, `<5>`
+4. **Heredoc syntax** - Ignores `<<EOF` and similar patterns
+5. **Legitimate angle brackets** - Skips Java generics, comparison operators, etc.
+6. **Mixed content** - Preserves text before and after code blocks
+7. **Different delimiters** - Supports both `----` and `....` code block delimiters
+8. **No language specified** - Works with `[source]` blocks without language
+9. **Callout mismatches** - Skips blocks where numbers don't align and displays a warning with file and line numbers
+10. **Vale fixtures** - Automatically excludes `.vale` directory by default
 
 ### Callout Mismatch Warnings
 
@@ -342,7 +398,7 @@ Specifies the TLS certificate key.
 ### Pattern Matching
 
 - **Code block detection**: `^\[source(?:,\s*(\w+))?\]` followed by `----` or `....`
-- **Callout in code**: `<(\d+)>\s*$` at end of line
+- **Callout in code**: `<(\d+)>` (supports multiple callouts per line)
 - **Callout explanation**: `^<(\d+)>\s+(.+)$`
 - **User values**: `(?<!<)<([a-zA-Z][^>]*)>` (excludes heredoc syntax)
 
@@ -351,11 +407,13 @@ Specifies the TLS certificate key.
 1. Parse document and identify all code blocks
 2. For each code block:
    - Extract callout numbers and associated values from code
+   - Group callouts that appear on the same code line
    - Extract callout explanations following the block
    - Validate that numbers match
    - If valid:
      - Remove callout markers from code
-     - Create definition list from callouts
+     - Create definition list from callout groups
+     - For groups with multiple callouts, merge explanations with `+` continuation
      - Replace old explanations with definition list
 3. Process blocks in reverse order to maintain line numbers
 
@@ -363,8 +421,8 @@ Specifies the TLS certificate key.
 
 - Only processes AsciiDoc files
 - Requires exact `<N>` format for callouts (numbers only)
-- Callout explanations must immediately follow code blocks
-- Cannot handle multi-line callout explanations
+- Callout explanations must immediately follow code blocks (with optional blank lines or `+` markers in between)
+- Supports continuation lines within callout explanations, but explanations must start with the `<N>` pattern
 
 ## Testing
 
