@@ -34,7 +34,7 @@ def print_colored(message: str, color: str = Colors.NC) -> None:
 class Callout:
     """Represents a callout with its number and explanation text."""
     number: int
-    text: str
+    lines: List[str]  # List of lines to preserve formatting
     is_optional: bool = False
 
 
@@ -51,11 +51,12 @@ class CodeBlock:
 class CalloutConverter:
     """Converts callout-style documentation to definition list format."""
 
-    # Pattern for code block start: [source,language] or [source]
-    CODE_BLOCK_START = re.compile(r'^\[source(?:,\s*(\w+))?\]')
+    # Pattern for code block start: [source,language] or [source] with optional attributes
+    # Matches: [source], [source,java], [source,java,subs="..."], [source,java,options="..."], etc.
+    CODE_BLOCK_START = re.compile(r'^\[source(?:,\s*(\w+))?(?:[,\s]+[^\]]+)?\]')
 
-    # Pattern for callout number at end of line in code block
-    CALLOUT_IN_CODE = re.compile(r'<(\d+)>\s*$')
+    # Pattern for callout number in code block (can appear multiple times per line)
+    CALLOUT_IN_CODE = re.compile(r'<(\d+)>')
 
     # Pattern for callout explanation line: <1> Explanation text
     CALLOUT_EXPLANATION = re.compile(r'^<(\d+)>\s+(.+)$')
@@ -81,6 +82,7 @@ class CalloutConverter:
         i = 0
 
         while i < len(lines):
+            # Check for [source] prefix first
             match = self.CODE_BLOCK_START.match(lines[i])
             if match:
                 language = match.group(1)
@@ -106,6 +108,28 @@ class CalloutConverter:
                             ))
                             break
                         i += 1
+            # Check for plain delimited blocks without [source] prefix
+            elif lines[i].strip() in ['----', '....']:
+                delimiter = lines[i].strip()
+                start = i
+                i += 1
+                content_start = i
+
+                # Find the closing delimiter
+                while i < len(lines):
+                    if lines[i].strip() == delimiter:
+                        content = lines[content_start:i]
+                        # Only add if block contains callouts
+                        if any(self.CALLOUT_IN_CODE.search(line) for line in content):
+                            blocks.append(CodeBlock(
+                                start_line=start,
+                                end_line=i,
+                                delimiter=delimiter,
+                                content=content,
+                                language=None
+                            ))
+                        break
+                    i += 1
             i += 1
 
         return blocks
@@ -119,29 +143,31 @@ class CalloutConverter:
 
         For each callout, attempts to extract the most relevant user-replaceable value
         by looking for angle-bracket enclosed values on the same line.
+        Handles multiple callouts per line.
         """
         callouts = {}
 
         for line in content:
-            # Look for callout number at end of line
-            callout_match = self.CALLOUT_IN_CODE.search(line)
-            if callout_match:
-                callout_num = int(callout_match.group(1))
-
-                # Extract the user-replaceable value (content in angle brackets)
-                # Remove the callout number first
-                line_without_callout = self.CALLOUT_IN_CODE.sub('', line).strip()
+            # Look for all callout numbers on this line
+            callout_matches = list(self.CALLOUT_IN_CODE.finditer(line))
+            if callout_matches:
+                # Remove all callouts from the line to get the actual code
+                line_without_callouts = self.CALLOUT_IN_CODE.sub('', line).strip()
 
                 # Find all angle-bracket enclosed values
-                user_values = self.USER_VALUE_PATTERN.findall(line_without_callout)
+                user_values = self.USER_VALUE_PATTERN.findall(line_without_callouts)
 
-                if user_values:
-                    # Use the rightmost (closest to the callout) user value
-                    callouts[callout_num] = user_values[-1]
-                else:
-                    # No angle-bracket value found - store the actual code line
-                    # This will be used as the term in the definition list
-                    callouts[callout_num] = line_without_callout
+                # Process each callout found on this line
+                for callout_match in callout_matches:
+                    callout_num = int(callout_match.group(1))
+
+                    if user_values:
+                        # Use the rightmost (closest to the callout) user value
+                        callouts[callout_num] = user_values[-1]
+                    else:
+                        # No angle-bracket value found - store the actual code line
+                        # This will be used as the term in the definition list
+                        callouts[callout_num] = line_without_callouts
 
         return callouts
 
@@ -153,8 +179,8 @@ class CalloutConverter:
         explanations = {}
         i = start_line + 1  # Start after the closing delimiter
 
-        # Skip blank lines
-        while i < len(lines) and not lines[i].strip():
+        # Skip blank lines and continuation markers (+)
+        while i < len(lines) and (not lines[i].strip() or lines[i].strip() == '+'):
             i += 1
 
         # Collect consecutive callout explanation lines
@@ -162,19 +188,32 @@ class CalloutConverter:
             match = self.CALLOUT_EXPLANATION.match(lines[i])
             if match:
                 num = int(match.group(1))
-                text = match.group(2).strip()
-
-                # Check if marked as optional
-                is_optional = False
-                if text.lower().startswith('optional.') or text.lower().startswith('optional:'):
-                    is_optional = True
-                    text = text[9:].strip()  # Remove "Optional." or "Optional:"
-                elif '(Optional)' in text or '(optional)' in text:
-                    is_optional = True
-                    text = re.sub(r'\s*\(optional\)\s*', ' ', text, flags=re.IGNORECASE).strip()
-
-                explanations[num] = Callout(num, text, is_optional)
+                first_line = match.group(2).strip()
+                explanation_lines = [first_line]
                 i += 1
+
+                # Collect continuation lines (lines that don't start with a new callout)
+                # Continue until we hit a blank line, a new callout, or certain patterns
+                while i < len(lines):
+                    line = lines[i]
+                    # Stop if we hit a blank line, new callout, or list start marker
+                    if not line.strip() or self.CALLOUT_EXPLANATION.match(line) or line.startswith('[start='):
+                        break
+                    # Add continuation line preserving original formatting
+                    explanation_lines.append(line)
+                    i += 1
+
+                # Check if marked as optional (only in first line)
+                is_optional = False
+                if first_line.lower().startswith('optional.') or first_line.lower().startswith('optional:'):
+                    is_optional = True
+                    # Remove "Optional." or "Optional:" from first line
+                    explanation_lines[0] = first_line[9:].strip()
+                elif '(Optional)' in first_line or '(optional)' in first_line:
+                    is_optional = True
+                    explanation_lines[0] = re.sub(r'\s*\(optional\)\s*', ' ', first_line, flags=re.IGNORECASE).strip()
+
+                explanations[num] = Callout(num, explanation_lines, is_optional)
             else:
                 break
 
@@ -208,10 +247,11 @@ class CalloutConverter:
         return True
 
     def remove_callouts_from_code(self, content: List[str]) -> List[str]:
-        """Remove callout numbers from code block content."""
+        """Remove callout numbers from code block content (handles multiple callouts per line)."""
         cleaned = []
         for line in content:
-            cleaned.append(self.CALLOUT_IN_CODE.sub('', line))
+            # Remove all callout numbers and trailing whitespace
+            cleaned.append(self.CALLOUT_IN_CODE.sub('', line).rstrip())
         return cleaned
 
     def create_definition_list(self, code_callouts: Dict[int, str], explanations: Dict[int, Callout]) -> List[str]:
@@ -221,10 +261,11 @@ class CalloutConverter:
         For callouts with user-replaceable values in angle brackets, uses those.
         For callouts without values, uses the actual code line as the term.
         """
-        lines = ['\nwhere:\n']
+        lines = ['\nwhere:']
 
         # Sort by callout number
-        for num in sorted(code_callouts.keys()):
+        sorted_nums = sorted(code_callouts.keys())
+        for idx, num in enumerate(sorted_nums):
             value = code_callouts[num]
             explanation = explanations[num]
 
@@ -245,13 +286,16 @@ class CalloutConverter:
                 # This is a code line - use it as-is in backticks
                 term = f'`{value}`'
 
-            # Prepend "Optional. " to the explanation text if marked as optional
-            explanation_text = explanation.text
-            if explanation.is_optional:
-                explanation_text = f'Optional. {explanation_text}'
+            # Add blank line before each term
+            lines.append('')
+            lines.append(f'{term}::')
 
-            lines.append(f'\n{term}::')
-            lines.append(f'{explanation_text}\n')
+            # Add explanation lines, prepending "Optional. " to first line if needed
+            for line_idx, line in enumerate(explanation.lines):
+                if line_idx == 0 and explanation.is_optional:
+                    lines.append(f'Optional. {line}')
+                else:
+                    lines.append(line)
 
         return lines
 
@@ -312,7 +356,12 @@ class CalloutConverter:
 
             # Replace in document
             # 1. Update code block content
-            content_start = block.start_line + 2  # After [source] and ----
+            # Check if block has [source] prefix by checking if start_line contains [source]
+            has_source_prefix = self.CODE_BLOCK_START.match(new_lines[block.start_line])
+            if has_source_prefix:
+                content_start = block.start_line + 2  # After [source] and ----
+            else:
+                content_start = block.start_line + 1  # After ---- only
             content_end = block.end_line
 
             # 2. Remove old callout explanations
