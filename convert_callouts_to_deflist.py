@@ -39,6 +39,13 @@ class Callout:
 
 
 @dataclass
+class CalloutGroup:
+    """Represents one or more callouts that share the same code line."""
+    code_line: str  # The actual code line (without callouts)
+    callout_numbers: List[int]  # List of callout numbers on this line
+
+
+@dataclass
 class CodeBlock:
     """Represents a code block with its content and metadata."""
     start_line: int
@@ -134,18 +141,17 @@ class CalloutConverter:
 
         return blocks
 
-    def extract_callouts_from_code(self, content: List[str]) -> Dict[int, Optional[str]]:
+    def extract_callouts_from_code(self, content: List[str]) -> List[CalloutGroup]:
         """
         Extract callout numbers from code block content.
-        Returns dict mapping callout number to either:
-        - The user-replaceable value (if angle brackets found), or
-        - The actual code line (for callouts explaining code behavior)
+        Returns list of CalloutGroups, where each group contains:
+        - The code line (with user-replaceable value if found, or full line)
+        - List of callout numbers on that line
 
-        For each callout, attempts to extract the most relevant user-replaceable value
-        by looking for angle-bracket enclosed values on the same line.
-        Handles multiple callouts per line.
+        Multiple callouts on the same line are grouped together to be merged
+        in the definition list.
         """
-        callouts = {}
+        groups = []
 
         for line in content:
             # Look for all callout numbers on this line
@@ -157,19 +163,23 @@ class CalloutConverter:
                 # Find all angle-bracket enclosed values
                 user_values = self.USER_VALUE_PATTERN.findall(line_without_callouts)
 
-                # Process each callout found on this line
-                for callout_match in callout_matches:
-                    callout_num = int(callout_match.group(1))
+                # Determine what to use as the code line term
+                if user_values:
+                    # Use the rightmost (closest to the callout) user value
+                    code_line = user_values[-1]
+                else:
+                    # No angle-bracket value found - use the actual code line
+                    code_line = line_without_callouts
 
-                    if user_values:
-                        # Use the rightmost (closest to the callout) user value
-                        callouts[callout_num] = user_values[-1]
-                    else:
-                        # No angle-bracket value found - store the actual code line
-                        # This will be used as the term in the definition list
-                        callouts[callout_num] = line_without_callouts
+                # Collect all callout numbers on this line
+                callout_nums = [int(m.group(1)) for m in callout_matches]
 
-        return callouts
+                groups.append(CalloutGroup(
+                    code_line=code_line,
+                    callout_numbers=callout_nums
+                ))
+
+        return groups
 
     def extract_callout_explanations(self, lines: List[str], start_line: int) -> Tuple[Dict[int, Callout], int]:
         """
@@ -219,13 +229,17 @@ class CalloutConverter:
 
         return explanations, i - 1
 
-    def validate_callouts(self, code_callouts: Dict[int, str], explanations: Dict[int, Callout],
+    def validate_callouts(self, callout_groups: List[CalloutGroup], explanations: Dict[int, Callout],
                          input_file: Path = None, block_start: int = None, block_end: int = None) -> bool:
         """
         Validate that callout numbers in code match explanation numbers.
         Returns True if valid, False otherwise.
         """
-        code_nums = set(code_callouts.keys())
+        # Extract all callout numbers from groups
+        code_nums = set()
+        for group in callout_groups:
+            code_nums.update(group.callout_numbers)
+
         explanation_nums = set(explanations.keys())
 
         if code_nums != explanation_nums:
@@ -254,26 +268,28 @@ class CalloutConverter:
             cleaned.append(self.CALLOUT_IN_CODE.sub('', line).rstrip())
         return cleaned
 
-    def create_definition_list(self, code_callouts: Dict[int, str], explanations: Dict[int, Callout]) -> List[str]:
+    def create_definition_list(self, callout_groups: List[CalloutGroup], explanations: Dict[int, Callout]) -> List[str]:
         """
-        Create definition list from callouts and explanations.
+        Create definition list from callout groups and explanations.
 
         For callouts with user-replaceable values in angle brackets, uses those.
         For callouts without values, uses the actual code line as the term.
+
+        When multiple callouts share the same code line (same group), their
+        explanations are merged using AsciiDoc list continuation (+).
         """
         lines = ['\nwhere:']
 
-        # Sort by callout number
-        sorted_nums = sorted(code_callouts.keys())
-        for idx, num in enumerate(sorted_nums):
-            value = code_callouts[num]
-            explanation = explanations[num]
+        # Process each group (which may contain one or more callouts)
+        for group in callout_groups:
+            code_line = group.code_line
+            callout_nums = group.callout_numbers
 
             # Check if this is a user-replaceable value (contains angle brackets but not heredoc)
             # User values are single words/phrases in angle brackets like <my-value>
-            user_values = self.USER_VALUE_PATTERN.findall(value)
+            user_values = self.USER_VALUE_PATTERN.findall(code_line)
 
-            if user_values and len(user_values) == 1 and len(value) < 100:
+            if user_values and len(user_values) == 1 and len(code_line) < 100:
                 # This looks like a user-replaceable value placeholder
                 # Format the value (ensure it has angle brackets)
                 user_value = user_values[0]
@@ -284,18 +300,26 @@ class CalloutConverter:
                 term = f'`{user_value}`'
             else:
                 # This is a code line - use it as-is in backticks
-                term = f'`{value}`'
+                term = f'`{code_line}`'
 
             # Add blank line before each term
             lines.append('')
             lines.append(f'{term}::')
 
-            # Add explanation lines, prepending "Optional. " to first line if needed
-            for line_idx, line in enumerate(explanation.lines):
-                if line_idx == 0 and explanation.is_optional:
-                    lines.append(f'Optional. {line}')
-                else:
-                    lines.append(line)
+            # Add explanations for all callouts in this group
+            for idx, callout_num in enumerate(callout_nums):
+                explanation = explanations[callout_num]
+
+                # If this is not the first explanation in the group, add continuation marker
+                if idx > 0:
+                    lines.append('+')
+
+                # Add explanation lines, prepending "Optional. " to first line if needed
+                for line_idx, line in enumerate(explanation.lines):
+                    if line_idx == 0 and explanation.is_optional:
+                        lines.append(f'Optional. {line}')
+                    else:
+                        lines.append(line)
 
         return lines
 
@@ -326,14 +350,19 @@ class CalloutConverter:
         conversions = 0
 
         for block in reversed(blocks):
-            # Extract callouts from code
-            code_callouts = self.extract_callouts_from_code(block.content)
+            # Extract callouts from code (returns list of CalloutGroups)
+            callout_groups = self.extract_callouts_from_code(block.content)
 
-            if not code_callouts:
+            if not callout_groups:
                 self.log(f"No callouts in block at line {block.start_line + 1}")
                 continue
 
-            self.log(f"Block at line {block.start_line + 1} has callouts: {list(code_callouts.keys())}")
+            # Extract all callout numbers for logging
+            all_callout_nums = []
+            for group in callout_groups:
+                all_callout_nums.extend(group.callout_numbers)
+
+            self.log(f"Block at line {block.start_line + 1} has callouts: {all_callout_nums}")
 
             # Extract explanations
             explanations, explanation_end = self.extract_callout_explanations(new_lines, block.end_line)
@@ -343,7 +372,7 @@ class CalloutConverter:
                 continue
 
             # Validate callouts match
-            if not self.validate_callouts(code_callouts, explanations, input_file, block.start_line, block.end_line):
+            if not self.validate_callouts(callout_groups, explanations, input_file, block.start_line, block.end_line):
                 continue
 
             self.log(f"Converting block at line {block.start_line + 1}")
@@ -352,7 +381,7 @@ class CalloutConverter:
             cleaned_content = self.remove_callouts_from_code(block.content)
 
             # Create definition list
-            def_list = self.create_definition_list(code_callouts, explanations)
+            def_list = self.create_definition_list(callout_groups, explanations)
 
             # Replace in document
             # 1. Update code block content
