@@ -72,9 +72,10 @@ class CalloutConverter:
     # Excludes heredoc syntax (<<) and comparison operators
     USER_VALUE_PATTERN = re.compile(r'(?<!<)<([a-zA-Z][^>]*)>')
 
-    def __init__(self, dry_run: bool = False, verbose: bool = False):
+    def __init__(self, dry_run: bool = False, verbose: bool = False, output_format: str = 'deflist'):
         self.dry_run = dry_run
         self.verbose = verbose
+        self.output_format = output_format  # 'deflist' or 'bullets'
         self.changes_made = 0
         self.warnings = []  # Collect warnings for summary
 
@@ -323,6 +324,77 @@ class CalloutConverter:
 
         return lines
 
+    def create_bulleted_list(self, callout_groups: List[CalloutGroup], explanations: Dict[int, Callout]) -> List[str]:
+        """
+        Create bulleted list from callout groups and explanations.
+
+        Follows Red Hat style guide format:
+        - Each bullet starts with `*` followed by backticked code element
+        - Colon separates element from explanation
+        - Blank line between each bullet point
+
+        For callouts with user-replaceable values in angle brackets, uses those.
+        For callouts without values, uses the actual code line as the term.
+
+        When multiple callouts share the same code line (same group), their
+        explanations are merged with line breaks.
+        """
+        lines = ['']  # Start with blank line before list
+
+        # Process each group (which may contain one or more callouts)
+        for group in callout_groups:
+            code_line = group.code_line
+            callout_nums = group.callout_numbers
+
+            # Check if this is a user-replaceable value (contains angle brackets but not heredoc)
+            # User values are single words/phrases in angle brackets like <my-value>
+            user_values = self.USER_VALUE_PATTERN.findall(code_line)
+
+            if user_values and len(user_values) == 1 and len(code_line) < 100:
+                # This looks like a user-replaceable value placeholder
+                # Format the value (ensure it has angle brackets)
+                user_value = user_values[0]
+                if not user_value.startswith('<'):
+                    user_value = f'<{user_value}>'
+                if not user_value.endswith('>'):
+                    user_value = f'{user_value}>'
+                term = f'`{user_value}`'
+            else:
+                # This is a code line - use it as-is in backticks
+                term = f'`{code_line}`'
+
+            # Collect all explanations for this group
+            all_explanation_lines = []
+            for idx, callout_num in enumerate(callout_nums):
+                explanation = explanations[callout_num]
+
+                # Add explanation lines, prepending "Optional. " to first line if needed
+                for line_idx, line in enumerate(explanation.lines):
+                    if line_idx == 0 and explanation.is_optional:
+                        all_explanation_lines.append(f'Optional. {line}')
+                    else:
+                        all_explanation_lines.append(line)
+
+                # If there are more callouts in this group, add a line break
+                if idx < len(callout_nums) - 1:
+                    all_explanation_lines.append('')
+
+            # Format as bullet point: * `term`: explanation
+            # First line uses the bullet marker
+            lines.append(f'*   {term}: {all_explanation_lines[0]}')
+
+            # Continuation lines (if any) are indented to align with first line
+            for continuation_line in all_explanation_lines[1:]:
+                if continuation_line:  # Skip empty lines for now
+                    lines.append(f'    {continuation_line}')
+                else:
+                    lines.append('')
+
+            # Add blank line after each bullet point
+            lines.append('')
+
+        return lines
+
     def convert_file(self, input_file: Path) -> Tuple[int, bool]:
         """
         Convert callouts in a file to definition list format.
@@ -380,8 +452,11 @@ class CalloutConverter:
             # Remove callouts from code
             cleaned_content = self.remove_callouts_from_code(block.content)
 
-            # Create definition list
-            def_list = self.create_definition_list(callout_groups, explanations)
+            # Create output list (definition list or bulleted list based on format option)
+            if self.output_format == 'bullets':
+                output_list = self.create_bulleted_list(callout_groups, explanations)
+            else:  # default to 'deflist'
+                output_list = self.create_definition_list(callout_groups, explanations)
 
             # Replace in document
             # 1. Update code block content
@@ -403,7 +478,7 @@ class CalloutConverter:
                 new_lines[:content_start] +
                 cleaned_content +
                 [new_lines[content_end]] +  # Keep closing delimiter
-                def_list +
+                output_list +
                 new_lines[explanation_end + 1:]
             )
 
@@ -557,6 +632,12 @@ Example transformation:
         help='Enable verbose output'
     )
     parser.add_argument(
+        '-f', '--format',
+        choices=['deflist', 'bullets'],
+        default='deflist',
+        help='Output format: "deflist" for definition list with "where:" (default), "bullets" for bulleted list'
+    )
+    parser.add_argument(
         '--exclude-dir',
         action='append',
         dest='exclude_dirs',
@@ -613,7 +694,7 @@ Example transformation:
     print(f"Found {len(adoc_files)} AsciiDoc file(s) to process")
 
     # Create converter
-    converter = CalloutConverter(dry_run=args.dry_run, verbose=args.verbose)
+    converter = CalloutConverter(dry_run=args.dry_run, verbose=args.verbose, output_format=args.format)
 
     # Process each file
     files_processed = 0
