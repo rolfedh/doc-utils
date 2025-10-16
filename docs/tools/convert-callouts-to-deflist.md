@@ -168,6 +168,50 @@ Authentication is required by default when using this annotation.
 - If the explanations would read better as separate items (consider refactoring the callouts in the source)
 - If the order of explanations affects understanding (they merge in callout number order)
 
+## Output Formats
+
+The tool supports two output formats, selectable via the `--format` option:
+
+### Definition List Format (Default)
+
+Uses AsciiDoc definition lists with "where:" prefix. This is the default format.
+
+```bash
+convert-callouts-to-deflist modules/
+```
+
+**Output:**
+```asciidoc
+where:
+
+`<my-secret>`::
+The secret name
+
+`<my-key>`::
+The secret key value
+```
+
+### Bulleted List Format
+
+Uses AsciiDoc bulleted lists following the [Red Hat Style Guide](https://redhat-documentation.github.io/supplementary-style-guide/#explain-commands-variables-in-code-blocks) format. Best for explaining YAML structures or multi-line code blocks.
+
+```bash
+convert-callouts-to-deflist --format bullets modules/
+```
+
+**Output:**
+```asciidoc
+*   `<my-secret>`: The secret name
+
+*   `<my-key>`: The secret key value
+```
+
+**When to use each format:**
+- **Definition list (`--format deflist`)**: Default choice, works well for most cases, provides semantic "where:" prefix
+- **Bulleted list (`--format bullets`)**: Follows Red Hat style guide, preferred for YAML files and complex configurations
+
+Both formats support all features including merged callouts, optional markers, and user-replaceable values.
+
 ## Usage
 
 ### Process All Files in Current Directory (Default)
@@ -236,6 +280,7 @@ Shows detailed processing information.
 - `path` - File or directory to process (default: current directory)
 - `-n, --dry-run` - Preview changes without modifying files
 - `-v, --verbose` - Enable detailed logging
+- `-f, --format {deflist,bullets}` - Output format: "deflist" for definition list with "where:" (default), "bullets" for bulleted list per Red Hat style guide
 - `--exclude-dir DIR` - Exclude directory (can be used multiple times)
 - `--exclude-file FILE` - Exclude file (can be used multiple times)
 - `--exclude-list FILE` - Load exclusion list from file
@@ -447,9 +492,12 @@ The test file includes:
 
 1. **Always work in a git branch** before converting files
 2. **Use `--dry-run` first** to preview what will be changed
-3. **Review changes with `git diff`** before committing
-4. **Test documentation builds** after converting
-5. **Start with a small batch** to verify behavior
+3. **Choose the appropriate format**:
+   - Use `--format deflist` (default) for general documentation
+   - Use `--format bullets` for YAML files and complex configurations (follows Red Hat style guide)
+4. **Review changes with `git diff`** before committing
+5. **Test documentation builds** after converting
+6. **Start with a small batch** to verify behavior
 
 ## Example Workflow
 
@@ -483,6 +531,11 @@ git diff
 # Commit changes
 git add .
 git commit -m "Convert callouts to definition list format"
+
+# Or use bulleted list format for YAML files
+convert-callouts-to-deflist --format bullets --dry-run deployment-guides/
+convert-callouts-to-deflist --format bullets deployment-guides/
+git commit -m "Convert YAML callouts to bulleted list format"
 ```
 
 ---
