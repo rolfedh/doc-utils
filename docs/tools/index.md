@@ -2,8 +2,6 @@
 layout: default
 title: Tools Reference
 nav_order: 3
-has_children: true
-nav_fold: false
 ---
 
 # Tools Reference

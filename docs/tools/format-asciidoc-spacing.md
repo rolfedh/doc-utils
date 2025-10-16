@@ -1,8 +1,7 @@
 ---
 layout: default
 title: format-asciidoc-spacing
-parent: Tools Reference
-nav_order: 2
+nav_order: 5
 ---
 
 # format-asciidoc-spacing

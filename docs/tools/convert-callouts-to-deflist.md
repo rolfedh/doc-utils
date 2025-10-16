@@ -1,8 +1,7 @@
 ---
 layout: default
 title: convert-callouts-to-deflist
-parent: Tools Reference
-nav_order: 9
+nav_order: 12
 ---
 
 # Convert Callouts to Definition Lists

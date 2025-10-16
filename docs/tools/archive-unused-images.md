@@ -1,8 +1,7 @@
 ---
 layout: default
 title: archive-unused-images
-parent: Tools Reference
-nav_order: 5
+nav_order: 8
 ---
 
 # Archive Unused Images

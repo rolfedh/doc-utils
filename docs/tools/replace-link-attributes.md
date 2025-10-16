@@ -1,8 +1,7 @@
 ---
 layout: default
 title: replace-link-attributes
-parent: Tools Reference
-nav_order: 1
+nav_order: 4
 ---
 
 # replace-link-attributes

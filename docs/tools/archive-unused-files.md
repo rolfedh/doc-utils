@@ -1,8 +1,7 @@
 ---
 layout: default
 title: archive-unused-files
-parent: Tools Reference
-nav_order: 4
+nav_order: 7
 ---
 
 # Archive Unused AsciiDoc Files
