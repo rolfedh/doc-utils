@@ -20,8 +20,18 @@ doc-utils/
 │   ├── unused_adoc.py      # Find unused AsciiDoc files
 │   ├── unused_attributes.py # Find unused attributes
 │   └── unused_images.py    # Find unused images
+├── callout_lib/            # Callout conversion library
+│   ├── __init__.py
+│   ├── detector.py         # Callout detection and extraction
+│   ├── converter_deflist.py # Definition list converter
+│   ├── converter_bullets.py # Bulleted list converter
+│   ├── converter_comments.py # Inline comments converter
+│   ├── README.md          # Library documentation
+│   └── IMPLEMENTATION_SUMMARY.md # Implementation overview
 ├── docs/                   # GitHub Pages documentation
 │   ├── tools/             # Tool-specific documentation
+│   │   ├── convert-callouts-to-deflist.md
+│   │   ├── convert-callouts-interactive.md
 │   │   ├── replace-link-attributes.md
 │   │   ├── format-asciidoc-spacing.md
 │   │   └── ...
@@ -31,7 +41,11 @@ doc-utils/
 │   ├── __init__.py
 │   ├── test_*.py          # Test files
 │   └── test_fixture_*.py  # Test fixtures
+├── .archive/              # Archived/reference files
+│   └── SLACK_NOTE_FOR_TESTER.md # Testing documentation
 ├── *.py                   # CLI entry point scripts
+├── convert_callouts_to_deflist.py   # Batch callout converter
+├── convert_callouts_interactive.py  # Interactive callout converter
 ├── setup.py              # Custom installation hooks
 ├── pyproject.toml         # Package configuration
 ├── requirements-dev.txt   # Development dependencies (pytest, PyYAML)
@@ -53,6 +67,8 @@ doc-utils/
 6. **archive-unused-files** - Finds and optionally archives unreferenced AsciiDoc files
 7. **archive-unused-images** - Finds and optionally archives unreferenced image files
 8. **format-asciidoc-spacing** [EXPERIMENTAL] - Standardizes AsciiDoc formatting (blank lines after headings and around includes)
+9. **convert-callouts-to-deflist** - Converts AsciiDoc callouts to definition lists, bulleted lists, or inline comments (batch mode)
+10. **convert-callouts-interactive** - Interactively converts AsciiDoc callouts with per-block format selection
 
 ### Core Modules
 
@@ -66,6 +82,11 @@ doc-utils/
 - `doc_utils/unused_adoc.py` - Logic for finding unused AsciiDoc files (supports both topic maps and master.adoc)
 - `doc_utils/unused_images.py` - Logic for finding unused images
 - `doc_utils/scannability.py` - Document readability analysis
+- `callout_lib/` - Modular library for AsciiDoc callout conversion
+  - `detector.py` - Callout detection and extraction
+  - `converter_deflist.py` - Definition list converter
+  - `converter_bullets.py` - Bulleted list converter
+  - `converter_comments.py` - Inline comments converter with length detection
 
 ## Common Development Commands
 
@@ -387,6 +408,43 @@ When contributing to this project:
 - Regular expressions should be compiled once and reused
 
 ## Recent Improvements (Latest Refactoring)
+
+### Callout Conversion Utilities (In Development)
+1. **New Modular Callout Library**: Created `callout_lib/` package with reusable conversion components
+   - Shared detector module for finding and extracting callouts from AsciiDoc code blocks
+   - Three converter modules: definition lists, bulleted lists, and inline comments
+   - Proper separation of concerns with dataclasses for type safety
+2. **New convert-callouts-to-deflist Tool**: Batch conversion utility
+   - Converts callouts to three formats: definition lists (default), bulleted lists, or inline comments
+   - `--format` option to choose output format
+   - `--max-comment-length` parameter (default: 120) for inline comments
+   - Automatic fallback to definition list when comments exceed length threshold
+   - Comprehensive warning system for long comments and callout mismatches
+   - Full exclusion support (--exclude-dir, --exclude-file, --exclude-list)
+3. **New convert-callouts-interactive Tool**: Interactive conversion utility
+   - Per-code-block format selection with visual preview
+   - Color-coded output for better readability
+   - Interactive warning prompts for long comments with 4 options:
+     - Shorten to first sentence
+     - Fall back to definition list
+     - Fall back to bulleted list
+     - Skip the block
+   - "Apply to all" option for batch processing remaining blocks
+   - Context-aware display with adjustable context lines
+4. **Long Comment Handling**: Smart detection and handling of overly long explanations
+   - Automatic length detection in `CommentConverter.check_comment_lengths()`
+   - First-sentence extraction with `shorten_comment()` method
+   - Batch tool: Automatic fallback with warnings
+   - Interactive tool: User choice with preview of long text
+5. **Architecture**: Clean separation between batch and interactive workflows
+   - Both tools share same `callout_lib` for consistency
+   - Different user personas (automated vs editorial)
+   - Complementary use cases documented
+6. **Documentation**: Comprehensive GitHub Pages documentation
+   - Tool comparison guide for choosing between batch/interactive
+   - Cross-references between related tools
+   - Examples for all three output formats
+   - Technical details in library README
 
 ### Ignored Configuration Attributes (v0.1.18)
 1. **AsciiDoc Configuration Attributes**: Enhanced `find-unused-attributes` to ignore processor configuration attributes

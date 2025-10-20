@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.25] - 2025-10-20
+
+### Added
+- **callout_lib** - New modular library for AsciiDoc callout conversion
+  - `detector.py` - Shared module for detecting and extracting callouts from code blocks
+  - `converter_deflist.py` - Definition list converter module
+  - `converter_bullets.py` - Bulleted list converter module
+  - `converter_comments.py` - Inline comments converter with language-specific comment syntax
+  - Supports 40+ programming languages with automatic comment syntax detection
+  - Includes `LongCommentWarning` system for detecting overly long explanations
+  - Proper separation of concerns with dataclasses for type safety
+
+- **convert-callouts-interactive** - New interactive callout conversion tool
+  - Per-code-block format selection with visual preview
+  - Color-coded output for better readability (highlights callouts, shows context)
+  - Choose format for each code block individually: definition list, bulleted list, or inline comments
+  - Interactive warning prompts for long comments with 4 options:
+    - Shorten to first sentence
+    - Fall back to definition list format
+    - Fall back to bulleted list format
+    - Skip the block
+  - "Apply to all" option for batch processing remaining blocks
+  - Context-aware display with configurable context lines (--context parameter)
+  - Full exclusion support (--exclude-dir)
+  - Dry-run mode for previewing all changes
+
+- **convert-callouts-to-deflist** - New `--format comments` option for inline comments
+  - Converts callouts to inline comments within the code itself
+  - Automatically detects programming language from [source,language] attribute
+  - Uses appropriate comment syntax: // for Java/C/Go, # for Python/YAML/Bash, <!-- for HTML/XML, etc.
+  - Removes separate explanation section entirely
+  - New `--max-comment-length` parameter (default: 120 characters)
+  - Automatic fallback to definition list when comments exceed length threshold
+  - Displays warnings showing which callouts are too long with character counts
+  - Best for code examples where explanations are brief and fit naturally as comments
+
+### Enhanced
+- **convert-callouts-to-deflist** - Refactored to use new callout_lib modules
+  - Core conversion logic now in shared library for code reusability
+  - Both batch and interactive tools share same conversion engine
+  - Improved code organization with clear separation of concerns
+  - More maintainable architecture with modular converters
+
+### Documentation
+- Added comprehensive documentation for convert-callouts-interactive tool
+- Updated convert-callouts-to-deflist documentation with new comments format
+  - Added inline comments format section with examples
+  - Added language support details (40+ languages)
+  - Updated options and examples
+- Added decision guide callouts at top of both tool docs to help users choose the right tool
+  - Quick decision matrix: batch vs interactive, automation vs editorial review
+  - Cross-references between related tools
+- Created callout_lib/README.md with library architecture and usage examples
+- Updated CLAUDE.md with callout conversion utilities section
+  - Added tools to CLI Tools list
+  - Added callout_lib to Core Modules
+  - Updated project structure diagram
+  - Added detailed "Callout Conversion Utilities" to Recent Improvements
+
 ## [0.1.24] - 2025-10-16
 
 ### Added

@@ -8,6 +8,19 @@ nav_order: 12
 
 Converts AsciiDoc code blocks with callout-style annotations to a cleaner definition list format with "where:" prefix.
 
+{: .note }
+> **Choosing the Right Tool**
+>
+> This is the **batch conversion** tool - it processes all code blocks with a single target format. Use this when you want consistent formatting across all files or need to automate conversions in scripts.
+>
+> For **per-code-block control** where you choose the format for each individual code block interactively, see [convert-callouts-interactive](convert-callouts-interactive).
+>
+> **Quick Decision Guide:**
+> - Same format for all blocks → Use this tool (`convert-callouts-to-deflist`)
+> - Different formats per block → Use [`convert-callouts-interactive`](convert-callouts-interactive)
+> - Automation/CI pipelines → Use this tool (`convert-callouts-to-deflist`)
+> - Editorial review needed → Use [`convert-callouts-interactive`](convert-callouts-interactive)
+
 ## Overview
 
 Traditional AsciiDoc callouts use numbered markers (`<1>`, `<2>`, etc.) in code blocks with corresponding explanation lines below. This format can be visually cluttered and harder to maintain. This tool converts them to a cleaner definition list format that uses the actual code lines as terms.
@@ -169,7 +182,7 @@ Authentication is required by default when using this annotation.
 
 ## Output Formats
 
-The tool supports two output formats, selectable via the `--format` option:
+The tool supports three output formats, selectable via the `--format` option:
 
 ### Definition List Format (Default)
 
@@ -205,11 +218,39 @@ convert-callouts-to-deflist --format bullets modules/
 *   `<my-key>`: The secret key value
 ```
 
+### Inline Comments Format
+
+Converts callouts to inline comments within the code itself, using appropriate comment syntax for the code block's language. This removes the separate explanation section entirely.
+
+```bash
+convert-callouts-to-deflist --format comments modules/
+```
+
+**Output:**
+```asciidoc
+[source,yaml]
+----
+apiVersion: v1
+kind: Secret
+metadata:
+  name: <my-secret> # The secret name
+data:
+  key: <my-key> # The secret key value
+----
+```
+
+The tool automatically detects the programming language from the `[source,language]` attribute and uses the appropriate comment syntax:
+- `//` for Java, JavaScript, TypeScript, C, C++, Go, Rust, etc.
+- `#` for Python, Ruby, Bash, YAML, etc.
+- `--` for SQL, Lua
+- `<!--` for HTML, XML
+
 **When to use each format:**
 - **Definition list (`--format deflist`)**: Default choice, works well for most cases, provides semantic "where:" prefix
 - **Bulleted list (`--format bullets`)**: Follows Red Hat style guide, preferred for YAML files and complex configurations
+- **Inline comments (`--format comments`)**: Best for code examples where explanations are brief and fit naturally as comments
 
-Both formats support all features including merged callouts, optional markers, and user-replaceable values.
+All formats support merged callouts, optional markers, and user-replaceable values.
 
 ## Usage
 
@@ -279,7 +320,7 @@ Shows detailed processing information.
 - `path` - File or directory to process (default: current directory)
 - `-n, --dry-run` - Preview changes without modifying files
 - `-v, --verbose` - Enable detailed logging
-- `-f, --format {deflist,bullets}` - Output format: "deflist" for definition list with "where:" (default), "bullets" for bulleted list per Red Hat style guide
+- `-f, --format {deflist,bullets,comments}` - Output format: "deflist" for definition list with "where:" (default), "bullets" for bulleted list per Red Hat style guide, "comments" for inline comments
 - `--exclude-dir DIR` - Exclude directory (can be used multiple times)
 - `--exclude-file FILE` - Exclude file (can be used multiple times)
 - `--exclude-list FILE` - Load exclusion list from file
