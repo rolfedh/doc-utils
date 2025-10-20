@@ -440,6 +440,7 @@ When contributing to this project:
    - Support for conditional statements (ifdef/ifndef/endif) in table cells
    - Three converter modules: definition lists, bulleted lists, and inline comments
    - Proper separation of concerns with dataclasses for type safety
+   - **Known Limitation**: Currently supports 2-column table format (callout number | explanation). The 3-column format (item | value | description) used in some Debezium documentation requires future enhancement.
 2. **New convert-callouts-to-deflist Tool**: Batch conversion utility
    - Converts callouts to three formats: definition lists (default), bulleted lists, or inline comments
    - `--format` option to choose output format

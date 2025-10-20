@@ -166,14 +166,15 @@ class CalloutConverter:
                 content_start = block.start_line + 1  # After ---- only
             content_end = block.end_line
 
-            # For comments format (without fallback), we keep the explanations section
-            # For deflist/bullets format, we remove old explanations and add new list
+            # For comments format (without fallback), remove explanations but don't add new list
+            # For deflist/bullets format, remove old explanations and add new list
             if self.output_format == 'comments' and not use_deflist_fallback:
-                # Keep everything as-is, just replace code content
+                # Remove old callout explanations (list or table format)
                 new_section = (
                     new_lines[:content_start] +
                     converted_content +
-                    new_lines[content_end:]
+                    [new_lines[content_end]] +  # Keep closing delimiter
+                    new_lines[explanation_end + 1:]  # Skip explanations/table, keep rest
                 )
             else:
                 # Remove old callout explanations and add new list
