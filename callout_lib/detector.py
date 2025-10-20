@@ -157,13 +157,18 @@ class CalloutDetector:
     def extract_callout_explanations(self, lines: List[str], start_line: int) -> Tuple[Dict[int, Callout], int]:
         """
         Extract callout explanations following a code block.
-        Supports both list-format (<1> text) and table-format explanations.
+        Supports list-format (<1> text), 2-column table, and 3-column table formats.
         Returns dict of callouts and the line number where explanations end.
         """
         # First, try to find a table-format callout explanation
         table = self.table_parser.find_callout_table_after_code_block(lines, start_line)
         if table:
-            return self._extract_from_table(table)
+            # Check if it's a 3-column table (Item | Value | Description)
+            if self.table_parser.is_3column_callout_table(table):
+                return self._extract_from_3column_table(table)
+            # Check if it's a 2-column table (<callout> | explanation)
+            elif self.table_parser.is_callout_table(table):
+                return self._extract_from_table(table)
 
         # Fall back to list-format extraction
         return self._extract_from_list(lines, start_line)
@@ -191,6 +196,49 @@ class CalloutDetector:
             elif all_lines and ('(Optional)' in all_lines[0] or '(optional)' in all_lines[0]):
                 is_optional = True
                 all_lines[0] = re.sub(r'\s*\(optional\)\s*', ' ', all_lines[0], flags=re.IGNORECASE).strip()
+
+            explanations[callout_num] = Callout(callout_num, all_lines, is_optional)
+
+        return explanations, table.end_line
+
+    def _extract_from_3column_table(self, table) -> Tuple[Dict[int, Callout], int]:
+        """
+        Extract callout explanations from a 3-column table format.
+        Format: Item (number) | Value | Description
+        """
+        explanations = {}
+        table_data = self.table_parser.extract_3column_callout_explanations(table)
+
+        for callout_num, (value_lines, description_lines, conditionals) in table_data.items():
+            # Combine value and description into explanation lines
+            # Strategy: Include value as context, then description
+            all_lines = []
+
+            # Add value lines with context
+            if value_lines:
+                # Format: "Refers to `value`. Description..."
+                value_text = value_lines[0] if value_lines else ""
+                # If value is code-like (contains backticks or special chars), keep it formatted
+                if value_text:
+                    all_lines.append(f"Refers to {value_text}.")
+
+                # Add additional value lines if multi-line
+                for line in value_lines[1:]:
+                    all_lines.append(line)
+
+            # Add description lines
+            all_lines.extend(description_lines)
+
+            # Add conditionals as separate lines (they'll be preserved in output)
+            all_lines.extend(conditionals)
+
+            # Check if marked as optional
+            is_optional = False
+            if all_lines and (all_lines[0].lower().startswith('optional.') or
+                             all_lines[0].lower().startswith('optional:') or
+                             'optional' in all_lines[0].lower()[:50]):  # Check first 50 chars
+                is_optional = True
+                # Don't remove "optional" text - it's part of the description
 
             explanations[callout_num] = Callout(callout_num, all_lines, is_optional)
 

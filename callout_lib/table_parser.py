@@ -188,9 +188,23 @@ class TableParser:
 
                 # Extract cell content from this line (text after |)
                 cell_content = line[1:].strip()  # Remove leading |
-                if cell_content:
-                    current_cell_lines.append(cell_content)
-                # If empty, just start a new cell with no content yet
+
+                # Check if there are multiple cells on the same line (e.g., |Cell1 |Cell2 |Cell3)
+                if '|' in cell_content:
+                    # Split by | to get multiple cells
+                    parts = cell_content.split('|')
+                    for part in parts:
+                        part = part.strip()
+                        if part:  # Skip empty parts
+                            current_row_cells.append(TableCell(
+                                content=[part],
+                                conditionals=[]
+                            ))
+                else:
+                    # Single cell on this line
+                    if cell_content:
+                        current_cell_lines.append(cell_content)
+                    # If empty, just start a new cell with no content yet
 
                 i += 1
                 continue
@@ -225,6 +239,65 @@ class TableParser:
             # First line of first cell should be a callout number
             first_line = first_cell.content[0].strip()
             if not self.CALLOUT_NUMBER.match(first_line):
+                return False
+
+        return True
+
+    def _has_header_row(self, table: AsciiDocTable) -> bool:
+        """
+        Check if table has a header row.
+        Common header patterns: "Item", "Value", "Description", "Column", etc.
+        """
+        if not table.rows:
+            return False
+
+        first_row = table.rows[0]
+        if not first_row.cells:
+            return False
+
+        # Collect text from all cells in first row
+        header_text = ' '.join(
+            cell.content[0] if cell.content else ''
+            for cell in first_row.cells
+        ).lower()
+
+        # Check for common header keywords
+        header_keywords = ['item', 'description', 'value', 'column', 'parameter', 'field', 'name']
+        return any(keyword in header_text for keyword in header_keywords)
+
+    def is_3column_callout_table(self, table: AsciiDocTable) -> bool:
+        """
+        Determine if a table is a 3-column callout explanation table.
+        Format: Item (number) | Value | Description
+
+        This format is used in some documentation (e.g., Debezium) where:
+        - Column 1: Item number (1, 2, 3...) corresponding to callout numbers
+        - Column 2: The value/code being explained
+        - Column 3: Description/explanation text
+        """
+        if not table.rows:
+            return False
+
+        # Determine if there's a header row
+        has_header = self._has_header_row(table)
+        data_rows = table.rows[1:] if has_header else table.rows
+
+        if not data_rows:
+            return False
+
+        # Check if all data rows have exactly 3 cells
+        if not all(len(row.cells) == 3 for row in data_rows):
+            return False
+
+        # Check if first cell of each data row contains a plain number (1, 2, 3...)
+        for row in data_rows:
+            first_cell = row.cells[0]
+            if not first_cell.content:
+                return False
+
+            # First line of first cell should be a number
+            first_line = first_cell.content[0].strip()
+            if not first_line.isdigit():
                 return False
 
         return True
@@ -276,6 +349,77 @@ class TableParser:
 
         return explanations
 
+    def extract_3column_callout_explanations(self, table: AsciiDocTable) -> Dict[int, Tuple[List[str], List[str], List[str]]]:
+        """
+        Extract callout explanations from a 3-column table.
+        Returns dict mapping callout number to tuple of (value_lines, description_lines, conditionals).
+
+        Format: Item | Value | Description
+        - Item: Number (1, 2, 3...) corresponding to callout number
+        - Value: The code/value being explained
+        - Description: Explanation text
+
+        The conditionals list includes any ifdef/ifndef/endif statements that should
+        be preserved when converting the table to other formats.
+        """
+        explanations = {}
+
+        # Determine if there's a header row and skip it
+        has_header = self._has_header_row(table)
+        data_rows = table.rows[1:] if has_header else table.rows
+
+        for row in data_rows:
+            if len(row.cells) != 3:
+                continue
+
+            item_cell = row.cells[0]
+            value_cell = row.cells[1]
+            desc_cell = row.cells[2]
+
+            # Extract item number (maps to callout number)
+            if not item_cell.content:
+                continue
+
+            item_num_str = item_cell.content[0].strip()
+            if not item_num_str.isdigit():
+                continue
+
+            callout_num = int(item_num_str)
+
+            # Collect value lines (column 2)
+            value_lines = []
+            for line in value_cell.content:
+                # Skip conditional directives in value (preserve them separately)
+                if not (self.IFDEF_PATTERN.match(line) or self.ENDIF_PATTERN.match(line)):
+                    value_lines.append(line)
+
+            # Collect description lines (column 3)
+            description_lines = []
+            for line in desc_cell.content:
+                # Skip conditional directives in description (preserve them separately)
+                if not (self.IFDEF_PATTERN.match(line) or self.ENDIF_PATTERN.match(line)):
+                    description_lines.append(line)
+
+            # Collect all conditionals for this row
+            all_conditionals = []
+            all_conditionals.extend(row.conditionals_before)
+
+            # Extract conditionals from value cell
+            for line in value_cell.content:
+                if self.IFDEF_PATTERN.match(line) or self.ENDIF_PATTERN.match(line):
+                    all_conditionals.append(line)
+
+            # Extract conditionals from description cell
+            for line in desc_cell.content:
+                if self.IFDEF_PATTERN.match(line) or self.ENDIF_PATTERN.match(line):
+                    all_conditionals.append(line)
+
+            all_conditionals.extend(row.conditionals_after)
+
+            explanations[callout_num] = (value_lines, description_lines, all_conditionals)
+
+        return explanations
+
     def find_callout_table_after_code_block(self, lines: List[str], code_block_end: int) -> Optional[AsciiDocTable]:
         """
         Find a callout explanation table that appears after a code block.
@@ -316,7 +460,7 @@ class TableParser:
                     start_line = j - 1
 
                 table = self._parse_table(lines, start_line, j)
-                if table and self.is_callout_table(table):
+                if table and (self.is_callout_table(table) or self.is_3column_callout_table(table)):
                     return table
 
                 # If we found a table but it's not a callout table, stop searching

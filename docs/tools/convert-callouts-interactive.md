@@ -30,7 +30,7 @@ While [`convert-callouts-to-deflist`](convert-callouts-to-deflist) processes fil
 - You need to make editorial decisions based on context
 - You're migrating documentation and want to selectively modernize callouts
 
-The tool automatically detects both **list-format** (`<1> Explanation`) and **table-format** (two-column tables) callout explanations, handling both transparently.
+The tool automatically detects **list-format** (`<1> Explanation`), **2-column table format** (callout | explanation), and **3-column table format** (item | value | description) callout explanations, handling all formats transparently.
 
 ## Installation
 

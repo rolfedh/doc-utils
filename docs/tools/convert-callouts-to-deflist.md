@@ -186,9 +186,11 @@ Authentication is required by default when using this annotation.
 
 ### Example 4: Table Format Callouts (Automatic Detection)
 
-The tool automatically detects and converts table-format callout explanations. Some documentation uses two-column tables instead of list-format explanations.
+The tool automatically detects and converts table-format callout explanations. Some documentation uses tables instead of list-format explanations. The tool supports both **2-column** and **3-column** table formats.
 
-**Before (Table Format):**
+#### 2-Column Table Format (Callout | Explanation)
+
+**Before (2-Column Table):**
 ```asciidoc
 [source,sql]
 ----
@@ -223,11 +225,79 @@ Adds a new column to the inventory table.
 Inserts a sample record with the new column value.
 ```
 
+#### 3-Column Table Format (Item | Value | Description)
+
+Some documentation (e.g., Debezium) uses a 3-column format with item number, value reference, and description. The tool automatically detects this format and combines the value and description columns.
+
+**Before (3-Column Table):**
+```asciidoc
+[source,sql]
+----
+INSERT INTO myschema.debezium_signal (id, type, data) // <1>
+values ('ad-hoc-1',   // <2>
+    'execute-snapshot',  // <3>
+    '{"data-collections": ["schema1.table1"]}'); // <4>
+----
+
+.Descriptions of fields in a SQL command
+[cols="1,2,6",options="header"]
+|===
+|Item |Value |Description
+
+|1
+|`myschema.debezium_signal`
+|Specifies the fully-qualified name of the signaling table on the source database.
+
+|2
+|`ad-hoc-1`
+|The `id` parameter specifies an arbitrary string that is assigned as the identifier for the signal request.
+
+|3
+|`execute-snapshot`
+|The `type` parameter specifies the operation that the signal is intended to trigger.
+
+|4
+|`data-collections`
+|A required component of the `data` field that specifies an array of table names.
+|===
+```
+
+**After (Definition List Style):**
+```asciidoc
+[source,sql]
+----
+INSERT INTO myschema.debezium_signal (id, type, data)
+values ('ad-hoc-1',
+    'execute-snapshot',
+    '{"data-collections": ["schema1.table1"]}');
+----
+
+where:
+
+`myschema.debezium_signal`::
+Refers to `myschema.debezium_signal`.
+Specifies the fully-qualified name of the signaling table on the source database.
+
+`ad-hoc-1`::
+Refers to `ad-hoc-1`.
+The `id` parameter specifies an arbitrary string that is assigned as the identifier for the signal request.
+
+`execute-snapshot`::
+Refers to `execute-snapshot`.
+The `type` parameter specifies the operation that the signal is intended to trigger.
+
+`data-collections`::
+Refers to `data-collections`.
+A required component of the `data` field that specifies an array of table names.
+```
+
 **How It Works:**
-- The tool automatically detects both list-format (`<1> text`) and table-format callout explanations
+- The tool automatically detects list-format (`<1> text`), 2-column table, and 3-column table callout explanations
+- For 3-column tables, the tool combines the Value and Description columns using "Refers to `value`. Description..." format
+- Header rows (with keywords like "Item", "Value", "Description") are automatically detected and skipped
 - Table format is common in some documentation repositories (e.g., Debezium, integration guides)
 - Conditional statements (`ifdef::`, `ifndef::`, `endif::`) in table cells are preserved
-- No special flags needed - detection is automatic
+- No special flags needed - detection is automatic with priority: 3-column → 2-column → list format
 
 ## Output Formats
 

@@ -436,11 +436,14 @@ When contributing to this project:
 1. **New Modular Callout Library**: Created `callout_lib/` package with reusable conversion components
    - Shared detector module for finding and extracting callouts from AsciiDoc code blocks
    - **Table parser module** for parsing AsciiDoc tables (supports both callout tables and general table conversion)
-   - Detector automatically handles both **list-format** (`<1> text`) and **table-format** callout explanations
+   - Detector automatically handles three callout formats:
+     - **List format**: `<1> text` (traditional)
+     - **2-column table**: `<callout_num> | explanation`
+     - **3-column table**: `item_num | value | description` (Debezium style)
    - Support for conditional statements (ifdef/ifndef/endif) in table cells
+   - Support for table headers with automatic header row detection
    - Three converter modules: definition lists, bulleted lists, and inline comments
    - Proper separation of concerns with dataclasses for type safety
-   - **Known Limitation**: Currently supports 2-column table format (callout number | explanation). The 3-column format (item | value | description) used in some Debezium documentation requires future enhancement.
 2. **New convert-callouts-to-deflist Tool**: Batch conversion utility
    - Converts callouts to three formats: definition lists (default), bulleted lists, or inline comments
    - `--format` option to choose output format

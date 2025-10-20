@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **convert-callouts-to-deflist** - Fixed bug where table-format callout explanations were not removed when converting to inline comments format
+  - Previously, only the callout numbers were converted to comments while the explanation table remained in the document
+  - Now properly skips over the entire table when converting to comments format
+
+### Added
+- **callout_lib/table_parser.py** - Support for 3-column table format (Item | Value | Description) used in Debezium documentation
+  - Added `is_3column_callout_table()` method to detect 3-column callout tables
+  - Added `extract_3column_callout_explanations()` method to extract data from 3-column tables
+  - Added header row detection with automatic skipping using keyword matching
+  - Added inline cell separator parsing for tables with multiple cells on same line (e.g., `|Cell1 |Cell2 |Cell3`)
+  - Updated `find_callout_table_after_code_block()` to detect both 2-column and 3-column tables
+
+- **callout_lib/detector.py** - Enhanced to handle 3-column table format
+  - Added `_extract_from_3column_table()` method
+  - Detection priority: 3-column table → 2-column table → list format
+  - Combines value and description columns into meaningful explanations: "Refers to `value`. Description..."
+
+### Testing
+- Tested with real Debezium documentation from GitLab repository
+- All 153 tests pass with new 3-column table support
+
 ## [0.1.26] - 2025-10-20
 
 ### Added
