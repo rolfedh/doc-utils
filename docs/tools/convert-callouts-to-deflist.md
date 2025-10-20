@@ -23,7 +23,11 @@ Converts AsciiDoc code blocks with callout-style annotations to a cleaner defini
 
 ## Overview
 
-Traditional AsciiDoc callouts use numbered markers (`<1>`, `<2>`, etc.) in code blocks with corresponding explanation lines below. This format can be visually cluttered and harder to maintain. This tool converts them to a cleaner definition list format that uses the actual code lines as terms.
+Traditional AsciiDoc callouts use numbered markers (`<1>`, `<2>`, etc.) in code blocks with corresponding explanations below. Explanations can be in two formats:
+- **List format**: `<1> Explanation text` (traditional)
+- **Table format**: Two-column tables with callout numbers and explanations (used in some documentation)
+
+This tool automatically detects both formats and converts them to a cleaner definition list format that uses the actual code lines as terms.
 
 **Important:** This tool is designed to assist your conversion efforts. You must:
 - **Carefully review all content changes** before committing them to ensure accuracy and readability
@@ -179,6 +183,51 @@ Authentication is required by default when using this annotation.
 - If the merged explanations feel redundant or repetitive
 - If the explanations would read better as separate items (consider refactoring the callouts in the source)
 - If the order of explanations affects understanding (they merge in callout number order)
+
+### Example 4: Table Format Callouts (Automatic Detection)
+
+The tool automatically detects and converts table-format callout explanations. Some documentation uses two-column tables instead of list-format explanations.
+
+**Before (Table Format):**
+```asciidoc
+[source,sql]
+----
+ALTER TABLE inventory ADD COLUMN c1 INT; <1>
+INSERT INTO myschema.inventory (id,c1) VALUES (100, 1); <2>
+----
+
+[cols="1,3"]
+|===
+|<1>
+|Adds a new column to the inventory table.
+
+|<2>
+|Inserts a sample record with the new column value.
+|===
+```
+
+**After (Definition List Style):**
+```asciidoc
+[source,sql]
+----
+ALTER TABLE inventory ADD COLUMN c1 INT;
+INSERT INTO myschema.inventory (id,c1) VALUES (100, 1);
+----
+
+where:
+
+`ALTER TABLE inventory ADD COLUMN c1 INT;`::
+Adds a new column to the inventory table.
+
+`INSERT INTO myschema.inventory (id,c1) VALUES (100, 1);`::
+Inserts a sample record with the new column value.
+```
+
+**How It Works:**
+- The tool automatically detects both list-format (`<1> text`) and table-format callout explanations
+- Table format is common in some documentation repositories (e.g., Debezium, integration guides)
+- Conditional statements (`ifdef::`, `ifndef::`, `endif::`) in table cells are preserved
+- No special flags needed - detection is automatic
 
 ## Output Formats
 

@@ -2,11 +2,13 @@
 Callout Detection Module
 
 Detects code blocks with callouts and extracts callout information from AsciiDoc files.
+Supports both list-format and table-format callout explanations.
 """
 
 import re
 from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
+from .table_parser import TableParser
 
 
 @dataclass
@@ -49,6 +51,10 @@ class CalloutDetector:
     # Pattern to detect user-replaceable values in angle brackets
     # Excludes heredoc syntax (<<) and comparison operators
     USER_VALUE_PATTERN = re.compile(r'(?<!<)<([a-zA-Z][^>]*)>')
+
+    def __init__(self):
+        """Initialize detector with table parser."""
+        self.table_parser = TableParser()
 
     def find_code_blocks(self, lines: List[str]) -> List[CodeBlock]:
         """Find all code blocks in the document."""
@@ -151,8 +157,47 @@ class CalloutDetector:
     def extract_callout_explanations(self, lines: List[str], start_line: int) -> Tuple[Dict[int, Callout], int]:
         """
         Extract callout explanations following a code block.
+        Supports both list-format (<1> text) and table-format explanations.
         Returns dict of callouts and the line number where explanations end.
         """
+        # First, try to find a table-format callout explanation
+        table = self.table_parser.find_callout_table_after_code_block(lines, start_line)
+        if table:
+            return self._extract_from_table(table)
+
+        # Fall back to list-format extraction
+        return self._extract_from_list(lines, start_line)
+
+    def _extract_from_table(self, table) -> Tuple[Dict[int, Callout], int]:
+        """Extract callout explanations from a table format."""
+        explanations = {}
+        table_data = self.table_parser.extract_callout_explanations_from_table(table)
+
+        for callout_num, (explanation_lines, conditionals) in table_data.items():
+            # Combine explanation lines with conditionals preserved
+            all_lines = []
+            for line in explanation_lines:
+                all_lines.append(line)
+
+            # Add conditionals as separate lines (they'll be preserved in output)
+            all_lines.extend(conditionals)
+
+            # Check if marked as optional
+            is_optional = False
+            if all_lines and (all_lines[0].lower().startswith('optional.') or
+                             all_lines[0].lower().startswith('optional:')):
+                is_optional = True
+                all_lines[0] = all_lines[0][9:].strip()
+            elif all_lines and ('(Optional)' in all_lines[0] or '(optional)' in all_lines[0]):
+                is_optional = True
+                all_lines[0] = re.sub(r'\s*\(optional\)\s*', ' ', all_lines[0], flags=re.IGNORECASE).strip()
+
+            explanations[callout_num] = Callout(callout_num, all_lines, is_optional)
+
+        return explanations, table.end_line
+
+    def _extract_from_list(self, lines: List[str], start_line: int) -> Tuple[Dict[int, Callout], int]:
+        """Extract callout explanations from list format (<1> text)."""
         explanations = {}
         i = start_line + 1  # Start after the closing delimiter
 

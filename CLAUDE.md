@@ -435,6 +435,9 @@ When contributing to this project:
 ### Callout Conversion Utilities (In Development)
 1. **New Modular Callout Library**: Created `callout_lib/` package with reusable conversion components
    - Shared detector module for finding and extracting callouts from AsciiDoc code blocks
+   - **Table parser module** for parsing AsciiDoc tables (supports both callout tables and general table conversion)
+   - Detector automatically handles both **list-format** (`<1> text`) and **table-format** callout explanations
+   - Support for conditional statements (ifdef/ifndef/endif) in table cells
    - Three converter modules: definition lists, bulleted lists, and inline comments
    - Proper separation of concerns with dataclasses for type safety
 2. **New convert-callouts-to-deflist Tool**: Batch conversion utility

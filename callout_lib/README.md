@@ -12,6 +12,7 @@ This library provides modular, reusable components for detecting and converting 
 callout_lib/
 ├── __init__.py              # Package exports
 ├── detector.py              # Callout detection and extraction
+├── table_parser.py          # AsciiDoc table parser (supports callout tables and general tables)
 ├── converter_deflist.py     # Definition list converter
 ├── converter_bullets.py     # Bulleted list converter
 └── converter_comments.py    # Inline comments converter
@@ -21,7 +22,7 @@ callout_lib/
 
 ### detector.py
 
-**Purpose:** Detect code blocks with callouts and extract callout information from AsciiDoc files.
+**Purpose:** Detect code blocks with callouts and extract callout information from AsciiDoc files. Supports both list-format (`<1> Explanation`) and table-format callout explanations.
 
 **Key Classes:**
 
@@ -42,6 +43,7 @@ blocks = detector.find_code_blocks(lines)
 callout_groups = detector.extract_callouts_from_code(block.content)
 
 # Extract callout explanations following a code block
+# Automatically detects list-format or table-format explanations
 explanations, end_line = detector.extract_callout_explanations(lines, block.end_line)
 
 # Remove callout markers from code
@@ -50,6 +52,85 @@ cleaned_content = detector.remove_callouts_from_code(block.content)
 # Validate callouts match between code and explanations
 is_valid, code_nums, explanation_nums = detector.validate_callouts(callout_groups, explanations)
 ```
+
+**Callout Explanation Formats:**
+
+The detector automatically handles two formats:
+
+1. **List Format** (traditional):
+```asciidoc
+<1> First explanation
+<2> Second explanation
+```
+
+2. **Table Format** (used in some documentation):
+```asciidoc
+|===
+|<1>
+|First explanation
+
+|<2>
+|Second explanation
+|===
+```
+
+The detector tries to find a table-format explanation first, then falls back to list format if no table is found.
+
+### table_parser.py
+
+**Purpose:** Parse AsciiDoc tables and extract structured data. Designed to be reusable for various table-related tasks beyond just callout explanations.
+
+**Key Classes:**
+
+- `TableCell` - Represents a single table cell with content and conditionals
+- `TableRow` - Represents a table row with cells and associated conditionals
+- `AsciiDocTable` - Represents a complete AsciiDoc table
+- `TableParser` - Main parser class with methods for finding and parsing tables
+
+**Key Methods:**
+
+```python
+parser = TableParser()
+
+# Find all tables in a document
+tables = parser.find_tables(lines)
+
+# Check if a table is a callout explanation table
+if parser.is_callout_table(table):
+    # Extract callout explanations from table
+    explanations = parser.extract_callout_explanations_from_table(table)
+
+# Find a callout table after a specific code block
+table = parser.find_callout_table_after_code_block(lines, code_block_end_line)
+
+# Convert table to other formats
+deflist_lines = parser.convert_table_to_deflist(table, preserve_conditionals=True)
+bullet_lines = parser.convert_table_to_bullets(table, preserve_conditionals=True)
+```
+
+**Conditional Statement Support:**
+
+The parser preserves AsciiDoc conditional directives (`ifdef::`, `ifndef::`, `endif::`) within table cells:
+
+```asciidoc
+|===
+ifdef::product[]
+|<1>
+|Product-specific explanation
+endif::[]
+
+ifndef::product[]
+|<1>
+|Community explanation
+endif::[]
+|===
+```
+
+These conditionals are extracted and can be optionally preserved when converting tables to other formats.
+
+**Future Use Cases:**
+
+While currently integrated with callout conversion, the table parser is designed to support future utilities for converting general AsciiDoc tables to other formats (definition lists, bulleted lists, etc.).
 
 ### converter_deflist.py
 
@@ -328,6 +409,11 @@ python3 convert_callouts_interactive.py test_file.adoc
 
 ## Version History
 
+- **v1.1** - Added table parser module and support for table-format callout explanations
+  - New `table_parser.py` module for parsing AsciiDoc tables
+  - Detector automatically handles both list-format and table-format callout explanations
+  - Support for conditional statements (ifdef/ifndef/endif) in tables
+  - Table-to-deflist and table-to-bullets conversion methods
 - **v1.0** - Initial release with three converters (deflist, bullets, comments)
 
 ## License

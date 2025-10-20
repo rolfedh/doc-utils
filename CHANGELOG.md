@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.26] - 2025-10-20
+
+### Added
+- **callout_lib/table_parser.py** - New AsciiDoc table parser module
+  - Parses two-column tables with callout numbers and explanations
+  - Detects callout explanation tables automatically with `is_callout_table()` method
+  - Extracts callout explanations from table format: `extract_callout_explanations_from_table()`
+  - Finds callout tables after code blocks: `find_callout_table_after_code_block()`
+  - Converts tables to definition lists: `convert_table_to_deflist()`
+  - Converts tables to bulleted lists: `convert_table_to_bullets()`
+  - Preserves conditional statements (ifdef/ifndef/endif) within table cells
+  - Designed for reusability - supports future utilities for general table conversion
+  - Comprehensive test coverage with 15 unit tests
+
+### Enhanced
+- **callout_lib/detector.py** - Now supports both list-format and table-format callout explanations
+  - Automatically detects callout explanation format (list vs table)
+  - Tries table format first, falls back to list format if not found
+  - Smart prioritization: list format closer to code block takes precedence over distant tables
+  - Prevents false positives by stopping search when encountering list-format explanations
+  - Integration tests verify mixed documents with both formats work correctly
+
+- **convert-callouts-to-deflist** and **convert-callouts-interactive** - Transparent table format support
+  - Both tools now automatically handle table-format callout explanations
+  - No CLI changes required - enhancement is transparent to users
+  - Supports conditional statements in table cells (ifdef/ifndef/endif)
+  - Converts table callouts to all three output formats: definition lists, bulleted lists, inline comments
+
+### Documentation
+- Updated callout_lib/README.md with table parser documentation
+  - Added table_parser.py to architecture diagram and module list
+  - Documented table parser API with usage examples
+  - Explained conditional statement support in tables
+  - Noted future use cases for general table conversion utilities
+  - Updated version history to v1.1
+- Updated CLAUDE.md with table format support in recent improvements section
+- Created comprehensive test fixtures with realistic examples based on Debezium documentation patterns
+
+### Testing
+- Added tests/test_table_parser.py with 15 tests covering table parsing functionality
+- Added tests/test_table_callout_conversion.py with 6 integration tests for end-to-end conversion workflows
+- All 153 tests pass (100% success rate)
+
 ## [0.1.25] - 2025-10-20
 
 ### Added
