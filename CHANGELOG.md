@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.27] - 2025-10-20
+
 ### Fixed
 - **convert-callouts-to-deflist** - Fixed bug where table-format callout explanations were not removed when converting to inline comments format
   - Previously, only the callout numbers were converted to comments while the explanation table remained in the document
@@ -28,6 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Testing
 - Tested with real Debezium documentation from GitLab repository
 - All 153 tests pass with new 3-column table support
+
+### Documentation
+- Updated GitHub Pages documentation for both convert-callouts tools with 3-column table examples
+- Updated CLAUDE.md to reflect full 3-column table support
 
 ## [0.1.26] - 2025-10-20
 
