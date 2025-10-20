@@ -88,6 +88,29 @@ doc-utils/
   - `converter_bullets.py` - Bulleted list converter
   - `converter_comments.py` - Inline comments converter with length detection
 
+## Installation Preferences
+
+### For Users: Always Recommend pipx
+When writing documentation, examples, or user-facing instructions, **always recommend pipx as the primary installation method**:
+
+```bash
+# Recommended for users
+pipx install rolfedh-doc-utils
+pipx upgrade rolfedh-doc-utils
+```
+
+**Why pipx:**
+- Isolated environment prevents dependency conflicts
+- Automatic PATH management
+- Cleaner upgrades and uninstalls
+- Best practice for CLI tools
+- The `detect_install_method()` function in `version_check.py` detects pipx and shows the correct upgrade command
+
+**Only mention pip as alternative:**
+- For users who can't install pipx
+- For development installations (pip install -e .)
+- In troubleshooting sections
+
 ## Common Development Commands
 
 ### Installing for Development
