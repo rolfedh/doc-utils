@@ -55,8 +55,13 @@ TOOLS = [
     },
     {
         'name': 'convert-callouts-to-deflist',
-        'description': 'Converts callout-style annotations to definition list format',
+        'description': 'Converts callouts to definition lists (batch mode)',
         'example': 'convert-callouts-to-deflist --dry-run modules/'
+    },
+    {
+        'name': 'convert-callouts-interactive',
+        'description': 'Interactively converts callouts with per-block format selection',
+        'example': 'convert-callouts-interactive modules/'
     },
 ]
 
