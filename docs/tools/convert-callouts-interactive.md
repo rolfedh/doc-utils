@@ -30,7 +30,7 @@ While [`convert-callouts-to-deflist`](convert-callouts-to-deflist) processes fil
 - You need to make editorial decisions based on context
 - You're migrating documentation and want to selectively modernize callouts
 
-The tool automatically detects **list-format** (`<1> Explanation`), **2-column table format** (callout | explanation), and **3-column table format** (item | value | description) callout explanations, handling all formats transparently.
+The tool automatically detects **list-format** (`<1> Explanation`) and **multi-column table formats** (2-column and 3-column) for callout explanations, handling all formats transparently.
 
 ## Installation
 
@@ -48,6 +48,13 @@ convert-callouts-interactive [options] [path]
 
 ## Features
 
+### Automatic Format Detection
+
+Automatically detects and processes multiple input formats:
+- **List format**: Traditional `<1> Explanation` style
+- **Multi-column tables**: 2-column and 3-column table formats with callout explanations
+- **Conditional statements**: Preserves `ifdef::`/`ifndef::`/`endif::` in table cells
+
 ### Per-Block Conversion Choices
 
 For each code block with callouts, you can choose:
@@ -56,18 +63,38 @@ For each code block with callouts, you can choose:
 - **Inline comments** - Embeds explanations as code comments
 - **Skip** - Leave the block unchanged
 
+### Smart Comment Handling
+
+For inline comments format:
+- Detects programming language from `[source,language]` attribute
+- Uses appropriate comment syntax (40+ languages supported)
+- Interactive warning prompt if comment exceeds maximum length (default: 120 characters)
+- Four options when comment is too long:
+  - Shorten to first sentence
+  - Fall back to definition list
+  - Fall back to bulleted list
+  - Skip the block
+
 ### Rich Preview Display
 
 Before each conversion decision, you'll see:
 - File name and line numbers
 - Programming language (if specified)
-- Context lines before and after the code block
+- Context lines before and after the code block (adjustable with `--context`)
 - The code block itself with callouts highlighted in color
 - Callout explanations
 
 ### Batch Apply Option
 
 Once you've chosen a format you like, you can apply it to all remaining code blocks in that file, speeding up the conversion process.
+
+### Validation and Safety
+
+- Validates callout numbers match between code and explanations
+- Skips blocks with mismatched numbers and displays warnings
+- Color-coded output for easy scanning
+- Dry-run mode to preview all decisions
+- Automatically excludes `.vale` directory
 
 ## Usage
 
@@ -100,6 +127,31 @@ convert-callouts-interactive --context 5 myfile.adoc
 ```
 
 Show more or fewer context lines around each code block (default: 3).
+
+### Exclude Directories
+
+```bash
+convert-callouts-interactive --exclude-dir archive --exclude-dir temp modules/
+```
+
+Excludes specified directories from processing. Note: `.vale` is excluded by default.
+
+### Use Exclusion List File
+
+```bash
+convert-callouts-interactive --exclude-list .docutils-ignore modules/
+```
+
+Example `.docutils-ignore` file:
+```
+# Directories to exclude
+.vale/
+archive/
+temp/
+
+# Specific files
+test-file.adoc
+```
 
 ## Interactive Workflow
 
@@ -219,7 +271,10 @@ The original `<1>` and `<2>` explanation lines are removed when using inline com
 - `path` - File or directory to process (default: current directory)
 - `-n, --dry-run` - Preview all changes without modifying files
 - `-c, --context N` - Number of context lines to show (default: 3)
+- `--max-comment-length N` - Maximum comment length in characters (default: 120). Shows interactive warning prompt if exceeded
 - `--exclude-dir DIR` - Exclude directory (can be used multiple times)
+- `--exclude-file FILE` - Exclude file (can be used multiple times)
+- `--exclude-list FILE` - Load exclusion list from file
 - `-h, --help` - Show help message
 
 ## When to Use Interactive vs Batch Mode
@@ -296,7 +351,21 @@ The tool uses colors to help you quickly identify different parts of the output:
 
 ## Technical Details
 
-The interactive converter uses the same conversion library as the batch tool, ensuring consistent output quality across both utilities. See [`convert-callouts-to-deflist`](convert-callouts-to-deflist#technical-details) for pattern matching and algorithm details.
+This tool uses the same [`callout_lib`](https://github.com/rolfedh/doc-utils/tree/main/callout_lib) Python library as the batch converter, ensuring consistent output quality. See the [library README](https://github.com/rolfedh/doc-utils/blob/main/callout_lib/README.md) for detailed implementation information.
+
+**Key Differences from Batch Tool:**
+- Interactive prompts for format selection per code block
+- Live preview with color-coded output
+- Interactive warning prompts for long comments with multiple resolution options
+- "Apply to all" option for remaining blocks
+- Context-adjustable display
+
+**Supported Comment Syntax (for inline comments format):**
+- C-style `//`: Java, JavaScript, TypeScript, C, C++, Go, Rust, Swift, Kotlin, etc.
+- Hash `#`: Python, Ruby, Bash, YAML, Shell, Perl, R, etc.
+- SQL `--`: SQL, PL/SQL, T-SQL, Lua
+- HTML/XML `<!--`: HTML, XML, SVG
+- Others: Lisp `;`, MATLAB/LaTeX `%`, etc. (40+ languages total)
 
 ## Related Tools
 
