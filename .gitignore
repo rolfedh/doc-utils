@@ -99,4 +99,4 @@ venv/
 fixtures-README-legacy.txt
 
 # Ignore modified test files
-test-files/
+# test-files/

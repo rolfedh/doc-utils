@@ -59,8 +59,8 @@ class BulletListConverter:
                     user_value = f'{user_value}>'
                 term = f'`{user_value}`'
             else:
-                # This is a code line - use it as-is in backticks
-                term = f'`{code_line}`'
+                # This is a code line - strip whitespace before wrapping in backticks
+                term = f'`{code_line.strip()}`'
 
             # Collect all explanations for this group
             all_explanation_lines = []

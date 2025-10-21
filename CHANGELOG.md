@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.28] - 2025-10-21
+
+### Fixed
+- **callout_lib/converter_deflist.py** - Fixed whitespace handling in definition list terms
+  - Code lines now have leading and trailing whitespace stripped before wrapping in backticks
+  - Previously terms like `` `    'execute-snapshot',` `` would preserve indentation from code blocks
+  - Now properly formatted as `` `'execute-snapshot',` `` without extra whitespace
+
+- **callout_lib/converter_bullets.py** - Fixed whitespace handling in bulleted list terms
+  - Applied same whitespace stripping fix as definition list converter
+  - Ensures consistent clean formatting across all output formats
+
+- **callout_lib/table_parser.py** - Fixed critical table parsing bug with multi-cell header rows
+  - Multi-cell lines (e.g., `|Item |Field name |Description`) now properly complete a row
+  - Previously, header and first data row would merge into a single 6-cell row
+  - Caused first item in 3-column tables to be skipped during extraction
+  - Now correctly parses header as separate row, allowing all data rows to be processed
+
+### Changed
+- **callout_lib/detector.py** - Updated 3-column table explanation format
+  - Changed from verbose "Refers to `value`." pattern to simple label `` `value`: ``
+  - More concise and cleaner output while maintaining clarity
+  - Format: `` `op`: `` instead of `For `op`:` or `Refers to `op`.`
+  - Follows minimal label pattern that clearly identifies field being explained
+
 ## [0.1.27] - 2025-10-20
 
 ### Fixed

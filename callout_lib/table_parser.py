@@ -200,6 +200,17 @@ class TableParser:
                                 content=[part],
                                 conditionals=[]
                             ))
+
+                    # Multi-cell line completes a row - finalize it
+                    if current_row_cells:
+                        rows.append(TableRow(
+                            cells=current_row_cells.copy(),
+                            conditionals_before=conditionals_before_row.copy(),
+                            conditionals_after=conditionals_after_row.copy()
+                        ))
+                        current_row_cells = []
+                        conditionals_before_row = []
+                        conditionals_after_row = []
                 else:
                     # Single cell on this line
                     if cell_content:

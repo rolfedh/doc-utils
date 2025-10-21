@@ -222,11 +222,11 @@ class CalloutDetector:
 
             # Add value lines with context
             if value_lines:
-                # Format: "Refers to `value`. Description..."
+                # Format: "`value`:"
                 value_text = value_lines[0] if value_lines else ""
                 # If value is code-like (contains backticks or special chars), keep it formatted
                 if value_text:
-                    all_lines.append(f"Refers to {value_text}.")
+                    all_lines.append(f"{value_text}:")
 
                 # Add additional value lines if multi-line
                 for line in value_lines[1:]:
