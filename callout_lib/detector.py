@@ -45,6 +45,11 @@ class CalloutDetector:
     # Pattern for callout number in code block (can appear multiple times per line)
     CALLOUT_IN_CODE = re.compile(r'<(\d+)>')
 
+    # Pattern for callout with optional preceding comment syntax
+    # Matches common comment styles: //, #, --, ;, followed by optional whitespace and <number>
+    # The comment syntax must be preceded by whitespace to avoid matching code operators
+    CALLOUT_WITH_COMMENT = re.compile(r'\s*(?://|#|--|;)\s*<\d+>|\s*<\d+>')
+
     # Pattern for callout explanation line: <1> Explanation text
     CALLOUT_EXPLANATION = re.compile(r'^<(\d+)>\s+(.+)$')
 
@@ -130,8 +135,9 @@ class CalloutDetector:
             # Look for all callout numbers on this line
             callout_matches = list(self.CALLOUT_IN_CODE.finditer(line))
             if callout_matches:
-                # Remove all callouts from the line to get the actual code
-                line_without_callouts = self.CALLOUT_IN_CODE.sub('', line).strip()
+                # Remove callouts AND preceding comment syntax from the line
+                # Use CALLOUT_WITH_COMMENT to remove both comment syntax and callout
+                line_without_callouts = self.CALLOUT_WITH_COMMENT.sub('', line).rstrip()
 
                 # Find all angle-bracket enclosed values
                 user_values = self.USER_VALUE_PATTERN.findall(line_without_callouts)
@@ -290,11 +296,14 @@ class CalloutDetector:
         return explanations, i - 1
 
     def remove_callouts_from_code(self, content: List[str]) -> List[str]:
-        """Remove callout numbers from code block content (handles multiple callouts per line)."""
+        """
+        Remove callout numbers and preceding comment syntax from code block content.
+        Handles multiple callouts per line and various comment styles (//,  #, --, ;).
+        """
         cleaned = []
         for line in content:
-            # Remove all callout numbers and trailing whitespace
-            cleaned.append(self.CALLOUT_IN_CODE.sub('', line).rstrip())
+            # Remove all callout numbers with their preceding comment syntax
+            cleaned.append(self.CALLOUT_WITH_COMMENT.sub('', line).rstrip())
         return cleaned
 
     def validate_callouts(self, callout_groups: List[CalloutGroup], explanations: Dict[int, Callout]) -> Tuple[bool, set, set]:
