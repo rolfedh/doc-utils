@@ -141,10 +141,12 @@ def detect_install_method() -> str:
     Detect how the package was installed.
 
     Returns:
-        'pipx', 'pip', or 'unknown'
+        'pipx' or 'pip'
+
+    Note: Defaults to 'pipx' as the recommended installation method.
     """
-    # Check if running from pipx venv
-    if 'pipx' in sys.prefix:
+    # Check if running from pipx venv (standard pipx install)
+    if 'pipx' in sys.prefix.lower():
         return 'pipx'
 
     # Check PIPX_HOME environment variable
@@ -152,8 +154,17 @@ def detect_install_method() -> str:
     if pipx_home and str(Path(sys.prefix)).startswith(str(Path(pipx_home))):
         return 'pipx'
 
-    # Default to pip
-    return 'pip'
+    # Check if executable is in typical pipx bin location
+    try:
+        exe_path = Path(sys.executable)
+        if '.local/pipx' in str(exe_path):
+            return 'pipx'
+    except Exception:
+        pass
+
+    # Default to pipx as the recommended method (per CLAUDE.md guidelines)
+    # This ensures users see the recommended upgrade command even for editable installs
+    return 'pipx'
 
 
 def show_update_notification(latest_version: str, current_version: str = None):
