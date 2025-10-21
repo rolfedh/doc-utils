@@ -102,10 +102,13 @@ def process_file(file_path: Path, dry_run: bool = False, verbose: bool = False) 
         # Check for block titles (.Title)
         elif not in_block and not in_comment_block and re.match(r'^\.[A-Z]', current_line):
             # Add blank line before block title if needed
-            if (prev_line and
+            # Don't add if inside a conditional block or if previous line is a conditional directive
+            if (not in_conditional and
+                prev_line and
                 not re.match(r'^\s*$', prev_line) and
                 not re.match(r'^=+\s+', prev_line) and
-                not re.match(r'^\[role=', prev_line)):  # Don't add if previous is heading, empty, or role block
+                not re.match(r'^\[role=', prev_line) and
+                not re.match(r'^(ifdef::|ifndef::|endif::)', prev_line)):  # Don't add if previous is conditional
                 new_lines.append("")
                 changes_made = True
                 if verbose:
@@ -117,11 +120,12 @@ def process_file(file_path: Path, dry_run: bool = False, verbose: bool = False) 
         elif not in_block and re.match(r'^=+\s+', current_line):
             new_lines.append(current_line)
 
-            # Check if next line is not empty, not another heading, and not a comment block
+            # Check if next line is not empty, not another heading, not a comment block, and not a conditional
             if (next_line and
                 not re.match(r'^=+\s+', next_line) and
                 not re.match(r'^\s*$', next_line) and
-                not re.match(r'^////+$', next_line)):  # Don't add if next is comment block
+                not re.match(r'^////+$', next_line) and  # Don't add if next is comment block
+                not re.match(r'^(ifdef::|ifndef::|endif::)', next_line)):  # Don't add if next is conditional
                 new_lines.append("")
                 changes_made = True
                 if verbose:
