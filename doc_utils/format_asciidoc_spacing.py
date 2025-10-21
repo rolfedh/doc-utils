@@ -65,9 +65,16 @@ def process_file(file_path: Path, dry_run: bool = False, verbose: bool = False) 
             new_lines.append(current_line)
             in_conditional = False
             # Add blank line after conditional if needed
+            # Don't add if next line is:
+            # - a list item (starts with *, -, ., .., or numbered)
+            # - list continuation (+)
+            # - another conditional
+            # - blank
             if (next_line and
                 not re.match(r'^\s*$', next_line) and
-                not re.match(r'^(ifdef::|ifndef::|endif::)', next_line)):
+                not re.match(r'^(ifdef::|ifndef::|endif::)', next_line) and
+                not re.match(r'^(\*|\-|\.|\.\.|\d+\.)\s', next_line) and  # List items
+                not re.match(r'^\+\s*$', next_line)):  # List continuation
                 new_lines.append("")
                 changes_made = True
                 if verbose:
