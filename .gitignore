@@ -97,3 +97,6 @@ venv/
 
 # Ignore legacy fixture/readme
 fixtures-README-legacy.txt
+
+# Ignore modified test files
+test-files/
