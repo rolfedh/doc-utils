@@ -26,20 +26,22 @@ class TestDetectInstallMethod:
                 assert detect_install_method() == 'pipx'
 
     def test_detect_pip(self):
-        """Test detection defaults to pip."""
+        """Test detection defaults to pipx (per project guidelines)."""
         with patch('sys.prefix', '/usr'):
             # Clear PIPX_HOME if set
             env = {k: v for k, v in os.environ.items() if k != 'PIPX_HOME'}
             with patch.dict(os.environ, env, clear=True):
-                assert detect_install_method() == 'pip'
+                # Default is now pipx to align with installation recommendations
+                assert detect_install_method() == 'pipx'
 
     def test_detect_pip_user(self):
-        """Test detection for pip --user installations."""
+        """Test detection for pip --user installations defaults to pipx."""
         with patch('sys.prefix', '/home/user/.local'):
             # Clear PIPX_HOME if set
             env = {k: v for k, v in os.environ.items() if k != 'PIPX_HOME'}
             with patch.dict(os.environ, env, clear=True):
-                assert detect_install_method() == 'pip'
+                # Default is now pipx to align with installation recommendations
+                assert detect_install_method() == 'pipx'
 
 
 class TestParseVersion:

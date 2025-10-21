@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.29] - 2025-10-21
+
+### Fixed
+- **format-asciidoc-spacing** - Fixed conditional block cohesion to prevent unwanted blank lines
+  - Tool no longer inserts blank line between conditional directives (ifdef::/ifndef::/endif::) and their enclosed content
+  - Conditional directives and their content now stay "glued" together as a logical unit
+  - Prevents breaking block titles that immediately follow conditional directives
+  - Example: `ifndef::foo[]` followed by `.Additional resources` no longer gets a blank line inserted between them
+
+- **format-asciidoc-spacing** - Fixed list continuity across conditional blocks
+  - Tool no longer inserts blank line after endif:: when next line is a list item
+  - Supports all list formats: bulleted (*), dashed (-), dotted (., ..), and numbered (1., 2., etc.)
+  - Supports list continuation marker (+)
+  - Ensures lists that span conditional blocks remain unbroken
+
+### Enhanced
+- **version_check.py** - Updated install method detection to default to pipx
+  - Version update notifications now show `pipx upgrade` command by default
+  - Improved detection for pipx installations including editable installs
+  - Made sys.prefix check case-insensitive for better compatibility
+  - Aligns with project guidelines to always recommend pipx as the preferred installation method
+
+### Documentation
+- **convert-callouts-to-deflist.md** - Comprehensive documentation improvements
+  - Standardized section ordering for consistency with interactive tool documentation
+  - Fixed terminology: replaced "two-column" with "multi-column" throughout
+  - Restructured overly long examples section for better readability
+  - Enhanced Features section with better organization and Smart Comment Handling details
+  - Added Technical Details section with links to callout_lib library
+
+- **convert-callouts-interactive.md** - Added missing content and improved organization
+  - Added Automatic Format Detection feature section
+  - Added Smart Comment Handling feature with interactive warning details
+  - Added Validation and Safety feature section
+  - Added exclusion examples (--exclude-dir, --exclude-file, --exclude-list)
+  - Added missing CLI options to Options section (--max-comment-length, --exclude-file, --exclude-list)
+  - Added Technical Details section with library links and supported comment syntax
+
+### Added
+- **doc_utils_cli.py** - Added convert-callouts-interactive to help output
+  - Tool now appears in `doc-utils --help` and `doc-utils --list` output
+  - Updated convert-callouts-to-deflist description to clarify it's batch mode
+  - Both callout conversion tools now clearly documented with their use cases
+
 ## [0.1.28] - 2025-10-21
 
 ### Fixed
