@@ -184,14 +184,17 @@ class CalloutDetector:
         explanations = {}
         table_data = self.table_parser.extract_callout_explanations_from_table(table)
 
-        for callout_num, (explanation_lines, conditionals) in table_data.items():
-            # Combine explanation lines with conditionals preserved
+        for callout_num, (explanation_lines, row_conditionals) in table_data.items():
+            # explanation_lines now includes blank lines and conditionals inline
+            # row_conditionals are before/after the entire row (rarely used)
             all_lines = []
-            for line in explanation_lines:
-                all_lines.append(line)
 
-            # Add conditionals as separate lines (they'll be preserved in output)
-            all_lines.extend(conditionals)
+            # Add any row-level conditionals before
+            if row_conditionals:
+                all_lines.extend(row_conditionals)
+
+            # Add explanation lines (already includes inline conditionals and blank lines)
+            all_lines.extend(explanation_lines)
 
             # Check if marked as optional
             is_optional = False
@@ -215,10 +218,14 @@ class CalloutDetector:
         explanations = {}
         table_data = self.table_parser.extract_3column_callout_explanations(table)
 
-        for callout_num, (value_lines, description_lines, conditionals) in table_data.items():
+        for callout_num, (value_lines, description_lines, row_conditionals) in table_data.items():
             # Combine value and description into explanation lines
-            # Strategy: Include value as context, then description
+            # Both value_lines and description_lines now include conditionals and blank lines inline
             all_lines = []
+
+            # Add any row-level conditionals before
+            if row_conditionals:
+                all_lines.extend(row_conditionals)
 
             # Add value lines with context
             if value_lines:
@@ -228,15 +235,12 @@ class CalloutDetector:
                 if value_text:
                     all_lines.append(f"{value_text}:")
 
-                # Add additional value lines if multi-line
+                # Add additional value lines if multi-line (includes conditionals and blank lines)
                 for line in value_lines[1:]:
                     all_lines.append(line)
 
-            # Add description lines
+            # Add description lines (already includes conditionals and blank lines)
             all_lines.extend(description_lines)
-
-            # Add conditionals as separate lines (they'll be preserved in output)
-            all_lines.extend(conditionals)
 
             # Check if marked as optional
             is_optional = False

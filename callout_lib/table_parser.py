@@ -57,6 +57,44 @@ class TableParser:
     # Pattern for callout number (used for callout table detection)
     CALLOUT_NUMBER = re.compile(r'^<(\d+)>\s*$')
 
+    def _finalize_row_if_complete(self, current_row_cells, conditionals_before_row,
+                                   conditionals_after_row, expected_columns, rows):
+        """
+        Check if we have enough cells for a complete row, and if so, save it.
+
+        Returns: (new_current_row_cells, new_conditionals_before, new_conditionals_after)
+        """
+        if expected_columns > 0 and len(current_row_cells) >= expected_columns:
+            # Row is complete - save it
+            rows.append(TableRow(
+                cells=current_row_cells.copy(),
+                conditionals_before=conditionals_before_row.copy(),
+                conditionals_after=conditionals_after_row.copy()
+            ))
+            return [], [], []  # Reset for next row
+
+        # Row not complete yet
+        return current_row_cells, conditionals_before_row, conditionals_after_row
+
+    def _parse_column_count(self, attributes: str) -> int:
+        """
+        Parse the cols attribute to determine number of columns.
+
+        Example: '[cols="1,7a"]' returns 2
+                 '[cols="1,2,3"]' returns 3
+        """
+        import re
+        # Match cols="..." or cols='...'
+        match = re.search(r'cols=["\']([^"\']+)["\']', attributes)
+        if not match:
+            return 0  # Unknown column count
+
+        cols_spec = match.group(1)
+        # Count comma-separated values
+        # Handle formats like: "1,2", "1a,2a", "1,2,3", etc.
+        columns = cols_spec.split(',')
+        return len(columns)
+
     def find_tables(self, lines: List[str]) -> List[AsciiDocTable]:
         """Find all tables in the document."""
         tables = []
@@ -96,12 +134,20 @@ class TableParser:
         |Cell4
         |===
         """
+        # Get attributes and parse column count
+        attributes = ""
+        if start_line < delimiter_line:
+            attributes = lines[start_line]
+
+        expected_columns = self._parse_column_count(attributes)
+
         i = delimiter_line + 1
         rows = []
         current_row_cells = []
         current_cell_lines = []
         conditionals_before_row = []
         conditionals_after_row = []
+        in_asciidoc_cell = False  # Track if we're in an a| (AsciiDoc) cell
 
         while i < len(lines):
             line = lines[i]
@@ -138,22 +184,29 @@ class TableParser:
 
             # Check for conditional directives
             if self.IFDEF_PATTERN.match(line) or self.ENDIF_PATTERN.match(line):
-                if not current_row_cells:
+                # If we're building a cell (current_cell_lines is not empty) OR
+                # we're in an AsciiDoc cell, add conditional to cell content
+                if current_cell_lines or in_asciidoc_cell:
+                    # Inside a cell - conditional is part of cell content
+                    current_cell_lines.append(line)
+                elif current_row_cells:
+                    # Between cells in the same row
+                    conditionals_after_row.append(line)
+                else:
                     # Conditional before any cells in this row
                     conditionals_before_row.append(line)
-                else:
-                    # Conditional after cells started - treat as part of current context
-                    if current_cell_lines:
-                        # Inside a cell
-                        current_cell_lines.append(line)
-                    else:
-                        # Between cells in the same row
-                        conditionals_after_row.append(line)
                 i += 1
                 continue
 
-            # Blank line separates rows
+            # Blank line handling
             if not line.strip():
+                # In AsciiDoc cells (a|), blank lines are part of cell content
+                if in_asciidoc_cell:
+                    current_cell_lines.append(line)
+                    i += 1
+                    continue
+
+                # Otherwise, blank line separates rows
                 # Save pending cell if exists
                 if current_cell_lines:
                     current_row_cells.append(TableCell(
@@ -161,6 +214,7 @@ class TableParser:
                         conditionals=[]
                     ))
                     current_cell_lines = []
+                    in_asciidoc_cell = False
 
                 # Save row if we have cells
                 if current_row_cells:
@@ -178,6 +232,18 @@ class TableParser:
 
             # Check for cell separator (|)
             if self.CELL_SEPARATOR.match(line):
+                # Check if this is a cell type specifier on its own line (e.g., "a|" or "s|")
+                cell_content = line[1:].strip()  # Remove leading | and whitespace
+
+                # If line is just "a|", "s|", "h|", etc. (cell type specifier alone)
+                if len(cell_content) == 2 and cell_content[0] in 'ashdmev' and cell_content[1] == '|':
+                    # This is a cell type specifier on its own line
+                    if cell_content[0] == 'a':
+                        in_asciidoc_cell = True
+                    # Don't create a cell yet - content comes on following lines
+                    i += 1
+                    continue
+
                 # Save previous cell if exists
                 if current_cell_lines:
                     current_row_cells.append(TableCell(
@@ -185,9 +251,27 @@ class TableParser:
                         conditionals=[]
                     ))
                     current_cell_lines = []
+                    in_asciidoc_cell = False  # Reset for next cell
+
+                    # Check if row is complete (have enough cells based on cols attribute)
+                    current_row_cells, conditionals_before_row, conditionals_after_row = \
+                        self._finalize_row_if_complete(
+                            current_row_cells, conditionals_before_row,
+                            conditionals_after_row, expected_columns, rows
+                        )
 
                 # Extract cell content from this line (text after |)
-                cell_content = line[1:].strip()  # Remove leading |
+                cell_content = line[1:]  # Remove leading |
+
+                # Check for inline cell type specifier (a|text, s|text, etc.)
+                # Cell type specifiers are single characters followed by |
+                if len(cell_content) > 0 and cell_content[0] in 'ashdmev' and len(cell_content) > 1 and cell_content[1] == '|':
+                    # Track if this is an AsciiDoc cell (a|)
+                    if cell_content[0] == 'a':
+                        in_asciidoc_cell = True
+                    cell_content = cell_content[2:]  # Remove type specifier and second |
+
+                cell_content = cell_content.strip()
 
                 # Check if there are multiple cells on the same line (e.g., |Cell1 |Cell2 |Cell3)
                 if '|' in cell_content:
@@ -217,6 +301,39 @@ class TableParser:
                         current_cell_lines.append(cell_content)
                     # If empty, just start a new cell with no content yet
 
+                i += 1
+                continue
+
+            # Check for cell type specifier on its own line (e.g., "a|", "s|", "h|")
+            # This is actually a cell SEPARATOR with type specifier
+            # Example:
+            #   |<1>          ← Cell 1
+            #   a|            ← Start cell 2 with type 'a' (AsciiDoc)
+            #   content...    ← Cell 2 content
+            stripped_line = line.strip()
+            if (len(stripped_line) == 2 and
+                stripped_line[0] in 'ashdmev' and
+                stripped_line[1] == '|' and
+                (current_cell_lines or current_row_cells)):
+                # Save previous cell if we have one
+                if current_cell_lines:
+                    current_row_cells.append(TableCell(
+                        content=current_cell_lines.copy(),
+                        conditionals=[]
+                    ))
+                    current_cell_lines = []
+
+                    # Check if row is complete
+                    current_row_cells, conditionals_before_row, conditionals_after_row = \
+                        self._finalize_row_if_complete(
+                            current_row_cells, conditionals_before_row,
+                            conditionals_after_row, expected_columns, rows
+                        )
+
+                # Set cell type for the NEW cell we're starting
+                if stripped_line[0] == 'a':
+                    in_asciidoc_cell = True
+                # Start collecting content for the new cell (no content on this line)
                 i += 1
                 continue
 
@@ -338,25 +455,20 @@ class TableParser:
 
             callout_num = int(match.group(1))
 
-            # Collect explanation lines
+            # Collect explanation lines, preserving blank lines and conditionals inline
+            # Blank lines will need to become continuation markers (+) in definition lists
             explanation_lines = []
             for line in explanation_cell.content:
-                # Skip conditional directives in explanation (preserve them separately)
-                if not (self.IFDEF_PATTERN.match(line) or self.ENDIF_PATTERN.match(line)):
-                    explanation_lines.append(line)
+                # Preserve ALL lines including conditionals and blank lines
+                # Empty lines will be marked as '' which signals need for continuation marker
+                explanation_lines.append(line)
 
-            # Collect all conditionals for this row
-            all_conditionals = []
-            all_conditionals.extend(row.conditionals_before)
+            # Collect conditionals that appear before/after the row
+            row_conditionals = []
+            row_conditionals.extend(row.conditionals_before)
+            row_conditionals.extend(row.conditionals_after)
 
-            # Extract conditionals from explanation cell
-            for line in explanation_cell.content:
-                if self.IFDEF_PATTERN.match(line) or self.ENDIF_PATTERN.match(line):
-                    all_conditionals.append(line)
-
-            all_conditionals.extend(row.conditionals_after)
-
-            explanations[callout_num] = (explanation_lines, all_conditionals)
+            explanations[callout_num] = (explanation_lines, row_conditionals)
 
         return explanations
 
@@ -397,37 +509,22 @@ class TableParser:
 
             callout_num = int(item_num_str)
 
-            # Collect value lines (column 2)
+            # Collect value lines (column 2), preserving all content including conditionals
             value_lines = []
             for line in value_cell.content:
-                # Skip conditional directives in value (preserve them separately)
-                if not (self.IFDEF_PATTERN.match(line) or self.ENDIF_PATTERN.match(line)):
-                    value_lines.append(line)
+                value_lines.append(line)
 
-            # Collect description lines (column 3)
+            # Collect description lines (column 3), preserving all content including conditionals
             description_lines = []
             for line in desc_cell.content:
-                # Skip conditional directives in description (preserve them separately)
-                if not (self.IFDEF_PATTERN.match(line) or self.ENDIF_PATTERN.match(line)):
-                    description_lines.append(line)
+                description_lines.append(line)
 
-            # Collect all conditionals for this row
-            all_conditionals = []
-            all_conditionals.extend(row.conditionals_before)
+            # Collect conditionals that appear before/after the row
+            row_conditionals = []
+            row_conditionals.extend(row.conditionals_before)
+            row_conditionals.extend(row.conditionals_after)
 
-            # Extract conditionals from value cell
-            for line in value_cell.content:
-                if self.IFDEF_PATTERN.match(line) or self.ENDIF_PATTERN.match(line):
-                    all_conditionals.append(line)
-
-            # Extract conditionals from description cell
-            for line in desc_cell.content:
-                if self.IFDEF_PATTERN.match(line) or self.ENDIF_PATTERN.match(line):
-                    all_conditionals.append(line)
-
-            all_conditionals.extend(row.conditionals_after)
-
-            explanations[callout_num] = (value_lines, description_lines, all_conditionals)
+            explanations[callout_num] = (value_lines, description_lines, row_conditionals)
 
         return explanations
 

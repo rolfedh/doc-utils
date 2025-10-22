@@ -70,10 +70,37 @@ class DefListConverter:
                     lines.append('+')
 
                 # Add explanation lines, prepending "Optional. " to first line if needed
+                # Handle blank lines and conditionals by inserting continuation markers
+                need_continuation = False
+                had_content = False  # Track if we've output any non-conditional content
+
                 for line_idx, line in enumerate(explanation.lines):
+                    stripped = line.strip()
+
+                    # Check if this is a blank line
+                    if stripped == '':
+                        # Next non-blank line will need a continuation marker
+                        need_continuation = True
+                        continue  # Skip blank lines
+
+                    # Check if this is a conditional directive
+                    is_conditional = stripped.startswith(('ifdef::', 'ifndef::', 'endif::'))
+
+                    # Add continuation marker if:
+                    # 1. Previous line was blank (need_continuation=True), OR
+                    # 2. This is a conditional and we've had content before (need separator)
+                    if need_continuation or (is_conditional and had_content and line_idx > 0):
+                        lines.append('+')
+                        need_continuation = False
+
+                    # Add the line
                     if line_idx == 0 and explanation.is_optional:
                         lines.append(f'Optional. {line}')
                     else:
                         lines.append(line)
+
+                    # Track that we've output content (not just conditionals)
+                    if not is_conditional:
+                        had_content = True
 
         return lines
