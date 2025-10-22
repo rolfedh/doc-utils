@@ -307,7 +307,20 @@ class InteractiveCalloutConverter:
             explanations, explanation_end = self.detector.extract_callout_explanations(new_lines, block.end_line)
 
             if not explanations:
-                print_colored(f"Warning: No explanations found for block at line {block.start_line + 1}", Colors.YELLOW)
+                # Get callout numbers for warning message
+                all_callout_nums = []
+                for group in callout_groups:
+                    all_callout_nums.extend(group.callout_numbers)
+
+                warning_msg = (
+                    f"WARNING: {input_file.name} line {block.start_line + 1}: "
+                    f"Code block has callouts {sorted(set(all_callout_nums))} but no explanations found after it. "
+                    f"This may indicate: explanations are shared with another code block, "
+                    f"explanations are in an unexpected location, or documentation error (missing explanations). "
+                    f"Consider reviewing this block manually."
+                )
+                print_colored(warning_msg, Colors.YELLOW)
+                self.warnings.append(warning_msg)
                 continue
 
             # Validate

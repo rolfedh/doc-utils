@@ -103,6 +103,16 @@ class CalloutConverter:
 
             if not explanations:
                 self.log(f"No explanations found after block at line {block.start_line + 1}")
+                # Warn user about code blocks with callouts but no explanations
+                warning_msg = (
+                    f"WARNING: {input_file.name} line {block.start_line + 1}: "
+                    f"Code block has callouts {sorted(set(all_callout_nums))} but no explanations found after it. "
+                    f"This may indicate: explanations are shared with another code block, "
+                    f"explanations are in an unexpected location, or documentation error (missing explanations). "
+                    f"Consider reviewing this block manually."
+                )
+                print_colored(warning_msg, Colors.YELLOW)
+                self.warnings.append(warning_msg)
                 continue
 
             # Validate callouts match
