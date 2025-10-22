@@ -61,6 +61,7 @@ class CalloutDetector:
         """Initialize detector with table parser."""
         self.table_parser = TableParser()
         self.last_table_title = ""  # Track title from most recent table extraction
+        self.last_table = None  # Track last table found for validation diagnostics
 
     def find_code_blocks(self, lines: List[str]) -> List[CodeBlock]:
         """Find all code blocks in the document."""
@@ -182,7 +183,8 @@ class CalloutDetector:
 
     def _extract_from_table(self, table) -> Tuple[Dict[int, Callout], int]:
         """Extract callout explanations from a table format."""
-        # Store table title for use by converters
+        # Store table for use by converters and validation
+        self.last_table = table
         self.last_table_title = table.title if hasattr(table, 'title') else ""
 
         explanations = {}
@@ -219,7 +221,8 @@ class CalloutDetector:
         Extract callout explanations from a 3-column table format.
         Format: Item (number) | Value | Description
         """
-        # Store table title for use by converters
+        # Store table for use by converters and validation
+        self.last_table = table
         self.last_table_title = table.title if hasattr(table, 'title') else ""
 
         explanations = {}
@@ -263,7 +266,8 @@ class CalloutDetector:
 
     def _extract_from_list(self, lines: List[str], start_line: int) -> Tuple[Dict[int, Callout], int]:
         """Extract callout explanations from list format (<1> text)."""
-        # Clear table title since list format doesn't have tables
+        # Clear table data since list format doesn't have tables
+        self.last_table = None
         self.last_table_title = ""
 
         explanations = {}
@@ -320,17 +324,33 @@ class CalloutDetector:
             cleaned.append(self.CALLOUT_WITH_COMMENT.sub('', line).rstrip())
         return cleaned
 
-    def validate_callouts(self, callout_groups: List[CalloutGroup], explanations: Dict[int, Callout]) -> Tuple[bool, set, set]:
+    def validate_callouts(self, callout_groups: List[CalloutGroup], explanations: Dict[int, Callout]) -> Tuple[bool, List[int], List[int]]:
         """
         Validate that callout numbers in code match explanation numbers.
-        Returns tuple of (is_valid, code_nums, explanation_nums).
+        Returns tuple of (is_valid, code_nums_list, explanation_nums_list).
+
+        Returns:
+            - is_valid: True if unique callout numbers match
+            - code_nums_list: List of callout numbers from code (unique, sorted)
+            - explanation_nums_list: List of callout numbers from explanations
+              (preserves duplicates if from table, sorted)
         """
-        # Extract all callout numbers from groups
-        code_nums = set()
+        # Extract unique callout numbers from code groups
+        code_nums_set = set()
         for group in callout_groups:
-            code_nums.update(group.callout_numbers)
+            code_nums_set.update(group.callout_numbers)
 
-        explanation_nums = set(explanations.keys())
+        # Get explanation numbers, preserving duplicates if from a table
+        if self.last_table:
+            # Use table parser to get raw callout numbers (with duplicates)
+            explanation_nums_list = self.table_parser.get_table_callout_numbers(self.last_table)
+        else:
+            # List format: dict keys are already unique
+            explanation_nums_list = list(explanations.keys())
 
-        is_valid = code_nums == explanation_nums
-        return is_valid, code_nums, explanation_nums
+        explanation_nums_set = set(explanation_nums_list)
+
+        # Validation compares unique numbers only
+        is_valid = code_nums_set == explanation_nums_set
+
+        return is_valid, sorted(code_nums_set), sorted(explanation_nums_list)

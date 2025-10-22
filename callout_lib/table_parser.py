@@ -486,6 +486,38 @@ class TableParser:
 
         return True
 
+    def get_table_callout_numbers(self, table: AsciiDocTable) -> List[int]:
+        """
+        Extract just the callout numbers from a table (in order, with duplicates).
+        Used for validation and diagnostics.
+
+        Returns:
+            List of callout numbers in the order they appear in the table.
+            Preserves duplicates to help identify table errors.
+        """
+        callout_numbers = []
+
+        # Determine if there's a header row and skip it
+        has_header = self._has_header_row(table)
+        data_rows = table.rows[1:] if has_header else table.rows
+
+        for row in data_rows:
+            # Handle both 2-column and 3-column tables
+            if len(row.cells) < 2:
+                continue
+
+            first_cell = row.cells[0]
+            if not first_cell.content:
+                continue
+
+            # Extract callout number (supports both <1> and 1 formats)
+            first_line = first_cell.content[0].strip()
+            is_match, callout_num = self._is_callout_or_number(first_line)
+            if is_match:
+                callout_numbers.append(callout_num)
+
+        return callout_numbers
+
     def extract_callout_explanations_from_table(self, table: AsciiDocTable) -> Dict[int, Tuple[List[str], List[str]]]:
         """
         Extract callout explanations from a table.
@@ -496,6 +528,9 @@ class TableParser:
 
         Accepts both callout format (<1>) and plain numbers (1).
         Skips header rows if present.
+
+        Note: If table contains duplicate callout numbers, the last one wins.
+        Use get_table_callout_numbers() to detect duplicates.
         """
         explanations = {}
 
