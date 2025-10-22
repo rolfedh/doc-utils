@@ -22,6 +22,9 @@ from callout_lib import (
     CommentConverter,
 )
 
+# Import warnings report generator
+from doc_utils.warnings_report import generate_warnings_report
+
 
 # Colors for output
 class Colors:
@@ -404,6 +407,25 @@ Example transformation (deflist format):
         type=Path,
         help='Path to file containing directories/files to exclude, one per line'
     )
+    parser.add_argument(
+        '--warnings-report',
+        dest='warnings_report',
+        action='store_true',
+        default=True,
+        help='Generate warnings report file (default: enabled)'
+    )
+    parser.add_argument(
+        '--no-warnings-report',
+        dest='warnings_report',
+        action='store_false',
+        help='Disable warnings report file generation'
+    )
+    parser.add_argument(
+        '--warnings-file',
+        type=Path,
+        default=Path('callout-warnings-report.adoc'),
+        help='Path for warnings report file (default: callout-warnings-report.adoc)'
+    )
 
     args = parser.parse_args()
 
@@ -486,11 +508,24 @@ Example transformation (deflist format):
 
     # Display warning summary if any warnings were collected
     if converter.warnings:
-        print_colored(f"\n⚠️  {len(converter.warnings)} Warning(s):", Colors.YELLOW)
-        for warning in converter.warnings:
-            print_colored(f"  {warning}", Colors.YELLOW)
-        print()
-        print_colored("Suggestion: Fix the callout mismatches in the files above and rerun this command.", Colors.YELLOW)
+        # Generate warnings report if enabled
+        if args.warnings_report:
+            try:
+                generate_warnings_report(converter.warnings, args.warnings_file)
+                print_colored(f"\n⚠️  {len(converter.warnings)} Warning(s) - See {args.warnings_file} for details", Colors.YELLOW)
+            except Exception as e:
+                print_colored(f"\n⚠️  {len(converter.warnings)} Warning(s):", Colors.YELLOW)
+                print_colored(f"Error generating warnings report: {e}", Colors.RED)
+                # Fall back to displaying warnings in console
+                for warning in converter.warnings:
+                    print_colored(f"  {warning}", Colors.YELLOW)
+        else:
+            # Console-only output (legacy behavior)
+            print_colored(f"\n⚠️  {len(converter.warnings)} Warning(s):", Colors.YELLOW)
+            for warning in converter.warnings:
+                print_colored(f"  {warning}", Colors.YELLOW)
+            print()
+            print_colored("Suggestion: Fix the callout mismatches in the files above and rerun this command.", Colors.YELLOW)
         print()
 
     if args.dry_run and files_modified > 0:

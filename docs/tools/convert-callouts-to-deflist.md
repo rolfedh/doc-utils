@@ -549,23 +549,83 @@ This commonly occurs when:
 
 **Action Required**: Review these blocks manually to determine the appropriate handling.
 
-### Warning Summary
+### Warnings Report File
 
-At the end of processing, a summary of all warnings is displayed:
+**By default**, the tool generates a detailed warnings report file in AsciiDoc format for easy navigation and review.
 
+Console output (minimal):
 ```
-Processed 147 AsciiDoc file(s)
-Would modify 3 file(s) with 3 code block conversion(s)
+Processed 15 AsciiDoc file(s)
+Modified 8 file(s) with 32 code block conversion(s)
 
-⚠️  3 Warning(s):
-  WARNING: file1.adoc lines 15-19: Callout mismatch: code has [1, 2], explanations have [2, 3]
-  WARNING: file2.adoc lines 141-145: Callout mismatch: code has [1, 2], explanations have [1, 3]
-  WARNING: file3.adoc line 211: Code block has callouts [1, 2, 3, 4] but no explanations found after it.
-  This may indicate: explanations are shared with another code block, explanations are in an unexpected
-  location, or documentation error (missing explanations). Consider reviewing this block manually.
-
-Suggestion: Fix the callout mismatches in the files above and rerun this command.
+⚠️  4 Warning(s) - See callout-warnings-report.adoc for details
 ```
+
+The generated `callout-warnings-report.adoc` file contains:
+- **Summary**: Total warnings count by type
+- **Callout Mismatch Warnings**: Detailed analysis showing duplicates, missing callouts, and off-by-one errors
+- **Missing Explanations Warnings**: Lists blocks that may have shared explanations or documentation errors
+- **Structured AsciiDoc format**: Easy to navigate with table of contents, can be opened in any text editor or rendered
+
+Example report structure:
+```asciidoc
+= Callout Conversion Warnings Report
+:toc:
+
+Generated: 2025-10-22 15:33:15
+
+== Summary
+
+Total warnings: 4
+- Callout mismatches: 2
+- Missing explanations: 2
+
+== Callout Mismatch Warnings
+
+=== mongodb.adoc
+
+*Lines 766-901*
+
+Code has:: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+Explanations have:: [1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10]
+
+Issues detected::
+- Duplicate callout: 9 (appears 2 times in explanations)
+- Missing callout: 11 (in code but not in explanations)
+
+== Missing Explanations Warnings
+
+=== oracle.adoc
+
+*Line 2772*
+
+Callouts in code:: [1, 2, 3, 4, 5, ..., 25]
+
+Possible causes::
+- Explanations shared with another code block (e.g., in conditional sections)
+- Explanations in unexpected location
+- Documentation error (missing explanations)
+
+Action:: Review this block manually
+```
+
+**Command-line options**:
+```bash
+# Enable report generation (default)
+convert-callouts-to-deflist --warnings-report modules/
+
+# Disable report generation (legacy console-only mode)
+convert-callouts-to-deflist --no-warnings-report modules/
+
+# Custom report file path
+convert-callouts-to-deflist --warnings-file my-warnings.adoc modules/
+```
+
+**Benefits**:
+- Clean console output without warning spam
+- Structured warnings that are easy to review and share
+- Can be committed to git to track warning resolution progress
+- AsciiDoc format renders nicely in editors and GitHub
 
 
 ## Real-World Example
