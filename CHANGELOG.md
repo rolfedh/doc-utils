@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.32] - 2025-10-22
+
+### Fixed
+- **Version reporting** - Fixed version.py not synced with pyproject.toml
+  - Updated doc_utils/version.py from 0.1.30 to match current release
+  - Now properly reports v0.1.32 instead of outdated v0.1.30
+
+### Added
+- **CLI tools** - Added `--version` option to callout conversion tools
+  - `convert-callouts-to-deflist --version` now displays version information
+  - `convert-callouts-interactive --version` now displays version information
+  - Both tools import version from doc_utils.version for consistency
+
 ## [0.1.31] - 2025-10-22
 
 ### Added
