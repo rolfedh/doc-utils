@@ -38,6 +38,7 @@ class AsciiDocTable:
     end_line: int
     attributes: str  # Table attributes like [cols="1,3"]
     rows: List[TableRow]
+    title: str = ""  # Block title like ".Table description"
 
 
 class TableParser:
@@ -56,6 +57,26 @@ class TableParser:
 
     # Pattern for callout number (used for callout table detection)
     CALLOUT_NUMBER = re.compile(r'^<(\d+)>\s*$')
+    PLAIN_NUMBER = re.compile(r'^(\d+)\s*$')
+
+    def _is_callout_or_number(self, text: str) -> tuple[bool, int]:
+        """
+        Check if text is a callout number (<1>) or plain number (1).
+        Returns (is_match, number) or (False, 0) if no match.
+        """
+        text = text.strip()
+
+        # Try callout format first: <1>
+        match = self.CALLOUT_NUMBER.match(text)
+        if match:
+            return (True, int(match.group(1)))
+
+        # Try plain number format: 1
+        match = self.PLAIN_NUMBER.match(text)
+        if match:
+            return (True, int(match.group(1)))
+
+        return (False, 0)
 
     def _finalize_row_if_complete(self, current_row_cells, conditionals_before_row,
                                    conditionals_after_row, expected_columns, rows):
@@ -103,16 +124,27 @@ class TableParser:
         while i < len(lines):
             # Look for table delimiter
             if self.TABLE_DELIMITER.match(lines[i]):
-                # Check if there are attributes on the line before
+                # Check for attributes and title before the table
                 attributes = ""
+                title = ""
                 start_line = i
 
+                # Check line before delimiter for attributes [cols="..."]
                 if i > 0 and self.TABLE_START.match(lines[i - 1]):
                     attributes = lines[i - 1]
                     start_line = i - 1
 
+                    # Check line before attributes for title .Title
+                    if i > 1 and lines[i - 2].strip().startswith('.') and not lines[i - 2].strip().startswith('..'):
+                        title = lines[i - 2].strip()
+                        start_line = i - 2
+                elif i > 0 and lines[i - 1].strip().startswith('.') and not lines[i - 1].strip().startswith('..'):
+                    # Title directly before delimiter (no attributes)
+                    title = lines[i - 1].strip()
+                    start_line = i - 1
+
                 # Parse table content
-                table = self._parse_table(lines, start_line, i)
+                table = self._parse_table(lines, start_line, i, title)
                 if table:
                     tables.append(table)
                     i = table.end_line + 1
@@ -121,11 +153,13 @@ class TableParser:
 
         return tables
 
-    def _parse_table(self, lines: List[str], start_line: int, delimiter_line: int) -> Optional[AsciiDocTable]:
+    def _parse_table(self, lines: List[str], start_line: int, delimiter_line: int, title: str = "") -> Optional[AsciiDocTable]:
         """
         Parse a single table starting at the delimiter.
 
         AsciiDoc table format:
+        .Optional title
+        [optional attributes]
         |===
         |Cell1
         |Cell2
@@ -137,7 +171,15 @@ class TableParser:
         # Get attributes and parse column count
         attributes = ""
         if start_line < delimiter_line:
-            attributes = lines[start_line]
+            # Check if start line is title or attributes
+            start_content = lines[start_line].strip()
+            if start_content.startswith('.') and not start_content.startswith('..'):
+                # Start line is title, attributes might be on next line
+                if start_line + 1 < delimiter_line:
+                    attributes = lines[start_line + 1]
+            else:
+                # Start line is attributes
+                attributes = lines[start_line]
 
         expected_columns = self._parse_column_count(attributes)
 
@@ -170,16 +212,13 @@ class TableParser:
                         conditionals_after=conditionals_after_row.copy()
                     ))
 
-                # Get attributes if present
-                attributes = ""
-                if start_line < delimiter_line:
-                    attributes = lines[start_line]
-
+                # Get attributes if present (already extracted above)
                 return AsciiDocTable(
                     start_line=start_line,
                     end_line=i,
                     attributes=attributes,
-                    rows=rows
+                    rows=rows,
+                    title=title
                 )
 
             # Check for conditional directives
@@ -350,6 +389,8 @@ class TableParser:
         """
         Determine if a table is a callout explanation table.
         A callout table has two columns: callout number and explanation.
+        Accepts both callout format (<1>) and plain numbers (1).
+        Skips header rows if present.
         """
         if not table.rows:
             return False
@@ -358,15 +399,23 @@ class TableParser:
         if not all(len(row.cells) == 2 for row in table.rows):
             return False
 
-        # Check if first cell of each row is a callout number
-        for row in table.rows:
+        # Determine if there's a header row and skip it
+        has_header = self._has_header_row(table)
+        data_rows = table.rows[1:] if has_header else table.rows
+
+        if not data_rows:
+            return False
+
+        # Check if first cell of each data row is a callout number (either <1> or 1)
+        for row in data_rows:
             first_cell = row.cells[0]
             if not first_cell.content:
                 return False
 
-            # First line of first cell should be a callout number
+            # First line of first cell should be a callout number or plain number
             first_line = first_cell.content[0].strip()
-            if not self.CALLOUT_NUMBER.match(first_line):
+            is_match, _ = self._is_callout_or_number(first_line)
+            if not is_match:
                 return False
 
         return True
@@ -375,13 +424,25 @@ class TableParser:
         """
         Check if table has a header row.
         Common header patterns: "Item", "Value", "Description", "Column", etc.
+
+        A row is a header if:
+        - It does NOT start with a callout number (<1> or 1)
+        - It contains common header keywords in the cells
         """
         if not table.rows:
             return False
 
         first_row = table.rows[0]
-        if not first_row.cells:
+        if not first_row.cells or len(first_row.cells) < 2:
             return False
+
+        # If first cell is a callout number, this is NOT a header
+        first_cell = first_row.cells[0]
+        if first_cell.content:
+            first_cell_text = first_cell.content[0].strip()
+            is_callout, _ = self._is_callout_or_number(first_cell_text)
+            if is_callout:
+                return False
 
         # Collect text from all cells in first row
         header_text = ' '.join(
@@ -389,9 +450,10 @@ class TableParser:
             for cell in first_row.cells
         ).lower()
 
-        # Check for common header keywords
+        # Check for common header keywords (as whole words)
         header_keywords = ['item', 'description', 'value', 'column', 'parameter', 'field', 'name']
-        return any(keyword in header_text for keyword in header_keywords)
+        import re
+        return any(re.search(r'\b' + re.escape(keyword) + r'\b', header_text) for keyword in header_keywords)
 
     def is_3column_callout_table(self, table: AsciiDocTable) -> bool:
         """
@@ -417,15 +479,16 @@ class TableParser:
         if not all(len(row.cells) == 3 for row in data_rows):
             return False
 
-        # Check if first cell of each data row contains a plain number (1, 2, 3...)
+        # Check if first cell of each data row contains a callout or plain number (1, 2, 3... or <1>, <2>...)
         for row in data_rows:
             first_cell = row.cells[0]
             if not first_cell.content:
                 return False
 
-            # First line of first cell should be a number
+            # First line of first cell should be a callout number or plain number
             first_line = first_cell.content[0].strip()
-            if not first_line.isdigit():
+            is_match, _ = self._is_callout_or_number(first_line)
+            if not is_match:
                 return False
 
         return True
@@ -437,23 +500,28 @@ class TableParser:
 
         The conditionals list includes any ifdef/ifndef/endif statements that should
         be preserved when converting the table to other formats.
+
+        Accepts both callout format (<1>) and plain numbers (1).
+        Skips header rows if present.
         """
         explanations = {}
 
-        for row in table.rows:
+        # Determine if there's a header row and skip it
+        has_header = self._has_header_row(table)
+        data_rows = table.rows[1:] if has_header else table.rows
+
+        for row in data_rows:
             if len(row.cells) != 2:
                 continue
 
             callout_cell = row.cells[0]
             explanation_cell = row.cells[1]
 
-            # Extract callout number
+            # Extract callout number (supports both <1> and 1 formats)
             first_line = callout_cell.content[0].strip()
-            match = self.CALLOUT_NUMBER.match(first_line)
-            if not match:
+            is_match, callout_num = self._is_callout_or_number(first_line)
+            if not is_match:
                 continue
-
-            callout_num = int(match.group(1))
 
             # Collect explanation lines, preserving blank lines and conditionals inline
             # Blank lines will need to become continuation markers (+) in definition lists
@@ -478,12 +546,14 @@ class TableParser:
         Returns dict mapping callout number to tuple of (value_lines, description_lines, conditionals).
 
         Format: Item | Value | Description
-        - Item: Number (1, 2, 3...) corresponding to callout number
+        - Item: Number (1, 2, 3...) or callout (<1>, <2>...) corresponding to callout number
         - Value: The code/value being explained
         - Description: Explanation text
 
         The conditionals list includes any ifdef/ifndef/endif statements that should
         be preserved when converting the table to other formats.
+
+        Accepts both callout format (<1>) and plain numbers (1).
         """
         explanations = {}
 
@@ -499,15 +569,14 @@ class TableParser:
             value_cell = row.cells[1]
             desc_cell = row.cells[2]
 
-            # Extract item number (maps to callout number)
+            # Extract item number (maps to callout number) - supports both <1> and 1 formats
             if not item_cell.content:
                 continue
 
             item_num_str = item_cell.content[0].strip()
-            if not item_num_str.isdigit():
+            is_match, callout_num = self._is_callout_or_number(item_num_str)
+            if not is_match:
                 continue
-
-            callout_num = int(item_num_str)
 
             # Collect value lines (column 2), preserving all content including conditionals
             value_lines = []
