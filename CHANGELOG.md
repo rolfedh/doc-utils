@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.30] - 2025-10-22
+
+### Fixed
+- **convert-callouts-to-deflist/interactive** - Fixed support for AsciiDoc table cells with `a|` type specifier
+  - Recognize `a|` on its own line as cell separator with type specifier, not just a cell content marker
+  - `a|` now correctly starts a new cell rather than modifying the current cell type
+  - Preserve blank lines as content within `a|` (AsciiDoc) cells instead of treating them as row separators
+  - Parse `cols` attribute (e.g., `[cols="1,7a"]`) to determine expected number of columns per row
+  - Auto-finalize rows when column count is reached, enabling proper multi-row table parsing
+
+- **convert-callouts-to-deflist/interactive** - Fixed handling of conditionals in table cells
+  - Keep conditional directives (ifdef::/ifndef::/endif::) inline with cell content instead of extracting to separate lists
+  - Insert continuation markers (`+`) before conditionals in definition lists to prevent list breakout
+  - Insert continuation markers to bridge blank lines in explanations
+  - Prevents invalid AsciiDoc where blank lines would break definition list structure
+  - Conditionals within `a|` cells are now preserved correctly across blank lines
+
+### Enhanced
+- **Table parser** - Improved conditional handling logic
+  - Check if currently building a cell (`current_cell_lines` not empty) when processing conditionals
+  - Conditionals are added to cell content when inside a cell, rather than to row-level conditional lists
+  - Preserve conditional context across blank lines in `a|` cells
+
+### Technical
+- Added `_parse_column_count()` method to extract column count from table `cols` attribute
+- Added `_finalize_row_if_complete()` method to auto-finalize rows based on column count
+- Updated conditional detection to handle cells being built vs cells already saved
+- Tested on Debezium documentation repository (70 files, 12 files with callouts detected, 27 code blocks would convert)
+
 ## [0.1.29] - 2025-10-21
 
 ### Fixed
