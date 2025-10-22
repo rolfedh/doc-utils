@@ -144,7 +144,7 @@ class CalloutConverter:
                     # Fall back to definition list
                     self.log(f"Falling back to definition list for block at line {block.start_line + 1}")
                     converted_content = self.detector.remove_callouts_from_code(block.content)
-                    output_list = DefListConverter.convert(callout_groups, explanations)
+                    output_list = DefListConverter.convert(callout_groups, explanations, self.detector.last_table_title)
                     use_deflist_fallback = True
                 else:
                     output_list = []  # No separate list after code block for comments
@@ -153,9 +153,9 @@ class CalloutConverter:
                 converted_content = self.detector.remove_callouts_from_code(block.content)
 
                 if self.output_format == 'bullets':
-                    output_list = BulletListConverter.convert(callout_groups, explanations)
+                    output_list = BulletListConverter.convert(callout_groups, explanations, self.detector.last_table_title)
                 else:  # default to 'deflist'
-                    output_list = DefListConverter.convert(callout_groups, explanations)
+                    output_list = DefListConverter.convert(callout_groups, explanations, self.detector.last_table_title)
 
             # Replace in document
             # Check if block has [source] prefix

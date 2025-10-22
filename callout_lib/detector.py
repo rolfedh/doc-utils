@@ -60,6 +60,7 @@ class CalloutDetector:
     def __init__(self):
         """Initialize detector with table parser."""
         self.table_parser = TableParser()
+        self.last_table_title = ""  # Track title from most recent table extraction
 
     def find_code_blocks(self, lines: List[str]) -> List[CodeBlock]:
         """Find all code blocks in the document."""
@@ -181,6 +182,9 @@ class CalloutDetector:
 
     def _extract_from_table(self, table) -> Tuple[Dict[int, Callout], int]:
         """Extract callout explanations from a table format."""
+        # Store table title for use by converters
+        self.last_table_title = table.title if hasattr(table, 'title') else ""
+
         explanations = {}
         table_data = self.table_parser.extract_callout_explanations_from_table(table)
 
@@ -215,6 +219,9 @@ class CalloutDetector:
         Extract callout explanations from a 3-column table format.
         Format: Item (number) | Value | Description
         """
+        # Store table title for use by converters
+        self.last_table_title = table.title if hasattr(table, 'title') else ""
+
         explanations = {}
         table_data = self.table_parser.extract_3column_callout_explanations(table)
 
@@ -256,6 +263,9 @@ class CalloutDetector:
 
     def _extract_from_list(self, lines: List[str], start_line: int) -> Tuple[Dict[int, Callout], int]:
         """Extract callout explanations from list format (<1> text)."""
+        # Clear table title since list format doesn't have tables
+        self.last_table_title = ""
+
         explanations = {}
         i = start_line + 1  # Start after the closing delimiter
 

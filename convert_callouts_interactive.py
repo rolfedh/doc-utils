@@ -332,9 +332,9 @@ class InteractiveCalloutConverter:
             else:
                 converted_content = self.detector.remove_callouts_from_code(block.content)
                 if format_choice == 'bullets':
-                    output_list = BulletListConverter.convert(callout_groups, explanations)
+                    output_list = BulletListConverter.convert(callout_groups, explanations, self.detector.last_table_title)
                 else:  # deflist
-                    output_list = DefListConverter.convert(callout_groups, explanations)
+                    output_list = DefListConverter.convert(callout_groups, explanations, self.detector.last_table_title)
 
             # Replace in document
             has_source_prefix = self.detector.CODE_BLOCK_START.match(new_lines[block.start_line])

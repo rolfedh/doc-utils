@@ -16,7 +16,7 @@ class DefListConverter:
     USER_VALUE_PATTERN = re.compile(r'(?<!<)<([a-zA-Z][^>]*)>')
 
     @staticmethod
-    def convert(callout_groups: List[CalloutGroup], explanations: Dict[int, Callout]) -> List[str]:
+    def convert(callout_groups: List[CalloutGroup], explanations: Dict[int, Callout], table_title: str = "") -> List[str]:
         """
         Create definition list from callout groups and explanations.
 
@@ -29,11 +29,19 @@ class DefListConverter:
         Args:
             callout_groups: List of CalloutGroup objects from code block
             explanations: Dict mapping callout numbers to Callout objects
+            table_title: Optional table title (e.g., ".Descriptions of delete event")
+                        Will be converted to lead-in sentence (e.g., "Descriptions of delete event, where:")
 
         Returns:
             List of strings representing the definition list
         """
-        lines = ['\nwhere:']
+        # Convert table title to lead-in sentence if present
+        if table_title:
+            # Remove leading dot and trailing period if present
+            title_text = table_title.lstrip('.').rstrip('.')
+            lines = [f'\n{title_text}, where:']
+        else:
+            lines = ['\nwhere:']
 
         # Process each group (which may contain one or more callouts)
         for group in callout_groups:

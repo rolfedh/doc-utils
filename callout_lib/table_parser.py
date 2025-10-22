@@ -631,12 +631,26 @@ class TableParser:
 
             # Check for table delimiter
             if self.TABLE_DELIMITER.match(line):
-                # Found a table, parse it
+                # Found a table, extract attributes and title
+                attributes = ""
+                title = ""
                 start_line = j
+
+                # Check line before delimiter for attributes [cols="..."]
                 if j > 0 and self.TABLE_START.match(lines[j - 1]):
+                    attributes = lines[j - 1]
                     start_line = j - 1
 
-                table = self._parse_table(lines, start_line, j)
+                    # Check line before attributes for title .Title
+                    if j > 1 and lines[j - 2].strip().startswith('.') and not lines[j - 2].strip().startswith('..'):
+                        title = lines[j - 2].strip()
+                        start_line = j - 2
+                elif j > 0 and lines[j - 1].strip().startswith('.') and not lines[j - 1].strip().startswith('..'):
+                    # Title directly before delimiter (no attributes)
+                    title = lines[j - 1].strip()
+                    start_line = j - 1
+
+                table = self._parse_table(lines, start_line, j, title)
                 if table and (self.is_callout_table(table) or self.is_3column_callout_table(table)):
                     return table
 
