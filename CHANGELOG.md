@@ -7,6 +7,77 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.31] - 2025-10-22
+
+### Added
+- **convert-callouts-to-deflist** - Added `--force` option to strip callouts despite warnings
+  - Allows conversion to proceed when callout warnings are present (missing explanations or mismatches)
+  - Strips callouts from blocks with missing explanations without creating explanation lists
+  - Converts blocks with callout mismatches using available explanations
+  - Requires confirmation prompt before proceeding (skipped in dry-run mode)
+  - Useful for intentionally shared explanations between conditional blocks
+  - Documented in warnings report and GitHub Pages with comprehensive examples
+
+- **Warnings Report** - Automatic generation of structured AsciiDoc warnings report
+  - Enabled by default, generates `callout-warnings-report.adoc` in current directory
+  - Reduces console spam by showing minimal summary: "⚠️ 4 Warning(s) - See callout-warnings-report.adoc for details"
+  - Report includes summary by warning type, recommended actions, and force mode documentation
+  - Callout mismatch analysis detects duplicates, missing callouts, extra callouts, and off-by-one errors
+  - Missing explanations section lists possible causes (shared explanations, unexpected location, missing)
+  - Command-line options: `--warnings-report` (default), `--no-warnings-report`, `--warnings-file=<path>`
+  - Can be committed to git to track warning resolution progress
+
+- **convert-callouts-to-deflist** - Warning for code blocks with callouts but no explanations
+  - Detects when code block has callouts but no explanation table or list found
+  - Provides helpful diagnostic message with possible causes
+  - Suggests manual review for shared explanations or documentation errors
+
+### Enhanced
+- **Table parser** - Improved detection of callout explanations in tables
+  - Now handles cell type specifiers without leading pipe (e.g., `a|` at start of line)
+  - Accepts both `|cell` and `a|cell` formats for AsciiDoc cell type specifiers
+  - Recognizes all cell type specifiers: a, s, h, d, m, e, v
+  - Fixed issue where code block closing delimiter (`----`) was incorrectly treated as new code block start
+  - Added logic to skip closing delimiter before searching for callout table
+
+- **Table parser** - Support for plain number callouts in tables (in addition to angle-bracket format)
+  - Tables can now use plain numbers (1, 2, 3) instead of angle-bracket format (`<1>`, `<2>`, `<3>`)
+  - Unified detection via `_is_callout_or_number()` method accepting both formats
+  - Increased detection rate: 58% more files detected, 130% more code blocks found
+  - Example: First column can be `1` or `<1>`, both are recognized as callout references
+
+- **Validation warnings** - Show duplicate callout numbers in explanations
+  - Warnings now preserve duplicates: `[1, 2, 3, 4, 5, 7, 8, 8, 9]` instead of deduplicated `[1, 2, 3, 4, 5, 7, 8, 9]`
+  - Added `get_table_callout_numbers()` method to extract raw callout numbers from tables
+  - Updated `validate_callouts()` to return lists instead of sets to preserve duplicates
+  - Helps identify table rows with incorrect callout numbering
+
+- **User guidance** - Added suggestion messages when warnings occur
+  - Console shows: "Suggestion: Review and fix the callout issues listed in [report], then rerun this command."
+  - Warnings report includes "Recommended Actions" section with 4-step workflow
+  - Clear guidance on when to use force mode and how to review changes
+
+### Fixed
+- **CRITICAL** - Preserve content between code block and explanations
+  - Fixed bug where converter deleted `endif::` directives, continuation markers (`+`), and paragraph text
+  - Now uses `detector.last_table.start_line` to accurately find where explanations begin
+  - Preserves slice `new_lines[content_end + 1:explanation_start_line]` containing critical AsciiDoc directives
+  - Applies to both comments format and definition list/bullets formats
+  - Prevents corruption of conditional compilation blocks in documentation
+
+### Documentation
+- **convert-callouts-to-deflist.md** - Documented force mode option
+  - Added `--force` option to Options section with "USE WITH CAUTION" warning
+  - Added "Force Mode" subsection with confirmation prompt example
+  - Documented what force mode does for missing explanations and callout mismatches
+  - Included 6-step recommended workflow
+  - Provided real-world example of appropriate force mode usage (shared explanations in conditionals)
+
+- **Warnings Report** - Documented warnings report feature
+  - Added "Warnings Report File" section explaining enabled-by-default behavior
+  - Documented command-line options for controlling report generation
+  - Listed benefits: clean console output, structured format, git tracking, AsciiDoc rendering
+
 ## [0.1.30] - 2025-10-22
 
 ### Fixed
