@@ -184,6 +184,7 @@ Shows detailed processing information.
 - `-v, --verbose` - Enable detailed logging
 - `-f, --format {deflist,bullets,comments}` - Output format: "deflist" for definition list with "where:" (default), "bullets" for bulleted list per Red Hat style guide, "comments" for inline comments
 - `--max-comment-length N` - Maximum comment length in characters (default: 120). For inline comments format, automatically falls back to definition list if comment exceeds this length
+- `--force` - **USE WITH CAUTION**: Force strip callouts from code blocks even when warnings are present. Requires confirmation prompt. Only use after reviewing all warnings in the warnings report and confirming remaining issues are acceptable
 - `--exclude-dir DIR` - Exclude directory (can be used multiple times)
 - `--exclude-file FILE` - Exclude file (can be used multiple times)
 - `--exclude-list FILE` - Load exclusion list from file
@@ -626,6 +627,67 @@ convert-callouts-to-deflist --warnings-file my-warnings.adoc modules/
 - Structured warnings that are easy to review and share
 - Can be committed to git to track warning resolution progress
 - AsciiDoc format renders nicely in editors and GitHub
+
+### Force Mode
+
+**CAUTION: Use force mode sparingly and only after thorough review.**
+
+After reviewing the warnings report and manually fixing callout issues where appropriate, you may have remaining warnings that are acceptable (e.g., intentionally shared explanations between code blocks). In such cases, you can use the `--force` option to strip callouts despite warnings:
+
+```bash
+convert-callouts-to-deflist --force modules/
+```
+
+**Before proceeding, you will see a confirmation prompt:**
+
+```
+⚠️  FORCE MODE ENABLED ⚠️
+This will strip callouts from code blocks even when warnings are present.
+You should only use this option AFTER:
+  1. Reviewing all warnings in the warnings report
+  2. Manually fixing callout issues where appropriate
+  3. Confirming that remaining warnings are acceptable
+
+Are you sure you want to proceed with force mode? (yes/no):
+```
+
+**What force mode does:**
+
+- **Missing explanations**: Strips callouts from code without creating explanation lists
+- **Callout mismatches**: Converts blocks using available explanations (may leave some callouts unexplained)
+- **Requires confirmation**: Prompts before proceeding (skipped in `--dry-run` mode)
+
+**Recommended workflow:**
+
+1. Run without `--force` first: `convert-callouts-to-deflist modules/`
+2. Review warnings report: `callout-warnings-report.adoc`
+3. Fix genuine issues (duplicate callouts, missing explanations, etc.)
+4. Rerun conversion to verify fixes
+5. Only use `--force` for remaining acceptable warnings
+6. Always review with `git diff` before committing
+
+**Example scenario where force mode is appropriate:**
+
+```asciidoc
+ifdef::product[]
+[source,yaml]
+----
+config:
+  value: <my-value> <1>
+----
+<1> Product-specific explanation
+endif::[]
+
+ifdef::community[]
+[source,yaml]
+----
+config:
+  value: <my-value> <1>  # Shares callout <1> with product block
+----
+endif::[]
+```
+
+In this case, the second code block shares explanations with the first. After confirming this is intentional, you can use `--force` to strip the callouts from both blocks.
 
 
 ## Real-World Example

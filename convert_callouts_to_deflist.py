@@ -43,11 +43,12 @@ class CalloutConverter:
     """Converts callout-style documentation to various formats."""
 
     def __init__(self, dry_run: bool = False, verbose: bool = False, output_format: str = 'deflist',
-                 max_comment_length: int = 120):
+                 max_comment_length: int = 120, force: bool = False):
         self.dry_run = dry_run
         self.verbose = verbose
         self.output_format = output_format  # 'deflist', 'bullets', or 'comments'
         self.max_comment_length = max_comment_length  # Max length for inline comments
+        self.force = force  # Force strip callouts even with warnings
         self.changes_made = 0
         self.warnings = []  # Collect warnings for summary
         self.long_comment_warnings = []  # Warnings for comments exceeding max length
@@ -116,11 +117,40 @@ class CalloutConverter:
                 )
                 print_colored(warning_msg, Colors.YELLOW)
                 self.warnings.append(warning_msg)
-                continue
+
+                # In force mode, strip callouts anyway
+                if not self.force:
+                    continue
+                else:
+                    self.log(f"FORCE MODE: Stripping callouts from block at line {block.start_line + 1} despite missing explanations")
+
+                    # Just strip callouts without creating explanation list
+                    converted_content = self.detector.remove_callouts_from_code(block.content)
+
+                    # Replace in document
+                    has_source_prefix = self.detector.CODE_BLOCK_START.match(new_lines[block.start_line])
+                    if has_source_prefix:
+                        content_start = block.start_line + 2  # After [source] and ----
+                    else:
+                        content_start = block.start_line + 1  # After ---- only
+                    content_end = block.end_line
+
+                    # Build new section with just code (no explanations)
+                    new_section = (
+                        new_lines[:content_start] +
+                        converted_content +
+                        [new_lines[content_end]] +  # Keep closing delimiter
+                        new_lines[content_end + 1:]  # Keep rest of file
+                    )
+
+                    new_lines = new_section
+                    conversions += 1
+                    self.changes_made += 1
+                    continue
 
             # Validate callouts match
             is_valid, code_nums, explanation_nums = self.detector.validate_callouts(callout_groups, explanations)
-            if not is_valid:
+            if not is_valid and explanations:  # Only validate if we have explanations
                 # Format warning message with file and line numbers
                 line_range = f"{block.start_line + 1}-{block.end_line + 1}"
                 warning_msg = (
@@ -129,7 +159,12 @@ class CalloutConverter:
                 )
                 print_colored(warning_msg, Colors.YELLOW)
                 self.warnings.append(warning_msg)
-                continue
+
+                # In force mode, convert anyway
+                if not self.force:
+                    continue
+                else:
+                    self.log(f"FORCE MODE: Converting block at line {block.start_line + 1} despite callout mismatch")
 
             self.log(f"Converting block at line {block.start_line + 1}")
 
@@ -426,6 +461,11 @@ Example transformation (deflist format):
         default=Path('callout-warnings-report.adoc'),
         help='Path for warnings report file (default: callout-warnings-report.adoc)'
     )
+    parser.add_argument(
+        '--force',
+        action='store_true',
+        help='Force strip callouts from code blocks even with warnings (USE WITH CAUTION: only after reviewing and fixing callout issues)'
+    )
 
     args = parser.parse_args()
 
@@ -463,9 +503,24 @@ Example transformation (deflist format):
 
     print(f"Found {len(adoc_files)} AsciiDoc file(s) to process")
 
+    # If force mode is enabled, show warning and ask for confirmation
+    if args.force and not args.dry_run:
+        print_colored("\n⚠️  FORCE MODE ENABLED ⚠️", Colors.YELLOW)
+        print_colored("This will strip callouts from code blocks even when warnings are present.", Colors.YELLOW)
+        print_colored("You should only use this option AFTER:", Colors.YELLOW)
+        print_colored("  1. Reviewing all warnings in the warnings report", Colors.YELLOW)
+        print_colored("  2. Manually fixing callout issues where appropriate", Colors.YELLOW)
+        print_colored("  3. Confirming that remaining warnings are acceptable", Colors.YELLOW)
+        print()
+        response = input("Are you sure you want to proceed with force mode? (yes/no): ").strip().lower()
+        if response not in ['yes', 'y']:
+            print_colored("Operation cancelled.", Colors.YELLOW)
+            sys.exit(0)
+        print()
+
     # Create converter
     converter = CalloutConverter(dry_run=args.dry_run, verbose=args.verbose, output_format=args.format,
-                                 max_comment_length=args.max_comment_length)
+                                 max_comment_length=args.max_comment_length, force=args.force)
 
     # Process each file
     files_processed = 0
@@ -513,19 +568,23 @@ Example transformation (deflist format):
             try:
                 generate_warnings_report(converter.warnings, args.warnings_file)
                 print_colored(f"\n⚠️  {len(converter.warnings)} Warning(s) - See {args.warnings_file} for details", Colors.YELLOW)
+                print()
+                print_colored(f"Suggestion: Review and fix the callout issues listed in {args.warnings_file}, then rerun this command.", Colors.YELLOW)
             except Exception as e:
                 print_colored(f"\n⚠️  {len(converter.warnings)} Warning(s):", Colors.YELLOW)
                 print_colored(f"Error generating warnings report: {e}", Colors.RED)
                 # Fall back to displaying warnings in console
                 for warning in converter.warnings:
                     print_colored(f"  {warning}", Colors.YELLOW)
+                print()
+                print_colored("Suggestion: Fix the callout issues listed above and rerun this command.", Colors.YELLOW)
         else:
             # Console-only output (legacy behavior)
             print_colored(f"\n⚠️  {len(converter.warnings)} Warning(s):", Colors.YELLOW)
             for warning in converter.warnings:
                 print_colored(f"  {warning}", Colors.YELLOW)
             print()
-            print_colored("Suggestion: Fix the callout mismatches in the files above and rerun this command.", Colors.YELLOW)
+            print_colored("Suggestion: Fix the callout issues listed above and rerun this command.", Colors.YELLOW)
         print()
 
     if args.dry_run and files_modified > 0:
