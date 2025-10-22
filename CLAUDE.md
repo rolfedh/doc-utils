@@ -185,9 +185,31 @@ When adding a new tool or feature:
 
 Follow these exact steps to release a new version:
 
-1. **Update version in `pyproject.toml`**
+⚠️ **IMPORTANT: Pre-Release Checklist**
+
+Before starting the release process, ensure ALL of the following are complete:
+- [ ] All feature work is committed and tested
+- [ ] `doc_utils/version.py` matches the version you plan to release
+- [ ] All CLI tools have `--version` options that import from `doc_utils.version`
+- [ ] CHANGELOG.md has been updated with all changes
+- [ ] All tests pass
+- [ ] No "should have been included" items remain
+
+**Golden Rule**: Once you push a release tag, **DO NOT** immediately create another patch release to fix minor oversights (like version.py sync or missing --version flags). Those can wait for the next natural release. Creating back-to-back patch releases (e.g., v0.1.31 followed immediately by v0.1.32) creates unnecessary version churn.
+
+**If you discover an oversight immediately after tagging but before pushing:**
+1. Delete the local tag: `git tag -d vX.Y.Z`
+2. Add the fixes
+3. Re-create the tag with the same version
+
+**If you discover an oversight after pushing the tag:**
+- If it's truly critical (breaking bug, security issue): Create a patch release
+- If it's minor (missing convenience feature, version.py sync): Wait for the next release
+
+1. **Update version in `pyproject.toml` AND `doc_utils/version.py`**
    ```bash
-   # Edit pyproject.toml and change version = "X.Y.Z" to new version
+   # Edit BOTH files and change version to new version
+   # These MUST match!
    ```
 
 2. **Update CHANGELOG.md** ⚠️ **IMPORTANT - DO NOT FORGET!**
@@ -256,32 +278,40 @@ Follow these exact steps to release a new version:
 
    **Note for Claude:** Always check if the release exists before attempting to create it. The GitHub Actions workflow usually creates the release automatically as of v0.1.9, but if you get a "tag already exists" error, it means the release was already created successfully.
 
-**Example for releasing v0.1.11:**
+**Example for releasing v0.1.33:**
 ```bash
-# 1. Update pyproject.toml: version = "0.1.11"
-# 2. Update CHANGELOG.md: Move unreleased items to ## [0.1.11] - YYYY-MM-DD
-# 3. Test
+# 0. Pre-flight check - verify version.py matches intended release
+grep "__version__" doc_utils/version.py  # Should show "0.1.33"
+# If not, stop and update it first!
+
+# 1. Update pyproject.toml: version = "0.1.33"
+# 2. Update doc_utils/version.py: __version__ = "0.1.33"
+# 3. Update CHANGELOG.md: Move unreleased items to ## [0.1.33] - YYYY-MM-DD
+# 4. Test
 python -m pytest tests/ -v --tb=short
-# 4. Commit
-git add -A && git commit -am "Prepare release v0.1.11"
-# 5. Tag
-git tag -a v0.1.11 -m "Release v0.1.11: Brief description"
-# 6. Push (this triggers the workflow)
+# 5. Verify version reporting
+convert-callouts-to-deflist --version  # Should show 0.1.33
+doc-utils --version  # Should show 0.1.33
+# 6. Commit
+git add -A && git commit -am "Prepare release v0.1.33"
+# 7. Tag
+git tag -a v0.1.33 -m "Release v0.1.33: Brief description"
+# 8. Push (this triggers the workflow)
 git push origin main --tags
 
-# 7. Wait for workflow to complete
+# 9. Wait for workflow to complete
 sleep 20 && gh run list --workflow=pypi-publish.yml --limit 1
 
-# 8. Check if release exists before creating
-gh release view v0.1.11 2>/dev/null
+# 10. Check if release exists before creating
+gh release view v0.1.33 2>/dev/null
 if [ $? -ne 0 ]; then
     # Only create if it doesn't exist
-    gh release create v0.1.11 --title "Release v0.1.11" --notes "See CHANGELOG.md"
+    gh release create v0.1.33 --title "Release v0.1.33" --notes "See CHANGELOG.md"
 fi
 
-# 9. Verify the release
-gh release list --limit 1  # Should show v0.1.11 with "Latest" label
-pip index versions rolfedh-doc-utils | head -3  # Should show v0.1.11 as latest
+# 11. Verify the release
+gh release list --limit 1  # Should show v0.1.33 with "Latest" label
+pip index versions rolfedh-doc-utils | head -3  # Should show v0.1.33 as latest
 ```
 
 ## Development Guidelines
@@ -405,6 +435,32 @@ gh release create vX.Y.Z --title "Release vX.Y.Z" --notes "Release notes here"
 ```
 
 **Prevention:** Consider updating the workflow to use the GitHub CLI directly or adjusting token permissions in repository settings.
+
+#### Unnecessary Patch Release After Main Release
+**Problem:** Creating back-to-back patch releases (e.g., v0.1.31 immediately followed by v0.1.32) due to minor oversights discovered after the first release is pushed.
+
+**Example:** Released v0.1.31 with major features, then discovered `version.py` wasn't synced and `--version` flags were missing, so immediately created v0.1.32.
+
+**Why This Is Bad:**
+- Creates unnecessary version churn
+- Confuses users about what changed between versions
+- Makes the release history look disorganized
+- Wastes CI/CD resources and PyPI bandwidth
+
+**Prevention:**
+1. **Use the Pre-Release Checklist** (see "Creating a New Release" section above)
+2. **Check version.py BEFORE tagging**: Run `grep "__version__" doc_utils/version.py`
+3. **Test version reporting**: Run `convert-callouts-to-deflist --version` before tagging
+4. **If oversight found BEFORE pushing**: Delete local tag, fix, re-tag with same version
+5. **If oversight found AFTER pushing**:
+   - Only create patch release if truly critical (breaking bug, security issue)
+   - For minor issues (missing convenience features), wait for next natural release
+
+**Real Example (v0.1.31/v0.1.32 incident):**
+- v0.1.31: Released with force mode, warnings report, and critical fixes
+- Immediately after: Discovered version.py showed "0.1.30" and --version flags missing
+- Mistake: Created v0.1.32 minutes later to fix these minor oversights
+- Should have: Either caught during pre-release check, OR waited for next release
 
 ## Contributing
 
