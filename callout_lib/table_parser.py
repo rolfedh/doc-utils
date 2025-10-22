@@ -48,8 +48,8 @@ class TableParser:
     TABLE_START = re.compile(r'^\[.*?\]$')
     TABLE_DELIMITER = re.compile(r'^\|===\s*$')
 
-    # Pattern for table cell separator
-    CELL_SEPARATOR = re.compile(r'^\|')
+    # Pattern for table cell separator (| or cell type specifier like a|, s|, etc.)
+    CELL_SEPARATOR = re.compile(r'^(\||[ashdmev]\|)')
 
     # Pattern for conditional directives
     IFDEF_PATTERN = re.compile(r'^(ifdef::|ifndef::).+\[\]\s*$')
@@ -269,19 +269,15 @@ class TableParser:
                 i += 1
                 continue
 
-            # Check for cell separator (|)
+            # Check for cell separator (|) or cell type specifier (a|, s|, etc.)
             if self.CELL_SEPARATOR.match(line):
-                # Check if this is a cell type specifier on its own line (e.g., "a|" or "s|")
-                cell_content = line[1:].strip()  # Remove leading | and whitespace
-
-                # If line is just "a|", "s|", "h|", etc. (cell type specifier alone)
-                if len(cell_content) == 2 and cell_content[0] in 'ashdmev' and cell_content[1] == '|':
-                    # This is a cell type specifier on its own line
-                    if cell_content[0] == 'a':
-                        in_asciidoc_cell = True
-                    # Don't create a cell yet - content comes on following lines
-                    i += 1
-                    continue
+                # Determine if line starts with | or with a cell type specifier
+                if line.startswith('|'):
+                    # Standard cell separator
+                    cell_content = line[1:]  # Remove leading |
+                else:
+                    # Cell type specifier without leading | (e.g., "a|text")
+                    cell_content = line
 
                 # Save previous cell if exists
                 if current_cell_lines:
@@ -299,16 +295,13 @@ class TableParser:
                             conditionals_after_row, expected_columns, rows
                         )
 
-                # Extract cell content from this line (text after |)
-                cell_content = line[1:]  # Remove leading |
-
-                # Check for inline cell type specifier (a|text, s|text, etc.)
-                # Cell type specifiers are single characters followed by |
-                if len(cell_content) > 0 and cell_content[0] in 'ashdmev' and len(cell_content) > 1 and cell_content[1] == '|':
+                # Check for cell type specifier (a|, s|, etc.)
+                # Type specifiers are single characters followed by |
+                if len(cell_content) > 1 and cell_content[0] in 'ashdmev' and cell_content[1] == '|':
                     # Track if this is an AsciiDoc cell (a|)
                     if cell_content[0] == 'a':
                         in_asciidoc_cell = True
-                    cell_content = cell_content[2:]  # Remove type specifier and second |
+                    cell_content = cell_content[2:]  # Remove type specifier and |
 
                 cell_content = cell_content.strip()
 
@@ -608,8 +601,12 @@ class TableParser:
         Returns:
             AsciiDocTable if a callout table is found, None otherwise
         """
-        # Skip blank lines and continuation markers after code block
+        # Skip the closing delimiter of the code block (----, ...., etc.)
         i = code_block_end + 1
+        if i < len(lines) and lines[i].strip() in ['----', '....', '====']:
+            i += 1
+
+        # Skip blank lines and continuation markers after code block
         while i < len(lines) and (not lines[i].strip() or lines[i].strip() == '+'):
             i += 1
 
