@@ -521,6 +521,8 @@ Examples:
         print_colored(f"\n⚠  {len(converter.warnings)} Warning(s):", Colors.YELLOW)
         for warning in converter.warnings:
             print_colored(f"  {warning}", Colors.YELLOW)
+        print()
+        print_colored("Suggestion: Fix the callout mismatches in the files above and rerun this command.", Colors.YELLOW)
 
     if args.dry_run and files_modified > 0:
         print_colored("\nDRY RUN - No files were modified", Colors.YELLOW)
