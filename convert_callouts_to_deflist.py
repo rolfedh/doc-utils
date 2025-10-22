@@ -170,23 +170,40 @@ class CalloutConverter:
             # For deflist/bullets format, remove old explanations and add new list
             if self.output_format == 'comments' and not use_deflist_fallback:
                 # Remove old callout explanations (list or table format)
+                # Find where explanations/table actually starts to preserve content in between
+                if self.detector.last_table:
+                    explanation_start_line = self.detector.last_table.start_line
+                else:
+                    # List format: skip blank lines after code block
+                    explanation_start_line = block.end_line + 1
+                    while explanation_start_line < len(new_lines) and not new_lines[explanation_start_line].strip():
+                        explanation_start_line += 1
+
                 new_section = (
                     new_lines[:content_start] +
                     converted_content +
                     [new_lines[content_end]] +  # Keep closing delimiter
+                    new_lines[content_end + 1:explanation_start_line] +  # Preserve content between code and explanations
                     new_lines[explanation_end + 1:]  # Skip explanations/table, keep rest
                 )
             else:
                 # Remove old callout explanations and add new list
-                explanation_start = block.end_line + 1
-                while explanation_start < len(new_lines) and not new_lines[explanation_start].strip():
-                    explanation_start += 1
+                # Find where explanations/table actually starts
+                if self.detector.last_table:
+                    # Table format: preserve content between code block and table start
+                    explanation_start_line = self.detector.last_table.start_line
+                else:
+                    # List format: skip blank lines after code block
+                    explanation_start_line = block.end_line + 1
+                    while explanation_start_line < len(new_lines) and not new_lines[explanation_start_line].strip():
+                        explanation_start_line += 1
 
                 # Build the new section
                 new_section = (
                     new_lines[:content_start] +
                     converted_content +
                     [new_lines[content_end]] +  # Keep closing delimiter
+                    new_lines[content_end + 1:explanation_start_line] +  # Preserve content between code and explanations
                     output_list +
                     new_lines[explanation_end + 1:]
                 )
