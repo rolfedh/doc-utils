@@ -349,6 +349,41 @@ The tool uses colors to help you quickly identify different parts of the output:
 - Automatically excludes `.vale` directory
 - Quit anytime with `q` or `Ctrl+C`
 
+## Warnings and Edge Cases
+
+### Callout Mismatch Warnings
+
+The tool validates that callout numbers in code match the numbers in explanations. If there's a mismatch, it displays a warning and skips that block:
+
+```
+WARNING: file.adoc lines 55-72: Callout mismatch: code has [1, 2, 3, 4, 5, 6, 7, 8, 9],
+explanations have [1, 2, 3, 4, 5, 7, 8, 8, 9]
+```
+
+**Duplicate Detection**: The warning shows duplicate callout numbers in tables (notice `8, 8` indicating two rows with callout 8).
+
+Common causes:
+- Missing callout in table (callout 6 in example above)
+- Duplicate callout numbers in table (documentation error)
+- Callouts renumbered in code but not in explanations
+
+### Missing Explanations Warning
+
+When a code block has callouts but no explanations are found after it:
+
+```
+WARNING: file.adoc line 211: Code block has callouts [1, 2, 3, 4] but no explanations found after it.
+This may indicate: explanations are shared with another code block, explanations are in an unexpected
+location, or documentation error (missing explanations). Consider reviewing this block manually.
+```
+
+This commonly occurs with:
+- **Shared explanations** between conditional blocks (`ifdef::community[]` and `ifdef::product[]`)
+- **Unexpected location** of explanations (not immediately after code block)
+- **Missing explanations** (documentation error)
+
+**Action**: Review these blocks manually to determine correct handling.
+
 ## Technical Details
 
 This tool uses the same [`callout_lib`](https://github.com/rolfedh/doc-utils/tree/main/callout_lib) Python library as the batch converter, ensuring consistent output quality. See the [library README](https://github.com/rolfedh/doc-utils/blob/main/callout_lib/README.md) for detailed implementation information.

@@ -518,21 +518,54 @@ When the tool detects a mismatch between callout numbers in code and their expla
 WARNING: my-file.adoc lines 141-145: Callout mismatch: code has [1, 2], explanations have [1, 3]
 ```
 
+**Duplicate Callout Detection**: The warning now shows duplicate callout numbers in explanation tables:
+
+```
+WARNING: file.adoc lines 55-72: Callout mismatch: code has [1, 2, 3, 4, 5, 6, 7, 8, 9], explanations have [1, 2, 3, 4, 5, 7, 8, 8, 9]
+```
+
+In this example, the table has two rows with callout 8 and is missing callout 6.
+
+This prevents incorrect conversions when:
+- Callout numbers are non-consecutive in the code but explanations use different numbers
+- An explanation is missing for a callout in the code
+- An explanation exists for a callout that's not in the code
+- A table has duplicate callout numbers (documentation error)
+
+### Missing Explanations Warning
+
+When the tool finds a code block with callouts but no explanations after it, it displays a warning:
+
+```
+WARNING: file.adoc line 211: Code block has callouts [1, 2, 3, 4] but no explanations found after it.
+This may indicate: explanations are shared with another code block, explanations are in an unexpected
+location, or documentation error (missing explanations). Consider reviewing this block manually.
+```
+
+This commonly occurs when:
+- **Shared explanations**: Multiple code blocks share the same explanation table (e.g., in conditional sections like `ifdef::community[]` and `ifdef::product[]`)
+- **Unexpected location**: Explanations are not immediately after the code block
+- **Documentation error**: Explanations are genuinely missing
+
+**Action Required**: Review these blocks manually to determine the appropriate handling.
+
+### Warning Summary
+
 At the end of processing, a summary of all warnings is displayed:
 
 ```
 Processed 147 AsciiDoc file(s)
 Would modify 3 file(s) with 3 code block conversion(s)
 
-⚠️  2 Warning(s):
+⚠️  3 Warning(s):
   WARNING: file1.adoc lines 15-19: Callout mismatch: code has [1, 2], explanations have [2, 3]
   WARNING: file2.adoc lines 141-145: Callout mismatch: code has [1, 2], explanations have [1, 3]
-```
+  WARNING: file3.adoc line 211: Code block has callouts [1, 2, 3, 4] but no explanations found after it.
+  This may indicate: explanations are shared with another code block, explanations are in an unexpected
+  location, or documentation error (missing explanations). Consider reviewing this block manually.
 
-This prevents incorrect conversions when:
-- Callout numbers are non-consecutive in the code but explanations use different numbers
-- An explanation is missing for a callout in the code
-- An explanation exists for a callout that's not in the code
+Suggestion: Fix the callout mismatches in the files above and rerun this command.
+```
 
 
 ## Real-World Example
