@@ -25,6 +25,9 @@ from callout_lib import (
 # Import warnings report generator
 from doc_utils.warnings_report import generate_warnings_report
 
+# Import version
+from doc_utils.version import __version__
+
 
 # Colors for output
 class Colors:
@@ -395,6 +398,11 @@ Example transformation (deflist format):
         """
     )
 
+    parser.add_argument(
+        '--version',
+        action='version',
+        version=f'%(prog)s {__version__}'
+    )
     parser.add_argument(
         'path',
         nargs='?',
