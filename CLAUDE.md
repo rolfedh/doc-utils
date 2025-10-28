@@ -136,19 +136,32 @@ pip install -r requirements-dev.txt
 - Commands remain available system-wide even in editable mode
 
 ### Upgrading Development Installation
+
+**Important:** Always clean build artifacts before reinstalling to avoid Python importing from stale cached files.
+
 ```bash
-# After making code changes, reinstall to pick up any new dependencies or entry points
+# Full upgrade procedure (use after making code changes)
 cd /home/rdlugyhe/doc-utils
+rm -rf build/ *.egg-info
 pipx install --force --editable .
 
 # Or from any directory using absolute path
+rm -rf /home/rdlugyhe/doc-utils/build/ /home/rdlugyhe/doc-utils/*.egg-info
 pipx install --force --editable /home/rdlugyhe/doc-utils
 ```
+
+**Key phrase for Claude:** When you say **"upgrade doc-utils"**, Claude will run the full upgrade procedure above.
+
+**Why clean build artifacts first:**
+- Stale files in `build/` from previous installations can interfere with imports
+- Python may import from cached `.pyc` files instead of your source code
+- Cleaning ensures you're always using the latest source files
 
 **Note:** In editable mode, code changes are immediately reflected. You only need to reinstall if:
 - You've added new dependencies to `pyproject.toml`
 - You've added or modified entry points (CLI commands)
 - You've changed the package structure
+- You suspect stale build artifacts are causing issues
 
 ### Running Tests
 ```bash
