@@ -71,12 +71,12 @@ Convert callouts to your preferred format:
 - **Bulleted lists**: Follows Red Hat style guide format
 - **Inline comments**: Embeds explanations as code comments with language-specific syntax
 
-### Intelligent Value Extraction
+### Code Line Extraction
 
-Extracts user-replaceable values from code:
-- **Primary method**: Extracts angle-bracket enclosed values (`<value>`) from code
-- **Fallback**: Uses the entire line of code if no replacement value found
-- **Heredoc-aware**: Ignores heredoc syntax (`<<EOF`) and only captures user values
+Uses the complete code line as the definition list term:
+- Captures the full line of code with callout (stripped of callout marker)
+- Preserves all syntax including angle brackets (Java generics, comparison operators, etc.)
+- Works correctly with user-replaceable values like `<my-value>` and complex expressions like `CrudRepository<MyEntity, Integer>`
 
 ### Smart Comment Handling
 
@@ -297,10 +297,10 @@ data:
 
 where:
 
-`<my-secret>`::
+`name: <my-secret>`::
 The secret name
 
-`<my-key>`::
+`key: <my-key>`::
 The secret key value
 ```
 
@@ -747,17 +747,17 @@ EOF
 
 where:
 
-`<my-product-database-certificates-secrets>`::
+`name: <my-product-database-certificates-secrets>`::
 Specifies the name of the certificate secret.
 
 `<ca-certificate-key>`::
 Specifies the CA certificate key.
 
-`<tls-private-key>` Optional::
-Specifies the TLS private key.
+`<tls-private-key>`::
+Optional. Specifies the TLS private key.
 
-`<tls-certificate-key>` Optional::
-Specifies the TLS certificate key.
+`<tls-certificate-key>`::
+Optional. Specifies the TLS certificate key.
 ```
 
 ## Technical Details

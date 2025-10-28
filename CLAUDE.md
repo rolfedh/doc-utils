@@ -115,12 +115,40 @@ pipx upgrade rolfedh-doc-utils
 
 ### Installing for Development
 ```bash
-# Clone and install in editable mode
+# Clone the repository
 git clone https://github.com/rolfedh/doc-utils.git
 cd doc-utils
+
+# Install in editable mode using pipx (recommended)
+pipx install --force --editable .
+
+# Alternative: Install with pip if you prefer
 pip install -e .
+
+# Install development dependencies
 pip install -r requirements-dev.txt
 ```
+
+**Why use pipx for development:**
+- Changes to the code are immediately reflected without reinstalling
+- The `--editable` flag creates a development installation
+- Use `--force` to reinstall over an existing installation
+- Commands remain available system-wide even in editable mode
+
+### Upgrading Development Installation
+```bash
+# After making code changes, reinstall to pick up any new dependencies or entry points
+cd /home/rdlugyhe/doc-utils
+pipx install --force --editable .
+
+# Or from any directory using absolute path
+pipx install --force --editable /home/rdlugyhe/doc-utils
+```
+
+**Note:** In editable mode, code changes are immediately reflected. You only need to reinstall if:
+- You've added new dependencies to `pyproject.toml`
+- You've added or modified entry points (CLI commands)
+- You've changed the package structure
 
 ### Running Tests
 ```bash
