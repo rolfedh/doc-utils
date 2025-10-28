@@ -200,9 +200,10 @@ Choose conversion format:
   [c] Inline comments
   [s] Skip this block
   [a] Apply choice to All remaining blocks
-  [q] Quit
+  [q] Skip current file
+  [Q] Quit script entirely (Ctrl+C)
 
-Your choice [d/b/c/s/a/q]:
+Your choice [d/b/c/s/a/q/Q]:
 ```
 
 ### Step 3: Review and Continue
@@ -326,7 +327,9 @@ During the conversion process:
 - `c` - Convert to inline comments
 - `s` - Skip this code block
 - `a` - Apply same choice to all remaining blocks
-- `q` or `Ctrl+C` - Quit without saving remaining changes
+- `q` - Skip current file (moves to next file)
+- `Q` - Quit script entirely (immediate exit)
+- `Ctrl+C` - Quit script entirely (immediate exit)
 
 ## Color-Coded Output
 
@@ -347,7 +350,8 @@ The tool uses colors to help you quickly identify different parts of the output:
 - Skips blocks with mismatched callouts (displays warnings)
 - Supports dry-run mode to preview all decisions without modifying files
 - Automatically excludes `.vale` directory
-- Quit anytime with `q` or `Ctrl+C`
+- Quit script entirely with `Q` (capital) or `Ctrl+C`
+- Skip to next file with `q` (lowercase)
 
 ## Warnings and Edge Cases
 

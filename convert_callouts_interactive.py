@@ -127,24 +127,30 @@ class InteractiveCalloutConverter:
         print("  [d] Use Definition list format instead")
         print("  [b] Use Bulleted list format instead")
         print("  [k] Skip this block")
-        print("  [q] Quit")
+        print("  [q] Skip current file")
+        print("  [Q] Quit script entirely (Ctrl+C)")
 
         while True:
             try:
-                choice = input("\nYour choice [s/d/b/k/q]: ").strip().lower()
+                choice = input("\nYour choice [s/d/b/k/q/Q]: ").strip()
 
-                if choice in ['q', 'quit', 'exit']:
+                if choice in ['Q', 'QUIT', 'EXIT']:
+                    # Quit script entirely
+                    print_colored("\nQuitting script...", Colors.YELLOW)
+                    sys.exit(0)
+                elif choice.lower() in ['q', 'quit', 'exit']:
+                    # Skip current file
                     return None
-                elif choice in ['s', 'shorten', 'short']:
+                elif choice.lower() in ['s', 'shorten', 'short']:
                     return 'shorten'
-                elif choice in ['d', 'deflist']:
+                elif choice.lower() in ['d', 'deflist']:
                     return 'deflist'
-                elif choice in ['b', 'bullets', 'bullet']:
+                elif choice.lower() in ['b', 'bullets', 'bullet']:
                     return 'bullets'
-                elif choice in ['k', 'skip']:
+                elif choice.lower() in ['k', 'skip']:
                     return 'skip'
                 else:
-                    print_colored("Invalid choice. Please enter s, d, b, k, or q.", Colors.RED)
+                    print_colored("Invalid choice. Please enter s, d, b, k, q, or Q.", Colors.RED)
 
             except (KeyboardInterrupt, EOFError):
                 print()
@@ -168,23 +174,29 @@ class InteractiveCalloutConverter:
         print("  [c] Inline comments")
         print("  [s] Skip this block")
         print("  [a] Apply choice to All remaining blocks")
-        print("  [q] Quit")
+        print("  [q] Skip current file")
+        print("  [Q] Quit script entirely (Ctrl+C)")
 
         while True:
             try:
-                choice = input("\nYour choice [d/b/c/s/a/q]: ").strip().lower()
+                choice = input("\nYour choice [d/b/c/s/a/q/Q]: ").strip()
 
-                if choice in ['q', 'quit', 'exit']:
+                if choice in ['Q', 'QUIT', 'EXIT']:
+                    # Quit script entirely
+                    print_colored("\nQuitting script...", Colors.YELLOW)
+                    sys.exit(0)
+                elif choice.lower() in ['q', 'quit', 'exit']:
+                    # Skip current file
                     return None
-                elif choice in ['s', 'skip']:
+                elif choice.lower() in ['s', 'skip']:
                     return 'skip'
-                elif choice in ['d', 'deflist']:
+                elif choice.lower() in ['d', 'deflist']:
                     return 'deflist'
-                elif choice in ['b', 'bullets', 'bullet']:
+                elif choice.lower() in ['b', 'bullets', 'bullet']:
                     return 'bullets'
-                elif choice in ['c', 'comments', 'comment']:
+                elif choice.lower() in ['c', 'comments', 'comment']:
                     return 'comments'
-                elif choice in ['a', 'all']:
+                elif choice.lower() in ['a', 'all']:
                     # Ask for the format to apply to all
                     print("\nWhat format should be applied to all remaining blocks?")
                     print("  [d] Definition list")
@@ -257,7 +269,7 @@ class InteractiveCalloutConverter:
             choice = self.get_user_choice(idx, total_blocks)
 
             if choice is None:
-                print_colored("\nConversion cancelled by user.", Colors.YELLOW)
+                print_colored("\nSkipping remaining blocks in this file.", Colors.YELLOW)
                 return 0, False
             elif choice == 'skip':
                 print_colored("Skipping this block.\n", Colors.YELLOW)
@@ -279,7 +291,7 @@ class InteractiveCalloutConverter:
                     long_choice = self.get_user_choice_for_long_comments(block, long_warnings)
 
                     if long_choice is None:
-                        print_colored("\nConversion cancelled by user.", Colors.YELLOW)
+                        print_colored("\nSkipping remaining blocks in this file.", Colors.YELLOW)
                         return 0, False
                     elif long_choice == 'skip':
                         print_colored("Skipping this block.\n", Colors.YELLOW)
@@ -518,8 +530,8 @@ Examples:
                 total_conversions += conversions
 
         except KeyboardInterrupt:
-            print_colored("\n\nOperation cancelled by user", Colors.YELLOW)
-            break
+            print_colored("\n\nScript interrupted by user (Ctrl+C)", Colors.YELLOW)
+            sys.exit(0)
         except Exception as e:
             print_colored(f"\nUnexpected error processing {file_path}: {e}", Colors.RED)
             import traceback
