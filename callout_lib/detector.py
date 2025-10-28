@@ -141,16 +141,23 @@ class CalloutDetector:
                 # Use CALLOUT_WITH_COMMENT to remove both comment syntax and callout
                 line_without_callouts = self.CALLOUT_WITH_COMMENT.sub('', line).rstrip()
 
-                # Find all angle-bracket enclosed values
-                user_values = self.USER_VALUE_PATTERN.findall(line_without_callouts)
+                # COMMENTED OUT: User-replaceable value detection causes false positives
+                # with Java generics (e.g., <MyEntity, Integer>) and other valid syntax
+                # that uses angle brackets. Always use the full code line.
+                #
+                # # Find all angle-bracket enclosed values
+                # user_values = self.USER_VALUE_PATTERN.findall(line_without_callouts)
+                #
+                # # Determine what to use as the code line term
+                # if user_values:
+                #     # Use the rightmost (closest to the callout) user value
+                #     code_line = user_values[-1]
+                # else:
+                #     # No angle-bracket value found - use the actual code line
+                #     code_line = line_without_callouts
 
-                # Determine what to use as the code line term
-                if user_values:
-                    # Use the rightmost (closest to the callout) user value
-                    code_line = user_values[-1]
-                else:
-                    # No angle-bracket value found - use the actual code line
-                    code_line = line_without_callouts
+                # Always use the full code line
+                code_line = line_without_callouts
 
                 # Collect all callout numbers on this line
                 callout_nums = [int(m.group(1)) for m in callout_matches]
