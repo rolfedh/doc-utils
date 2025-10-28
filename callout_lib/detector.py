@@ -46,9 +46,10 @@ class CalloutDetector:
     CALLOUT_IN_CODE = re.compile(r'<(\d+)>')
 
     # Pattern for callout with optional preceding comment syntax
-    # Matches common comment styles: //, #, --, ;, followed by optional whitespace and <number>
-    # The comment syntax must be preceded by whitespace to avoid matching code operators
-    CALLOUT_WITH_COMMENT = re.compile(r'\s*(?://|#|--|;)\s*<\d+>|\s*<\d+>')
+    # Matches common comment styles: //, #, --, followed by optional whitespace and <number>
+    # Note: Semicolon (;) removed because it's a statement terminator in Java/C/C++/JavaScript
+    # and causes false positives (e.g., "name; <1>" would incorrectly remove the semicolon)
+    CALLOUT_WITH_COMMENT = re.compile(r'\s*(?://|#|--)\s*<\d+>|\s*<\d+>')
 
     # Pattern for callout explanation line: <1> Explanation text
     CALLOUT_EXPLANATION = re.compile(r'^<(\d+)>\s+(.+)$')
