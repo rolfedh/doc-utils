@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.33] - 2025-10-28
+
+### Fixed
+- **Callout detection** - Fixed false positives with Java generics and angle-bracket syntax
+  - Removed user-replaceable value extraction from both `detector.py` and `converter_deflist.py`
+  - Java generics like `CrudRepository<MyEntity, Integer>` no longer incorrectly extracted
+  - Full code lines now preserved in definition list terms
+  - Fixes issue where `<MyEntity, Integer>` was extracted instead of the complete code line
+- **Callout detection** - Fixed semicolon removal bug in Java/C/C++/JavaScript code
+  - Removed semicolon (;) from CALLOUT_WITH_COMMENT regex pattern
+  - Semicolons now correctly preserved as statement terminators
+  - Example: `Optional<String> name; <1>` now correctly becomes `Optional<String> name;`
+  - Semicolon was being treated as comment marker (Lisp-style) causing false removal
+- **Interactive tool** - Fixed quit/exit behavior and added explicit quit option
+  - Ctrl+C now immediately exits script (was continuing to summary)
+  - Added 'Q' (capital) option to quit script entirely at any prompt
+  - Clarified 'q' (lowercase) as "Skip current file" instead of ambiguous "Quit"
+  - All lowercase options now case-insensitive for better user experience
+
+### Documentation
+- **GitHub Pages** - Updated convert-callouts-to-deflist.md to reflect removal of angle-bracket extraction
+  - Changed "Intelligent Value Extraction" to "Code Line Extraction" section
+  - Updated examples to show full code lines in definition list terms
+- **GitHub Pages** - Updated convert-callouts-interactive.md keyboard shortcuts
+  - Documented distinction between 'q' (skip file) and 'Q' (quit script)
+  - Added Ctrl+C immediate exit behavior
+- **CLAUDE.md** - Added pipx installation and upgrade procedures
+  - Documented full upgrade procedure with build artifact cleaning
+  - Added key phrase "upgrade doc-utils" for Claude automation
+  - Explained why cleaning build artifacts is critical before reinstalling
+
 ## [0.1.32] - 2025-10-22
 
 ### Fixed
