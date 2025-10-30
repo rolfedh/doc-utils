@@ -319,6 +319,77 @@ Before starting the release process, ensure ALL of the following are complete:
 
    **Note for Claude:** Always check if the release exists before attempting to create it. The GitHub Actions workflow usually creates the release automatically as of v0.1.9, but if you get a "tag already exists" error, it means the release was already created successfully.
 
+9. **Write Release Notes (Optional but Recommended)**
+
+   For significant releases or when requested, create a plain text release notes file:
+
+   ```bash
+   # Create release notes file in /tmp
+   cat > /tmp/release-notes-vX.Y.Z.txt << 'EOF'
+   rolfedh-doc-utils vX.Y.Z Release Notes
+   ========================================
+
+   Release Date: YYYY-MM-DD
+
+   NEW FEATURES
+   ------------
+
+   [Feature Name]
+   --------------
+
+   [Description of the new feature with examples]
+
+   Example:
+   $ command-example
+
+   Output:
+   [Example output]
+
+   Key Behaviors:
+   - Bullet point 1
+   - Bullet point 2
+
+   DOCUMENTATION
+   -------------
+
+   - Updated documentation changes
+   - New examples added
+
+   INSTALLATION
+   ------------
+
+   Install or upgrade using pipx:
+
+   $ pipx install rolfedh-doc-utils
+   $ pipx upgrade rolfedh-doc-utils
+
+   Or with pip:
+
+   $ pip install --upgrade rolfedh-doc-utils
+
+   COMPATIBILITY
+   -------------
+
+   - Backward compatible with previous versions
+   - No breaking changes
+   - Default behavior unchanged
+
+   For complete documentation, visit:
+   https://github.com/rolfedh/doc-utils
+   EOF
+   ```
+
+   **Release Notes Guidelines:**
+   - Use plain text format (not Markdown)
+   - Include concrete examples with commands and output
+   - Focus on user-facing changes and benefits
+   - Explain key behaviors and limitations
+   - Include upgrade/installation instructions
+   - Note compatibility and breaking changes
+   - Keep it concise but informative
+
+   **Example:** See `/tmp/release-notes-v0.1.34.txt` for the release that added definition prefix options to convert-callouts-to-deflist.
+
 **Example for releasing v0.1.33:**
 ```bash
 # 0. Pre-flight check - verify version.py matches intended release
@@ -528,6 +599,23 @@ When contributing to this project:
 - Regular expressions should be compiled once and reused
 
 ## Recent Improvements (Latest Refactoring)
+
+### Definition Prefix Options (v0.1.34)
+1. **New CLI Options for convert-callouts-to-deflist**: Added prefix support for definition list format
+   - `-s, --specifies`: Adds "Specifies " prefix before each definition
+   - `--prefix TEXT`: Allows custom prefix text (e.g., "Indicates ", "Defines ")
+   - Automatically adds trailing space if custom prefix doesn't have one
+   - Works correctly with "Optional." markers (Optional appears first, then prefix)
+   - Only applies to definition list format (ignored for bullets and comments formats)
+2. **Implementation**: Clean separation of concerns
+   - Added `definition_prefix` parameter to `DefListConverter.convert()` method
+   - Updated `CalloutConverter` to accept and pass prefix to converter
+   - Comprehensive documentation with examples in user guides
+   - Interactive tool intentionally does not support prefixes (batch-mode-only feature)
+3. **Documentation**: Updated both tool documentation pages
+   - Added examples showing prefix usage with before/after output
+   - Clarified that prefixes are batch-mode-only feature
+   - Added note to interactive tool docs directing users to batch tool for prefix needs
 
 ### Callout Conversion Utilities (In Development)
 1. **New Modular Callout Library**: Created `callout_lib/` package with reusable conversion components
