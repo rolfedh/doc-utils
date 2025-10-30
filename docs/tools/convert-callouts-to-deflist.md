@@ -183,6 +183,8 @@ Shows detailed processing information.
 - `-n, --dry-run` - Preview changes without modifying files
 - `-v, --verbose` - Enable detailed logging
 - `-f, --format {deflist,bullets,comments}` - Output format: "deflist" for definition list with "where:" (default), "bullets" for bulleted list per Red Hat style guide, "comments" for inline comments
+- `-s, --specifies` - Add "Specifies " prefix before each definition (only applies to deflist format)
+- `--prefix TEXT` - Custom prefix to add before each definition (only applies to deflist format, e.g., "Indicates ")
 - `--max-comment-length N` - Maximum comment length in characters (default: 120). For inline comments format, automatically falls back to definition list if comment exceeds this length
 - `--force` - **USE WITH CAUTION**: Force strip callouts from code blocks even when warnings are present. Requires confirmation prompt. Only use after reviewing all warnings in the warnings report and confirming remaining issues are acceptable
 - `--exclude-dir DIR` - Exclude directory (can be used multiple times)
@@ -212,6 +214,43 @@ The secret name
 `<my-key>`::
 The secret key value
 ```
+
+**With "Specifies" prefix:**
+```bash
+convert-callouts-to-deflist --specifies modules/
+# or shorthand:
+convert-callouts-to-deflist -s modules/
+```
+
+**Output:**
+```asciidoc
+where:
+
+`<my-secret>`::
+Specifies the secret name
+
+`<my-key>`::
+Specifies the secret key value
+```
+
+**With custom prefix:**
+```bash
+convert-callouts-to-deflist --prefix "Indicates " modules/
+```
+
+**Output:**
+```asciidoc
+where:
+
+`<my-secret>`::
+Indicates the secret name
+
+`<my-key>`::
+Indicates the secret key value
+```
+
+{: .note }
+> The prefix options (`-s` and `--prefix`) only apply to definition list format. They have no effect when using `--format bullets` or `--format comments`.
 
 ### Bulleted List Format
 

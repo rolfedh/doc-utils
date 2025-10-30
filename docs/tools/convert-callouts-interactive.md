@@ -32,6 +32,11 @@ While [`convert-callouts-to-deflist`](convert-callouts-to-deflist) processes fil
 
 The tool automatically detects **list-format** (`<1> Explanation`) and **multi-column table formats** (2-column and 3-column) for callout explanations, handling all formats transparently.
 
+{: .note }
+> **Definition Prefix Options**
+>
+> The batch tool [`convert-callouts-to-deflist`](convert-callouts-to-deflist) supports adding prefixes like "Specifies" or custom text before definitions using the `-s` or `--prefix` options. This feature is **not available** in the interactive tool. If you need prefixes, use the batch tool with `--format deflist -s` or `--format deflist --prefix "Your text "`.
+
 ## Installation
 
 Install with the doc-utils package:
@@ -291,6 +296,7 @@ The original `<1>` and `<2>` explanation lines are removed when using inline com
 - You're processing a large number of files with the same target format
 - You want to automate the conversion in a script or CI pipeline
 - Speed is more important than per-block control
+- **You need definition prefixes** like "Specifies" or custom prefixes (only available in batch mode via `-s` or `--prefix` options)
 
 ## Example Workflow
 

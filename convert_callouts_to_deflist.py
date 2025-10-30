@@ -46,12 +46,13 @@ class CalloutConverter:
     """Converts callout-style documentation to various formats."""
 
     def __init__(self, dry_run: bool = False, verbose: bool = False, output_format: str = 'deflist',
-                 max_comment_length: int = 120, force: bool = False):
+                 max_comment_length: int = 120, force: bool = False, definition_prefix: str = ""):
         self.dry_run = dry_run
         self.verbose = verbose
         self.output_format = output_format  # 'deflist', 'bullets', or 'comments'
         self.max_comment_length = max_comment_length  # Max length for inline comments
         self.force = force  # Force strip callouts even with warnings
+        self.definition_prefix = definition_prefix  # Prefix to add before definitions (e.g., "Specifies ")
         self.changes_made = 0
         self.warnings = []  # Collect warnings for summary
         self.long_comment_warnings = []  # Warnings for comments exceeding max length
@@ -195,7 +196,7 @@ class CalloutConverter:
                     # Fall back to definition list
                     self.log(f"Falling back to definition list for block at line {block.start_line + 1}")
                     converted_content = self.detector.remove_callouts_from_code(block.content)
-                    output_list = DefListConverter.convert(callout_groups, explanations, self.detector.last_table_title)
+                    output_list = DefListConverter.convert(callout_groups, explanations, self.detector.last_table_title, self.definition_prefix)
                     use_deflist_fallback = True
                 else:
                     output_list = []  # No separate list after code block for comments
@@ -206,7 +207,7 @@ class CalloutConverter:
                 if self.output_format == 'bullets':
                     output_list = BulletListConverter.convert(callout_groups, explanations, self.detector.last_table_title)
                 else:  # default to 'deflist'
-                    output_list = DefListConverter.convert(callout_groups, explanations, self.detector.last_table_title)
+                    output_list = DefListConverter.convert(callout_groups, explanations, self.detector.last_table_title, self.definition_prefix)
 
             # Replace in document
             # Check if block has [source] prefix
@@ -474,6 +475,17 @@ Example transformation (deflist format):
         action='store_true',
         help='Force strip callouts from code blocks even with warnings (USE WITH CAUTION: only after reviewing and fixing callout issues)'
     )
+    parser.add_argument(
+        '-s', '--specifies',
+        action='store_true',
+        help='Add "Specifies " prefix before each definition (only applies to deflist format)'
+    )
+    parser.add_argument(
+        '--prefix',
+        type=str,
+        default='',
+        help='Custom prefix to add before each definition (only applies to deflist format, e.g., "Indicates ")'
+    )
 
     args = parser.parse_args()
 
@@ -526,9 +538,20 @@ Example transformation (deflist format):
             sys.exit(0)
         print()
 
+    # Determine definition prefix
+    definition_prefix = ""
+    if args.specifies:
+        definition_prefix = "Specifies "
+    elif args.prefix:
+        definition_prefix = args.prefix
+        # Add trailing space if user didn't include one
+        if definition_prefix and not definition_prefix.endswith(' '):
+            definition_prefix += ' '
+
     # Create converter
     converter = CalloutConverter(dry_run=args.dry_run, verbose=args.verbose, output_format=args.format,
-                                 max_comment_length=args.max_comment_length, force=args.force)
+                                 max_comment_length=args.max_comment_length, force=args.force,
+                                 definition_prefix=definition_prefix)
 
     # Process each file
     files_processed = 0

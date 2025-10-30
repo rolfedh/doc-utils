@@ -16,7 +16,8 @@ class DefListConverter:
     USER_VALUE_PATTERN = re.compile(r'(?<!<)<([a-zA-Z][^>]*)>')
 
     @staticmethod
-    def convert(callout_groups: List[CalloutGroup], explanations: Dict[int, Callout], table_title: str = "") -> List[str]:
+    def convert(callout_groups: List[CalloutGroup], explanations: Dict[int, Callout], table_title: str = "",
+                definition_prefix: str = "") -> List[str]:
         """
         Create definition list from callout groups and explanations.
 
@@ -31,6 +32,7 @@ class DefListConverter:
             explanations: Dict mapping callout numbers to Callout objects
             table_title: Optional table title (e.g., ".Descriptions of delete event")
                         Will be converted to lead-in sentence (e.g., "Descriptions of delete event, where:")
+            definition_prefix: Optional prefix to add before each definition (e.g., "Specifies ")
 
         Returns:
             List of strings representing the definition list
@@ -108,9 +110,20 @@ class DefListConverter:
                         lines.append('+')
                         need_continuation = False
 
-                    # Add the line
-                    if line_idx == 0 and explanation.is_optional:
-                        lines.append(f'Optional. {line}')
+                    # Add the line with optional prefix
+                    if line_idx == 0:
+                        # First line of definition
+                        if explanation.is_optional:
+                            # Optional marker takes precedence, then prefix
+                            if definition_prefix:
+                                lines.append(f'Optional. {definition_prefix}{line}')
+                            else:
+                                lines.append(f'Optional. {line}')
+                        elif definition_prefix:
+                            # Add prefix to first line
+                            lines.append(f'{definition_prefix}{line}')
+                        else:
+                            lines.append(line)
                     else:
                         lines.append(line)
 
