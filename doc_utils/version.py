@@ -1,7 +1,7 @@
 """Version information for doc-utils."""
 
 # This should match the version in pyproject.toml
-__version__ = "0.1.34"
+__version__ = "0.1.35"
 
 def get_version():
     """Return the current version string."""

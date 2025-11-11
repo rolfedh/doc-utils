@@ -600,6 +600,36 @@ When contributing to this project:
 
 ## Recent Improvements (Latest Refactoring)
 
+### Commented References Tracking (v0.1.35)
+1. **Enhanced Archive Tools**: Added intelligent handling of commented references in both archive-unused-files and archive-unused-images
+   - **Default Behavior**: Files/images referenced only in commented lines are considered "used" and will NOT be archived
+   - **New `--commented` Flag**: Include commented-only references in archive operations
+   - **Detailed Reports**: Automatically generates reports showing files/images referenced only in comments with exact locations
+2. **Implementation**: Dual tracking system for referenced content
+   - `referenced_files` set: Tracks uncommented includes/images
+   - `commented_only_files` dict: Tracks commented-only references with file paths, line numbers, and text
+   - State management: Files move from "commented-only" to "used" when uncommented reference found
+   - Report generation in `./archive/commented-references-report.txt` and `./archive/commented-image-references-report.txt`
+3. **Detection Patterns**: Robust regex-based commented line detection
+   - For files: `^\s*//.*include::(.+?)\[` detects commented includes
+   - For images: `^\s*//` checks if entire line is commented
+   - Handles whitespace variations in AsciiDoc comment syntax
+4. **CLI Changes**: New flag added to both tools
+   - `archive-unused-files --commented`: Include files with commented-only references
+   - `archive-unused-images --commented`: Include images with commented-only references
+   - Default behavior prioritizes safety (preserving potentially useful content)
+5. **Documentation**: Comprehensive updates across all documentation
+   - Added "Commented References Behavior" sections to tool documentation
+   - Added "Working with Commented References" examples showing practical workflows
+   - Updated GitHub Pages tool index with new feature descriptions
+   - Created detailed release notes in `/tmp/release-notes-commented-references.txt`
+6. **Test Coverage**: Added comprehensive tests for both tools
+   - `test_archive_unused_files_commented_references()`: Verifies default behavior
+   - `test_archive_unused_files_with_commented_flag()`: Verifies --commented flag
+   - `test_archive_unused_images_commented_references()`: Verifies image detection
+   - `test_archive_unused_images_with_commented_flag()`: Verifies image --commented flag
+   - All tests use line-by-line exact matching to avoid substring false positives
+
 ### Definition Prefix Options (v0.1.34)
 1. **New CLI Options for convert-callouts-to-deflist**: Added prefix support for definition list format
    - `-s, --specifies`: Adds "Specifies " prefix before each definition

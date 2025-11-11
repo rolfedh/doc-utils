@@ -22,6 +22,7 @@ def main():
         epilog='By default, automatically discovers all modules and assemblies directories in the repository.'
     )
     parser.add_argument('--archive', action='store_true', help='Move the files to a dated zip in the archive directory.')
+    parser.add_argument('--commented', action='store_true', help='Include files that are referenced only in commented lines in the archive operation.')
     parser.add_argument('--scan-dir', action='append', default=[], help='Specific directory to scan (can be used multiple times). If not specified, auto-discovers directories.')
     parser.add_argument('--exclude-dir', action='append', default=[], help='Directory to exclude (can be used multiple times).')
     parser.add_argument('--exclude-file', action='append', default=[], help='File to exclude (can be used multiple times).')
@@ -35,13 +36,13 @@ def main():
 
     exclude_dirs = list(args.exclude_dir)
     exclude_files = list(args.exclude_file)
-    
+
     if args.exclude_list:
         list_dirs, list_files = parse_exclude_list_file(args.exclude_list)
         exclude_dirs.extend(list_dirs)
         exclude_files.extend(list_files)
 
-    find_unused_adoc(scan_dirs, archive_dir, args.archive, exclude_dirs, exclude_files)
+    find_unused_adoc(scan_dirs, archive_dir, args.archive, exclude_dirs, exclude_files, args.commented)
 
 if __name__ == '__main__':
     main()

@@ -44,3 +44,67 @@ def test_archive_unused_images_exclusions(exclude_args, should_find):
             # If all images are excluded, no unused images from './images' should be present
             assert 'images/unused1.png' not in result.stdout
             assert 'images/unused2.jpg' not in result.stdout
+
+def test_archive_unused_images_commented_references():
+    """Test that images referenced only in commented lines are tracked correctly"""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create test structure
+        os.makedirs(os.path.join(tmpdir, 'images'), exist_ok=True)
+        os.makedirs(os.path.join(tmpdir, 'modules'), exist_ok=True)
+        os.makedirs(os.path.join(tmpdir, 'archive'), exist_ok=True)
+
+        # Create image files
+        open(os.path.join(tmpdir, 'images', 'commented-only.png'), 'w').close()
+        open(os.path.join(tmpdir, 'images', 'truly-unused.png'), 'w').close()
+        open(os.path.join(tmpdir, 'images', 'used.png'), 'w').close()
+
+        # Create AsciiDoc file with references
+        with open(os.path.join(tmpdir, 'modules', 'test.adoc'), 'w') as f:
+            f.write('image::../images/used.png[]\n')
+            f.write('// image::../images/commented-only.png[]\n')
+
+        # Run without --commented flag
+        result = run_script([], cwd=tmpdir)
+
+        # Check that commented-only image is NOT in unused list (considered "used")
+        assert 'commented-only.png' not in result.stdout
+        # Check that truly unused image IS in the list
+        assert 'truly-unused.png' in result.stdout
+        # Check that report was generated
+        archive_dir = os.path.join(tmpdir, 'archive')
+        report_path = os.path.join(archive_dir, 'commented-image-references-report.txt')
+        assert os.path.exists(report_path), "Commented image references report should be created"
+
+        with open(report_path, 'r') as f:
+            report_content = f.read()
+            assert 'commented-only.png' in report_content
+            assert 'test.adoc' in report_content
+
+def test_archive_unused_images_with_commented_flag():
+    """Test that --commented flag includes images with commented-only references"""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create test structure
+        os.makedirs(os.path.join(tmpdir, 'images'), exist_ok=True)
+        os.makedirs(os.path.join(tmpdir, 'modules'), exist_ok=True)
+        os.makedirs(os.path.join(tmpdir, 'archive'), exist_ok=True)
+
+        # Create image files
+        open(os.path.join(tmpdir, 'images', 'commented-only.png'), 'w').close()
+        open(os.path.join(tmpdir, 'images', 'truly-unused.png'), 'w').close()
+        open(os.path.join(tmpdir, 'images', 'used.png'), 'w').close()
+
+        # Create AsciiDoc file with references
+        with open(os.path.join(tmpdir, 'modules', 'test.adoc'), 'w') as f:
+            f.write('image::../images/used.png[]\n')
+            f.write('// image::../images/commented-only.png[]\n')
+
+        # Run WITH --commented flag
+        result = run_script(['--commented'], cwd=tmpdir)
+
+        # With --commented flag, both should be in unused list
+        assert 'commented-only.png' in result.stdout
+        assert 'truly-unused.png' in result.stdout
+        # Check that 'used.png' is NOT in the output (should be excluded because it has uncommented reference)
+        # Split by lines to avoid substring matching issues
+        output_lines = result.stdout.strip().split('\n')
+        assert not any(line.endswith('images/used.png') or line == 'images/used.png' for line in output_lines)

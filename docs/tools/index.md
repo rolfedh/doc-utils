@@ -103,16 +103,18 @@ Finds and optionally archives unreferenced AsciiDoc files in your documentation 
 **Key Features:**
 - Automatic detection of repository type (OpenShift-docs or traditional)
 - Smart directory discovery
+- **NEW**: Detects files referenced only in commented lines
+- **NEW**: Generates detailed reports of commented-only references
 - Preview mode by default (requires --archive flag to delete)
 - Creates timestamped archive with manifest
 
 **Quick Usage:**
 ```bash
-# Preview unused files
+# Preview unused files (generates report of commented-only references)
 archive-unused-files
 
-# Archive and remove unused files
-archive-unused-files --archive
+# Archive including files with commented-only references
+archive-unused-files --archive --commented
 ```
 
 ---
@@ -123,16 +125,18 @@ Identifies and archives image files that are no longer referenced in your docume
 **Key Features:**
 - Supports multiple image formats (PNG, JPG, GIF, SVG)
 - Scans all AsciiDoc files for image references
+- **NEW**: Detects images referenced only in commented lines
+- **NEW**: Generates detailed reports of commented-only references
 - Preview mode by default
 - Creates organized archive structure
 
 **Quick Usage:**
 ```bash
-# Preview unused images
+# Preview unused images (generates report of commented-only references)
 archive-unused-images
 
-# Archive and remove unused images
-archive-unused-images --archive
+# Archive including images with commented-only references
+archive-unused-images --archive --commented
 ```
 
 ---

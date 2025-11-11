@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.35] - 2025-11-11
+
+### Added
+- **Commented references tracking** - Enhanced archive-unused-files and archive-unused-images with intelligent handling of commented references
+  - New `--commented` flag to include files/images referenced only in commented lines in archive operations
+  - Default behavior: Files/images referenced only in comments are considered "used" and will NOT be archived
+  - Automatic generation of detailed reports showing commented-only references with exact locations (file paths, line numbers, and text)
+  - Report paths: `./archive/commented-references-report.txt` (files) and `./archive/commented-image-references-report.txt` (images)
+  - Dual tracking system separates uncommented references from commented-only references
+  - State management automatically moves items from "commented-only" to "used" when uncommented reference found
+
+### Enhanced
+- **Detection patterns** - Added robust regex-based commented line detection
+  - Files: `^\s*//.*include::(.+?)\[` detects commented includes with whitespace variations
+  - Images: `^\s*//` checks if entire line is commented before checking for image references
+  - Handles AsciiDoc comment syntax variations correctly
+
+### Documentation
+- **GitHub Pages** - Updated archive-unused-files.md with commented references behavior section
+  - Added explanation of default behavior vs --commented flag
+  - Added "Working with Commented References" examples section with practical workflows
+- **GitHub Pages** - Updated archive-unused-images.md with commented references behavior section
+  - Added detailed commented references behavior documentation
+  - Added workflow examples for reviewing and archiving commented-only content
+- **GitHub Pages** - Updated tools/index.md with "NEW" badges for commented references features
+  - Updated both archive-unused-files and archive-unused-images feature lists
+  - Updated quick usage examples to demonstrate new functionality
+- **CLAUDE.md** - Added comprehensive "Commented References Tracking" section
+  - Documented implementation details, detection patterns, and test coverage
+  - Added to "Recent Improvements" section for future development reference
+
+### Tests
+- **Test coverage** - Added comprehensive tests for commented references functionality
+  - `test_archive_unused_files_commented_references()`: Verifies default behavior treats commented-only as "used"
+  - `test_archive_unused_files_with_commented_flag()`: Verifies --commented flag includes commented-only files
+  - `test_archive_unused_images_commented_references()`: Verifies image detection for commented-only references
+  - `test_archive_unused_images_with_commented_flag()`: Verifies --commented flag includes commented-only images
+  - All tests use line-by-line exact matching to avoid substring false positives
+  - Total test coverage: 10/10 tests passing (4 new tests added)
+
 ## [0.1.33] - 2025-10-28
 
 ### Fixed

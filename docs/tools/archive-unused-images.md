@@ -42,9 +42,22 @@ python3 archive_unused_images.py [options]
 See the script's `--help` output or the docstring for all options. Common options include:
 
 - `--archive` — Move the files to a dated zip in the archive directory.
+- `--commented` — Include images that are referenced only in commented lines in the archive operation.
 - `--exclude-dir` — Directory to exclude (can be used multiple times).
 - `--exclude-file` — File to exclude (can be used multiple times).
 - `--exclude-list` — Path to a file containing directories or files to exclude, one per line.
+
+## Commented References Behavior
+
+**Default behavior (no flag):**
+- Always scans for both uncommented and commented image references when scanning for references
+- Images referenced only in commented lines are considered "used" and will NOT be archived
+- Generates a detailed report of images referenced only in commented lines
+- Report location: `./archive/commented-image-references-report.txt`
+
+**With --commented flag:**
+- Include images that are referenced only in commented lines in the archive operation
+- These images will be treated as unused and archived along with other unused images
 
 ## Examples
 
@@ -66,6 +79,25 @@ archive-unused-images --archive --exclude-dir ./images/icons --exclude-dir ./ima
 Use an exclusion list file:
 ```sh
 archive-unused-images --archive --exclude-list .docutils-ignore
+```
+
+### Working with Commented References
+
+Preview and generate report on commented-only references:
+```sh
+archive-unused-images
+# This will:
+# 1. Find unused images (not counting commented references as "used")
+# 2. Generate a report of images referenced only in commented lines
+# 3. Save report to ./archive/commented-image-references-report.txt
+```
+
+Archive images including those with commented-only references:
+```sh
+archive-unused-images --archive --commented
+# This will archive both:
+# 1. Images with no references at all
+# 2. Images referenced only in commented lines
 ```
 
 ## Output

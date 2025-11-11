@@ -52,10 +52,23 @@ python3 archive_unused_files.py [options]
 See the script's `--help` output or the docstring for all options. Common options include:
 
 - `--archive` — Move the files to a dated zip in the archive directory.
+- `--commented` — Include files that are referenced only in commented lines in the archive operation.
 - `--scan-dir` — Specify a specific directory to scan (can be used multiple times). If not specified, auto-discovers all modules and assemblies directories.
 - `--exclude-dir` — Directory to exclude (can be used multiple times).
 - `--exclude-file` — File to exclude (can be used multiple times).
 - `--exclude-list` — Path to a file containing directories or files to exclude, one per line.
+
+## Commented References Behavior
+
+**Default behavior (no flag):**
+- Always scans for both uncommented and commented includes when scanning for references
+- Files referenced only in commented lines are considered "used" and will NOT be archived
+- Generates a detailed report of files referenced only in commented lines
+- Report location: `./archive/commented-references-report.txt`
+
+**With --commented flag:**
+- Include files that are referenced only in commented lines in the archive operation
+- These files will be treated as unused and archived along with other unused files
 
 ## Examples
 
@@ -102,6 +115,25 @@ Example exclusion list file (`.docutils-ignore`):
 
 # Specific files to exclude
 ./assemblies/draft.adoc
+```
+
+### Working with Commented References
+
+Preview and generate report on commented-only references:
+```sh
+archive-unused-files
+# This will:
+# 1. Find unused files (not counting commented includes as "used")
+# 2. Generate a report of files referenced only in commented lines
+# 3. Save report to ./archive/commented-references-report.txt
+```
+
+Archive files including those with commented-only references:
+```sh
+archive-unused-files --archive --commented
+# This will archive both:
+# 1. Files with no references at all
+# 2. Files referenced only in commented lines
 ```
 
 ## Output
