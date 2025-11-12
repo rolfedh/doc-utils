@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.36] - 2025-11-12
+
+### Added
+- **check-source-directives** - New tool to detect and fix missing [source] directives in AsciiDoc code blocks
+  - Detects code blocks (----) that lack proper [source] directives
+  - Helps prevent AsciiDoc-to-DocBook XML conversion errors
+  - Auto-fix mode with `--fix` flag to automatically insert [source] directives
+  - Intelligent context-aware detection to minimize false positives
+  - Handles AsciiDoc block titles between [source] and ---- delimiters
+  - Skips valid patterns: attribute blocks, continuation markers, admonitions
+  - Exit code 1 when issues found (detection mode), 0 when clean or fixed
+  - CLI command: `check-source-directives [--fix] [directory]`
+  - Core module: `doc_utils/missing_source_directive.py`
+  - Documentation: `docs/tools/check-source-directives.md`
+
 ## [0.1.35] - 2025-11-11
 
 ### Added

@@ -69,6 +69,7 @@ doc-utils/
 8. **format-asciidoc-spacing** [EXPERIMENTAL] - Standardizes AsciiDoc formatting (blank lines after headings and around includes)
 9. **convert-callouts-to-deflist** - Converts AsciiDoc callouts to definition lists, bulleted lists, or inline comments (batch mode)
 10. **convert-callouts-interactive** - Interactively converts AsciiDoc callouts with per-block format selection
+11. **check-source-directives** - Detects and fixes code blocks missing [source] directives
 
 ### Core Modules
 
@@ -82,6 +83,7 @@ doc-utils/
 - `doc_utils/unused_adoc.py` - Logic for finding unused AsciiDoc files (supports both topic maps and master.adoc)
 - `doc_utils/unused_images.py` - Logic for finding unused images
 - `doc_utils/scannability.py` - Document readability analysis
+- `doc_utils/missing_source_directive.py` - Logic for detecting and fixing missing [source] directives
 - `callout_lib/` - Modular library for AsciiDoc callout conversion
   - `detector.py` - Callout detection and extraction
   - `converter_deflist.py` - Definition list converter
