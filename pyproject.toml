@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rolfedh-doc-utils"
-version = "0.1.36"
+version = "0.1.37"
 description = "CLI tools for AsciiDoc documentation projects"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -27,10 +27,11 @@ validate-links = "validate_links:main"
 convert-callouts-to-deflist = "convert_callouts_to_deflist:main"
 convert-callouts-interactive = "convert_callouts_interactive:main"
 check-source-directives = "check_source_directives:main"
+convert-tables-to-deflists = "convert_tables_to_deflists:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["doc_utils*", "callout_lib*"]
 
 [tool.setuptools]
-py-modules = ["doc_utils_cli", "find_unused_attributes", "check_scannability", "archive_unused_files", "archive_unused_images", "format_asciidoc_spacing", "replace_link_attributes", "extract_link_attributes", "validate_links", "convert_callouts_to_deflist", "convert_callouts_interactive", "check_source_directives"]
+py-modules = ["doc_utils_cli", "find_unused_attributes", "check_scannability", "archive_unused_files", "archive_unused_images", "format_asciidoc_spacing", "replace_link_attributes", "extract_link_attributes", "validate_links", "convert_callouts_to_deflist", "convert_callouts_interactive", "check_source_directives", "convert_tables_to_deflists"]

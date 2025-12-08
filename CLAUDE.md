@@ -46,6 +46,7 @@ doc-utils/
 ├── *.py                   # CLI entry point scripts
 ├── convert_callouts_to_deflist.py   # Batch callout converter
 ├── convert_callouts_interactive.py  # Interactive callout converter
+├── convert_tables_to_deflists.py    # Table to definition list converter
 ├── setup.py              # Custom installation hooks
 ├── pyproject.toml         # Package configuration
 ├── requirements-dev.txt   # Development dependencies (pytest, PyYAML)
@@ -70,6 +71,7 @@ doc-utils/
 9. **convert-callouts-to-deflist** - Converts AsciiDoc callouts to definition lists, bulleted lists, or inline comments (batch mode)
 10. **convert-callouts-interactive** - Interactively converts AsciiDoc callouts with per-block format selection
 11. **check-source-directives** - Detects and fixes code blocks missing [source] directives
+12. **convert-tables-to-deflists** - Converts 2-column AsciiDoc tables to definition lists (supports multi-column with --columns)
 
 ### Core Modules
 
@@ -84,8 +86,9 @@ doc-utils/
 - `doc_utils/unused_images.py` - Logic for finding unused images
 - `doc_utils/scannability.py` - Document readability analysis
 - `doc_utils/missing_source_directive.py` - Logic for detecting and fixing missing [source] directives
-- `callout_lib/` - Modular library for AsciiDoc callout conversion
+- `callout_lib/` - Modular library for AsciiDoc callout and table conversion
   - `detector.py` - Callout detection and extraction
+  - `table_parser.py` - AsciiDoc table parsing (used by both callout and table converters)
   - `converter_deflist.py` - Definition list converter
   - `converter_bullets.py` - Bulleted list converter
   - `converter_comments.py` - Inline comments converter with length detection

@@ -6,7 +6,7 @@ nav_order: 3
 
 # Tools Reference
 
-doc-utils provides nine specialized CLI tools for maintaining AsciiDoc documentation repositories. Each tool is designed to handle a specific aspect of documentation maintenance.
+doc-utils provides twelve specialized CLI tools for maintaining AsciiDoc documentation repositories. Each tool is designed to handle a specific aspect of documentation maintenance.
 
 ## Available Tools
 
@@ -179,6 +179,31 @@ convert-callouts-to-deflist --dry-run
 convert-callouts-to-deflist --dry-run --exclude-dir archive modules/
 ```
 
+---
+
+### 📊 [convert-tables-to-deflists](convert-tables-to-deflists)
+Converts AsciiDoc 2-column tables to definition list format.
+
+**Key Features:**
+- Converts 2-column tables by default (column 1 → term, column 2 → definition)
+- Multi-column support with `--columns` option (e.g., `--columns 1,3`)
+- Automatically skips callout tables (use convert-callouts-to-deflist for those)
+- Detects and handles header rows
+- Preserves conditional directives (`ifdef::`/`endif::`)
+- Dry-run mode by default for safe preview
+
+**Quick Usage:**
+```bash
+# Preview changes (dry-run mode)
+convert-tables-to-deflists .
+
+# Apply changes to 2-column tables
+convert-tables-to-deflists --apply .
+
+# Convert 3-column tables using columns 1 and 3
+convert-tables-to-deflists --columns 1,3 --apply modules/
+```
+
 ## Common Options
 
 All tools support these common options for excluding files and directories:
@@ -253,4 +278,5 @@ archive-unused-files --help
 archive-unused-images --help
 find-unused-attributes --help
 convert-callouts-to-deflist --help
+convert-tables-to-deflists --help
 ```

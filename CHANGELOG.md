@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.37] - 2025-12-08
+
+### Added
+- **convert-tables-to-deflists** - New tool to convert AsciiDoc tables to definition lists
+  - Converts 2-column tables by default (column 1 → term, column 2 → definition)
+  - Multi-column support with `--columns TERM,DEF` option (e.g., `--columns 1,3`)
+  - Automatically skips callout tables (use convert-callouts-to-deflist for those)
+  - Detects and handles header rows automatically
+  - Preserves conditional directives (`ifdef::`/`ifndef::`/`endif::`)
+  - Dry-run mode by default for safe preview, use `--apply` to modify files
+  - Full exclusion support (`--exclude-dir`, `--exclude-file`, `--exclude-list`)
+  - CLI command: `convert-tables-to-deflists [--apply] [--columns TERM,DEF] [path]`
+
+### Documentation
+- Added `docs/tools/convert-tables-to-deflists.md` with full tool documentation
+- Updated `docs/tools/index.md` with new tool entry
+- Updated `CLAUDE.md` with new tool in CLI Tools list and Project Structure
+
 ## [0.1.36] - 2025-11-12
 
 ### Added
