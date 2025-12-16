@@ -6,7 +6,7 @@ nav_order: 3
 
 # Tools Reference
 
-doc-utils provides twelve specialized CLI tools for maintaining AsciiDoc documentation repositories. Each tool is designed to handle a specific aspect of documentation maintenance.
+doc-utils provides thirteen specialized CLI tools for maintaining AsciiDoc documentation repositories. Each tool is designed to handle a specific aspect of documentation maintenance.
 
 ## Available Tools
 
@@ -22,7 +22,25 @@ Validates all links in AsciiDoc documentation, checking for broken URLs and miss
 
 **Quick Usage:**
 ```bash
-validate-links --transpose "https://docs.redhat.com--https://preview.docs.redhat.com"
+validate-links --transpose "https://docs.example.com--https://preview.docs.example.com"
+```
+
+---
+
+### 🌐 [check-published-links](check-published-links)
+Validates links on published HTML documentation pages using linkchecker.
+
+**Key Features:**
+- Checks actual rendered HTML output, not source files
+- URL rewriting for platforms with path resolution issues
+- Single URL and bulk validation modes
+- Automatic handling of known false positives
+- Detailed reports with error categorization
+
+**Quick Usage:**
+```bash
+check-published-links https://docs.example.com/guide/
+check-published-links --file urls-to-check.txt
 ```
 
 ---
@@ -270,6 +288,7 @@ Each tool has a built-in help command:
 
 ```bash
 validate-links --help
+check-published-links --help
 extract-link-attributes --help
 replace-link-attributes --help
 format-asciidoc-spacing --help

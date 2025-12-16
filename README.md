@@ -61,7 +61,8 @@ doc-utils --version  # Show version
 
 | Tool | Description | Usage |
 |------|-------------|-------|
-| **`validate-links`** | Validates all links in documentation, with URL transposition for preview environments | `validate-links --transpose "https://prod--https://preview"` |
+| **`validate-links`** | Validates links in AsciiDoc source files, with URL transposition for preview environments | `validate-links --transpose "https://prod--https://preview"` |
+| **`check-published-links`** | Validates links on published HTML docs using linkchecker, with URL rewriting for misresolved paths | `check-published-links https://docs.example.com/guide/` |
 | **`extract-link-attributes`** | Extracts link/xref macros with attributes into reusable definitions | `extract-link-attributes --dry-run` |
 | **`replace-link-attributes`** | Resolves Vale LinkAttribute issues by replacing attributes in link URLs | `replace-link-attributes --dry-run` |
 | **`format-asciidoc-spacing`** | Standardizes spacing after headings and around includes | `format-asciidoc-spacing --dry-run modules/` |
