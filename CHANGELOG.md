@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.39] - 2026-01-09
+
+### Added
+- **convert-freemarker-to-asciidoc** - New tool to convert FreeMarker-templated AsciiDoc to standard AsciiDoc
+  - Converts Keycloak-style FreeMarker templates to plain AsciiDoc
+  - Removes `<#import ...>` statements
+  - Converts `<@tmpl.guide>` and `<@template.guide>` blocks to AsciiDoc titles and summaries
+  - Converts `<@links.*>` macros to standard `xref:` cross-references
+    - Supports: server, ha, observability, securingapps, gettingstarted, operator, migration
+    - Handles anchor attributes: `<@links.server id="x" anchor="y"/>` → `xref:server/x.adoc#y[]`
+  - Converts `<@kc.*>` command macros to code blocks
+    - Supports: start, startdev, build, export, import, updatecompatibility, admin, bootstrapadmin
+  - Handles `<@profile.ifCommunity>` and `<@profile.ifProduct>` conditional blocks
+    - Default: keeps community content; use `--product` to keep product content
+  - Processes `<#noparse>` blocks (removes tags, preserves content)
+  - Removes `<@opts.*>` and `<@features.table>` macros with placeholder comments
+  - Marks unconvertible patterns (`<#list>`, `<#if>`, `<#assign>`) with TODO comments
+  - CLI options:
+    - `--dry-run` / `-n`: Preview changes without modifying files
+    - `--verbose` / `-v`: Show detailed output
+    - `--structure-only`: Only convert imports and guide blocks
+    - `--product`: Keep product content instead of community
+    - `--base-path`: Add prefix to xref links
+    - `--only-freemarker`: Only process files with FreeMarker markup
+  - CLI command: `convert-freemarker-to-asciidoc [OPTIONS] [PATH]`
+
+### Documentation
+- Added comprehensive `docs/tools/convert-freemarker-to-asciidoc.md` with:
+  - Tables of all convertible and non-convertible patterns
+  - Conversion examples (before/after)
+  - Best practices and recommended workflow
+  - Troubleshooting guide
+
 ## [0.1.37] - 2025-12-08
 
 ### Added
