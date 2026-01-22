@@ -70,6 +70,7 @@ doc-utils --version  # Show version
 | **`archive-unused-files`** | Finds and archives unreferenced .adoc files | `archive-unused-files` (preview)<br>`archive-unused-files --archive` (execute) |
 | **`archive-unused-images`** | Finds and archives unreferenced images | `archive-unused-images` (preview)<br>`archive-unused-images --archive` (execute) |
 | **`find-unused-attributes`** | Identifies unused attribute definitions | `find-unused-attributes attributes.adoc` |
+| **`inventory-conditionals`** | Creates inventory of `ifdef`/`ifndef` conditionals | `inventory-conditionals ~/docs -o ~/reports/` |
 | **`convert-callouts-to-deflist`** | Converts callout-style annotations to definition list format | `convert-callouts-to-deflist --dry-run modules/` |
 
 ## 📖 Documentation

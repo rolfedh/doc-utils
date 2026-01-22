@@ -72,6 +72,7 @@ doc-utils/
 10. **convert-callouts-interactive** - Interactively converts AsciiDoc callouts with per-block format selection
 11. **check-source-directives** - Detects and fixes code blocks missing [source] directives
 12. **convert-tables-to-deflists** - Converts 2-column AsciiDoc tables to definition lists (supports multi-column with --columns)
+13. **inventory-conditionals** - Creates timestamped inventory of AsciiDoc conditionals (ifdef, ifndef, endif, ifeval)
 
 ### Core Modules
 
@@ -86,6 +87,7 @@ doc-utils/
 - `doc_utils/unused_images.py` - Logic for finding unused images
 - `doc_utils/scannability.py` - Document readability analysis
 - `doc_utils/missing_source_directive.py` - Logic for detecting and fixing missing [source] directives
+- `doc_utils/inventory_conditionals.py` - Logic for inventorying AsciiDoc conditionals
 - `callout_lib/` - Modular library for AsciiDoc callout and table conversion
   - `detector.py` - Callout detection and extraction
   - `table_parser.py` - AsciiDoc table parsing (used by both callout and table converters)

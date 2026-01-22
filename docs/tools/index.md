@@ -176,6 +176,26 @@ find-unused-attributes attributes.adoc --output unused.txt
 
 ---
 
+### 📋 [inventory-conditionals](inventory-conditionals)
+Creates a timestamped inventory of all AsciiDoc conditional directives (`ifdef`, `ifndef`, `endif`, `ifeval`) in your documentation.
+
+**Key Features:**
+- Scans all `.adoc` files recursively
+- Reports line numbers for each conditional
+- Summarizes directive counts and unique conditions
+- Helps audit conditional usage before refactoring
+
+**Quick Usage:**
+```bash
+# Scan current directory
+inventory-conditionals
+
+# Scan specific directory with custom output location
+inventory-conditionals ~/gitlab/quarkus -o ~/reports/
+```
+
+---
+
 ### 🔄 [convert-callouts-to-deflist](convert-callouts-to-deflist)
 Converts AsciiDoc code blocks with callout-style annotations to cleaner definition list format.
 
@@ -296,6 +316,7 @@ check-scannability --help
 archive-unused-files --help
 archive-unused-images --help
 find-unused-attributes --help
+inventory-conditionals --help
 convert-callouts-to-deflist --help
 convert-tables-to-deflists --help
 ```
