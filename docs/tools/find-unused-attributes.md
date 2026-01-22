@@ -40,26 +40,27 @@ You can run the tool from anywhere using:
 
 ```sh
 # With auto-discovery (NEW)
-find-unused-attributes [-o|--output] [-c|--comment-out]
+find-unused-attributes [-o|--output] [-c|--comment-out] [-r|--remove]
 
 # With explicit path (backward compatible)
-find-unused-attributes attributes.adoc [-o|--output] [-c|--comment-out]
+find-unused-attributes attributes.adoc [-o|--output] [-c|--comment-out] [-r|--remove]
 ```
 
 Or, if running from source:
 
 ```sh
 # With auto-discovery
-python3 find_unused_attributes.py [-o|--output] [-c|--comment-out]
+python3 find_unused_attributes.py [-o|--output] [-c|--comment-out] [-r|--remove]
 
 # With explicit path
-python3 find_unused_attributes.py attributes.adoc [-o|--output] [-c|--comment-out]
+python3 find_unused_attributes.py attributes.adoc [-o|--output] [-c|--comment-out] [-r|--remove]
 ```
 
 ### Options
 
 - `-o, --output`: Write results to a timestamped txt file in your home directory
 - `-c, --comment-out`: Comment out unused attributes in the attributes file with "// Unused" prefix (requires confirmation)
+- `-r, --remove`: Remove unused attributes from the attributes file. Also removes lines already marked with "// Unused" (requires confirmation)
 
 ## Auto-discovery Feature
 
@@ -190,6 +191,54 @@ After running with `--comment-out`:
 - **Non-destructive**: Commented-out attributes can be easily restored by removing the `// Unused` prefix
 - **Git-friendly**: Work in a git branch so you can easily revert if needed
 
+## Remove Feature
+
+The `--remove` option allows you to permanently remove unused attributes from your attributes file. This option removes:
+
+1. Lines already marked with `// Unused` prefix (from a previous `--comment-out` run)
+2. Newly detected unused attributes (if any exist)
+
+### Usage
+
+```sh
+# Remove lines marked as "// Unused" and any newly detected unused attributes
+find-unused-attributes common/attributes.adoc --remove
+
+# Two-step workflow: First mark, then remove
+find-unused-attributes common/attributes.adoc --comment-out  # Step 1: Mark as unused
+# Review the changes, then:
+find-unused-attributes common/attributes.adoc --remove       # Step 2: Remove marked lines
+```
+
+### Example
+
+Before (after running `--comment-out`):
+```asciidoc
+:version: 1.0
+:product: MyApp
+// Unused :unused-attr: some value
+// Unused :old-feature:
+:rh-only:
+```
+
+After running with `--remove`:
+```asciidoc
+:version: 1.0
+:product: MyApp
+:rh-only:
+```
+
+### Recommended Workflow
+
+The safest approach is a two-step process:
+
+1. **Mark unused attributes**: Run with `--comment-out` to mark unused attributes
+2. **Review changes**: Check your git diff to verify the marked attributes are truly unused
+3. **Test the build**: Run your documentation build to ensure nothing breaks
+4. **Remove marked attributes**: Run with `--remove` to permanently delete the marked lines
+
+This workflow gives you a chance to review and test before permanently removing attributes.
+
 ## AsciiDoc Configuration Attributes
 
 Some AsciiDoc attributes control how the documentation processor works rather than appearing directly in your content. These attributes may be reported as unused by the tool, but they are critical to your documentation build.
@@ -240,7 +289,7 @@ Some AsciiDoc attributes control how the documentation processor works rather th
 - The tool detects attributes used in:
   - Text substitution: `{attribute-name}`
   - Conditional directives: `ifdef::attribute[]`, `ifndef::attribute[]`, `endif::attribute[]`
-- The script does not modify any files (unless you use `--comment-out`).
+- The script does not modify any files unless you use `--comment-out` or `--remove`.
 - This tool does not currently support file/directory exclusions.
 - **Known limitation**: AsciiDoc configuration attributes (e.g., `:doctype:`, `:experimental:`, `:icons:`) may be reported as unused since they configure the processor itself rather than being referenced in content. See the section above for details.
 

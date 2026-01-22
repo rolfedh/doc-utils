@@ -212,3 +212,51 @@ def comment_out_unused_attributes(attr_file: str, unused_attrs: List[str]) -> in
         f.writelines(new_lines)
 
     return commented_count
+
+
+def remove_unused_attributes(attr_file: str, unused_attrs: List[str] = None) -> int:
+    """
+    Remove unused attributes from the attributes file.
+
+    This removes lines that either:
+    - Define an attribute in the unused_attrs list, or
+    - Are already marked with "// Unused" prefix
+
+    Args:
+        attr_file: Path to the attributes file
+        unused_attrs: Optional list of unused attribute names. If None, only
+                      removes lines already marked with "// Unused".
+
+    Returns:
+        Number of lines removed
+    """
+    # Read the file
+    with open(attr_file, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+
+    # Create a set for faster lookup
+    unused_set = set(unused_attrs) if unused_attrs else set()
+    removed_count = 0
+
+    # Process each line
+    new_lines = []
+    for line in lines:
+        # Check if line is already marked as unused
+        if line.startswith('// Unused '):
+            removed_count += 1
+            continue
+
+        # Check if this line defines an unused attribute
+        if unused_attrs:
+            match = re.match(r'^:([\w-]+):', line)
+            if match and match.group(1) in unused_set:
+                removed_count += 1
+                continue
+
+        new_lines.append(line)
+
+    # Write back to the file
+    with open(attr_file, 'w', encoding='utf-8') as f:
+        f.writelines(new_lines)
+
+    return removed_count

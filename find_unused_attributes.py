@@ -12,7 +12,7 @@ import argparse
 import os
 import sys
 from datetime import datetime
-from doc_utils.unused_attributes import find_unused_attributes, find_attributes_files, select_attributes_file, comment_out_unused_attributes
+from doc_utils.unused_attributes import find_unused_attributes, find_attributes_files, select_attributes_file, comment_out_unused_attributes, remove_unused_attributes
 from doc_utils.spinner import Spinner
 from doc_utils.version_check import check_version_on_startup
 from doc_utils.version import __version__
@@ -28,6 +28,7 @@ def main():
     )
     parser.add_argument('-o', '--output', action='store_true', help='Write results to a timestamped txt file in your home directory.')
     parser.add_argument('-c', '--comment-out', action='store_true', help='Comment out unused attributes in the attributes file with "// Unused".')
+    parser.add_argument('-r', '--remove', action='store_true', help='Remove unused attributes from the attributes file. Also removes lines already marked with "// Unused".')
     parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
     args = parser.parse_args()
 
@@ -94,6 +95,20 @@ def main():
         if response == 'y':
             commented_count = comment_out_unused_attributes(attr_file, unused)
             print(f'Commented out {commented_count} unused attributes in: {attr_file}')
+        else:
+            print('Operation cancelled.')
+
+    if args.remove:
+        # Ask for confirmation before modifying the file
+        if output:
+            print(f'\nThis will remove {len(unused)} unused attributes from: {attr_file}')
+            print('(Also removes any lines already marked with "// Unused")')
+        else:
+            print(f'\nThis will remove lines marked with "// Unused" from: {attr_file}')
+        response = input('Continue? (y/n): ').strip().lower()
+        if response == 'y':
+            removed_count = remove_unused_attributes(attr_file, unused if output else None)
+            print(f'Removed {removed_count} lines from: {attr_file}')
         else:
             print('Operation cancelled.')
 
