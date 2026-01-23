@@ -474,6 +474,53 @@ pip index versions rolfedh-doc-utils | head -3  # Should show v0.1.33 as latest
 - Consistent output format across tools
 - Archive tools display safety warnings on execution
 
+### Report Generation Conventions
+When a tool generates a report file, follow these conventions:
+
+1. **Output Directory**: Save reports to a `./reports/` directory in the current working directory
+   - Create the directory if it doesn't exist
+   - This keeps reports organized and separate from source content
+
+2. **Filename Format**: Use descriptive names with human-readable timestamps
+   - Pattern: `{report-type}_{YYYY-MM-DD}_{HH-MM-SS}.{ext}`
+   - Example: `duplicate-content_2025-01-23_14-30-45.txt`
+   - Use hyphens in the report type, underscores as separators
+   - Timestamp should be local time for readability
+
+3. **Output Formats**: Support multiple standard formats with `-o, --output` option
+   - `txt` (default): Plain text format, human-readable
+   - `csv`: Comma-separated values for spreadsheet import
+   - `json`: Structured data for programmatic processing
+   - `md`: Markdown format for documentation integration
+   - Specify format with `--format {txt,csv,json,md}` option
+
+4. **CLI Pattern**:
+   ```python
+   parser.add_argument('-o', '--output', action='store_true',
+       help='Write results to ./reports/ directory')
+   parser.add_argument('--format', choices=['txt', 'csv', 'json', 'md'],
+       default='txt', help='Output format (default: txt)')
+   ```
+
+5. **Implementation Example**:
+   ```python
+   if args.output:
+       from datetime import datetime
+       import os
+
+       reports_dir = './reports'
+       os.makedirs(reports_dir, exist_ok=True)
+
+       timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+       filename = f'{reports_dir}/duplicate-content_{timestamp}.{args.format}'
+
+       with open(filename, 'w', encoding='utf-8') as f:
+           f.write(report_content)
+       print(f'Report written to: {filename}')
+   ```
+
+**Note**: Legacy tools may write to the home directory (`~`). New tools should use `./reports/` and existing tools should be updated when practical.
+
 ### Testing Approach
 - Unit tests for core functionality (file_utils, unused_attributes)
 - Integration tests for CLI commands
