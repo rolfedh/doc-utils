@@ -16,6 +16,7 @@ Use these doc-utils tools to complete the **Pre-Migration Reuse Readiness Tasks*
 | Inventory conditionals | `inventory-conditionals` |
 | Inventory reused modules | `find-duplicate-includes` |
 | Inventory reused content blocks | `find-duplicate-content` |
+| Archive unused files | `archive-unused-files` |
 
 ## Task 1: Clean Up Attribute Files
 
@@ -53,6 +54,20 @@ Reports are written to `./reports/`.
 
 See [find-duplicate-includes](tools/find-duplicate-includes.md) and [find-duplicate-content](tools/find-duplicate-content.md) for details.
 
+## Task 4: Archive Unused Files
+
+```sh
+# Preview unused files (no changes made)
+archive-unused-files
+
+# Archive unused files to ./archive/
+archive-unused-files --archive
+```
+
+Finds AsciiDoc files in `modules/` and `assemblies/` directories that are not referenced by any `include::` macro. Run without `--archive` first to review the list.
+
+See [archive-unused-files](tools/archive-unused-files.md) for details.
+
 ## Quick Reference
 
 ```sh
@@ -66,6 +81,10 @@ find-unused-attributes --remove
 inventory-conditionals
 find-duplicate-includes
 find-duplicate-content
+
+# Find and archive unused files
+archive-unused-files
+archive-unused-files --archive
 ```
 
 Commit the reports to your repository and link them in your worksheet.
