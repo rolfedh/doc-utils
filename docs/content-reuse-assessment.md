@@ -17,6 +17,7 @@ Use these doc-utils tools to complete the **Pre-Migration Reuse Readiness Tasks*
 | Inventory reused modules | `find-duplicate-includes` |
 | Inventory reused content blocks | `find-duplicate-content` |
 | Archive unused files | `archive-unused-files --archive` |
+| Add abstract role for DITA | `insert-abstract-role` |
 
 ## Task 1: Clean Up Attribute Files
 
@@ -68,6 +69,20 @@ Finds AsciiDoc files in `modules/` and `assemblies/` directories that are not re
 
 See [archive-unused-files](tools/archive-unused-files.md) for details.
 
+## Task 5: Add Abstract Role for DITA
+
+```sh
+# Preview changes first
+insert-abstract-role --dry-run
+
+# Apply changes
+insert-abstract-role
+```
+
+Inserts `[role="_abstract"]` above the first paragraph after the document title in all AsciiDoc files. This attribute is required for DITA short description conversion. Review and revise your first paragraphs as needed.
+
+See [insert-abstract-role](tools/insert-abstract-role.md) for details.
+
 ## Quick Reference
 
 ```sh
@@ -85,6 +100,10 @@ find-duplicate-content
 # Find and archive unused files
 archive-unused-files
 archive-unused-files --archive
+
+# Add abstract role for DITA short descriptions
+insert-abstract-role --dry-run
+insert-abstract-role
 ```
 
 Commit the reports to your repository and link them in your worksheet.

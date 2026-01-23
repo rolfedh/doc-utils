@@ -6,7 +6,7 @@ nav_order: 3
 
 # Tools Reference
 
-doc-utils provides thirteen specialized CLI tools for maintaining AsciiDoc documentation repositories. Each tool is designed to handle a specific aspect of documentation maintenance.
+doc-utils provides specialized CLI tools for maintaining AsciiDoc documentation repositories. Each tool is designed to handle a specific aspect of documentation maintenance.
 
 ## Available Tools
 
@@ -242,6 +242,26 @@ convert-tables-to-deflists --apply .
 convert-tables-to-deflists --columns 1,3 --apply modules/
 ```
 
+---
+
+### 📝 [insert-abstract-role](insert-abstract-role)
+Inserts `[role="_abstract"]` above the first paragraph after the document title for DITA short description support.
+
+**Key Features:**
+- Fixes Vale `AsciiDocDITA.ShortDescription` warnings
+- Idempotent - safe to run multiple times
+- Dry-run mode for previewing changes
+- Processes single files or entire directories
+
+**Quick Usage:**
+```bash
+# Preview changes
+insert-abstract-role --dry-run modules/
+
+# Apply changes
+insert-abstract-role modules/
+```
+
 ## Common Options
 
 All tools support these common options for excluding files and directories:
@@ -319,4 +339,5 @@ find-unused-attributes --help
 inventory-conditionals --help
 convert-callouts-to-deflist --help
 convert-tables-to-deflists --help
+insert-abstract-role --help
 ```
