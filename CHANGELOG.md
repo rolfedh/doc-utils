@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.40] - 2026-01-23
+
+### Added
+- **inventory-conditionals** - New tool to create timestamped inventory of AsciiDoc conditionals
+  - Scans for `ifdef`, `ifndef`, `ifeval`, and `endif` directives
+  - Groups results by conditional name for easy review
+  - Auto-generates reports to `./reports/` directory
+  - Supports txt, csv, json, md output formats
+  - CLI command: `inventory-conditionals [directory] [options]`
+
+- **find-duplicate-content** - New tool to find duplicate/similar content blocks across AsciiDoc files
+  - Detects duplicate notes, tips, warnings, tables, step sequences, and code blocks
+  - Uses Jaccard similarity for fuzzy matching (configurable threshold)
+  - Helps identify copy-pasted content that could be refactored into shared modules
+  - Auto-generates reports to `./reports/` directory
+  - CLI command: `find-duplicate-content [directory] [options]`
+
+- **find-duplicate-includes** - New tool to find files included from multiple locations
+  - Scans for `include::` macros and identifies multiply-included files
+  - Excludes common files (attributes.adoc, etc.) by default
+  - Reports source file and line number for each inclusion
+  - Helps audit content reuse patterns in modular documentation
+  - CLI command: `find-duplicate-includes [directory] [options]`
+
+### Enhanced
+- **find-unused-attributes** - Added `--remove` option to automatically remove unused attribute definitions
+  - Modifies attribute files in place after confirmation
+  - Provides preview output before removal
+
+### Documentation
+- Added Content Reuse Assessment guide (`docs/content-reuse-assessment.md`)
+  - Documents how to use doc-utils tools for Pre-Migration Reuse Readiness Tasks
+  - Maps tools to Content Reuse Assessment Worksheet tasks
+- Added tool documentation pages:
+  - `docs/tools/inventory-conditionals.md`
+  - `docs/tools/find-duplicate-content.md`
+  - `docs/tools/find-duplicate-includes.md`
+- Updated CLAUDE.md with new tools and modules
+
 ## [0.1.39] - 2026-01-09
 
 ### Added
