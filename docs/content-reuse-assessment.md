@@ -6,7 +6,9 @@ nav_order: 5
 
 # Content Reuse Assessment
 
-Use these doc-utils tools to complete the **Pre-Migration Reuse Readiness Tasks** in the Content Reuse Assessment Worksheet.
+Before migrating documentation to a new content management system, you need to assess how content is reused across your documentation set. These tools automate the analysis, generating reports that you can link directly in your Content Reuse Assessment Worksheet.
+
+Use these doc-utils tools to complete the **Pre-Migration Reuse Readiness Tasks**:
 
 | Worksheet Task | Tool |
 |----------------|------|
