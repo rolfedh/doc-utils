@@ -19,7 +19,9 @@ doc-utils/
 │   ├── topic_map_parser.py # Parse OpenShift-docs topic maps
 │   ├── unused_adoc.py      # Find unused AsciiDoc files
 │   ├── unused_attributes.py # Find unused attributes
-│   └── unused_images.py    # Find unused images
+│   ├── unused_images.py    # Find unused images
+│   ├── duplicate_content.py # Find duplicate content blocks
+│   └── duplicate_includes.py # Find files included multiple times
 ├── callout_lib/            # Callout conversion library
 │   ├── __init__.py
 │   ├── detector.py         # Callout detection and extraction
@@ -73,6 +75,8 @@ doc-utils/
 11. **check-source-directives** - Detects and fixes code blocks missing [source] directives
 12. **convert-tables-to-deflists** - Converts 2-column AsciiDoc tables to definition lists (supports multi-column with --columns)
 13. **inventory-conditionals** - Creates timestamped inventory of AsciiDoc conditionals (ifdef, ifndef, endif, ifeval)
+14. **find-duplicate-content** - Finds duplicate/similar content blocks (notes, tables, steps, code) across AsciiDoc files
+15. **find-duplicate-includes** - Finds AsciiDoc files that are included from multiple locations via include:: macros
 
 ### Core Modules
 
@@ -88,6 +92,8 @@ doc-utils/
 - `doc_utils/scannability.py` - Document readability analysis
 - `doc_utils/missing_source_directive.py` - Logic for detecting and fixing missing [source] directives
 - `doc_utils/inventory_conditionals.py` - Logic for inventorying AsciiDoc conditionals
+- `doc_utils/duplicate_content.py` - Logic for finding duplicate/similar content blocks
+- `doc_utils/duplicate_includes.py` - Logic for finding files included from multiple locations
 - `callout_lib/` - Modular library for AsciiDoc callout and table conversion
   - `detector.py` - Callout detection and extraction
   - `table_parser.py` - AsciiDoc table parsing (used by both callout and table converters)
