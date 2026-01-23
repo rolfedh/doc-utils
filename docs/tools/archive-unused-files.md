@@ -29,13 +29,7 @@ The tool automatically detects your repository type:
 
 ## Installation
 
-After installing the package from PyPI:
-
-```sh
-pip install rolfedh-doc-utils
-```
-
-You can run the tool from anywhere using:
+After [installing the package](../getting-started.md), run the tool from anywhere:
 
 ```sh
 archive-unused-files [options]

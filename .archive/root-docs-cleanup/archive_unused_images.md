@@ -13,13 +13,7 @@ This tool scans the current directory and all subdirectories for image files (e.
 
 ## Installation
 
-After installing the package from PyPI:
-
-```sh
-pip install rolfedh-doc-utils
-```
-
-You can run the tool from anywhere using:
+After [installing the package](../../docs/getting-started.md), run the tool from anywhere:
 
 ```sh
 archive-unused-images [options]

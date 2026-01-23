@@ -16,7 +16,7 @@ Use these doc-utils tools to complete the **Pre-Migration Reuse Readiness Tasks*
 | Inventory conditionals | `inventory-conditionals` |
 | Inventory reused modules | `find-duplicate-includes` |
 | Inventory reused content blocks | `find-duplicate-content` |
-| Archive unused files | `archive-unused-files` |
+| Archive unused files | `archive-unused-files --archive` |
 
 ## Task 1: Clean Up Attribute Files
 

@@ -11,13 +11,7 @@ This tool analyzes `.adoc` files in the current directory to flag scannability i
 
 ## Installation
 
-After installing the package from PyPI:
-
-```sh
-pip install rolfedh-doc-utils
-```
-
-You can run the tool from anywhere using:
+After [installing the package](../../docs/getting-started.md), run the tool from anywhere:
 
 ```sh
 check-scannability [options]

@@ -15,13 +15,7 @@ Any attribute defined in the attributes file but not used in any `.adoc` file is
 
 ## Installation
 
-After installing the package from PyPI:
-
-```sh
-pip install rolfedh-doc-utils
-```
-
-You can run the tool from anywhere using:
+After [installing the package](../../docs/getting-started.md), run the tool from anywhere:
 
 ```sh
 find-unused-attributes attributes.adoc [-o|--output]

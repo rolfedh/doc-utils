@@ -23,13 +23,7 @@ nav_order: 10
 
 ## Installation
 
-After installing the package:
-
-```sh
-pip install rolfedh-doc-utils
-```
-
-Run the tool:
+After [installing the package](../getting-started.md), run the tool from anywhere:
 
 ```sh
 find-duplicate-content [directory] [options]
