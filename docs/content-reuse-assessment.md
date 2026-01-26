@@ -1,10 +1,10 @@
 ---
 layout: default
-title: Content Reuse Assessment
+title: Tools for Phase 0 pre-migration work
 nav_order: 5
 ---
 
-# Content Reuse Assessment
+# Tools for Phase 0 pre-migration work 
 
 Before migrating documentation to a new content management system, you need to assess how content is reused across your documentation set. These tools automate the analysis, generating reports that you can link directly in your Content Reuse Assessment Worksheet.
 
