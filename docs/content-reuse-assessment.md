@@ -18,6 +18,7 @@ Use these doc-utils tools to complete the **Pre-Migration Reuse Readiness Tasks*
 | Inventory reused content blocks | `find-duplicate-content` |
 | Archive unused files | `archive-unused-files --archive` |
 | Add abstract role for DITA | `insert-abstract-role` |
+| Add procedure title for DITA | `insert-procedure-title` |
 
 ## Task 1: Clean Up Attribute Files
 
@@ -83,6 +84,22 @@ Inserts `[role="_abstract"]` above the first paragraph after the document title 
 
 See [insert-abstract-role](tools/insert-abstract-role.md) for details.
 
+## Task 6: Add Procedure Title for DITA
+
+Use this task to resolve `AsciiDocDITA.TaskContents` Vale warnings.
+
+```sh
+# Preview changes first
+insert-procedure-title modules/ --dry-run
+
+# Apply changes
+insert-procedure-title modules/
+```
+
+Inserts `.Procedure` above the first numbered step in procedure files that lack this block title. Review any warnings the tool generates—these indicate files needing manual attention (wrong content type, stub files, etc.).
+
+See [insert-procedure-title](tools/insert-procedure-title.md) for details and guidance on resolving warnings.
+
 ## Quick Reference
 
 ```sh
@@ -104,6 +121,10 @@ archive-unused-files --archive
 # Add abstract role for DITA short descriptions
 insert-abstract-role --dry-run
 insert-abstract-role
+
+# Add procedure title for DITA tasks
+insert-procedure-title modules/ --dry-run
+insert-procedure-title modules/
 ```
 
 Commit the reports to your repository and link them in your worksheet.

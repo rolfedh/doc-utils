@@ -262,6 +262,27 @@ insert-abstract-role --dry-run modules/
 insert-abstract-role modules/
 ```
 
+---
+
+### 📝 [insert-procedure-title](insert-procedure-title)
+Inserts `.Procedure` block title above numbered steps in procedure files for DITA task conversion.
+
+**Key Features:**
+- Fixes Vale `AsciiDocDITA.TaskContents` warnings
+- Only processes PROCEDURE content type files
+- Warns when procedure files have no numbered steps
+- Idempotent - safe to run multiple times
+- Dry-run mode for previewing changes
+
+**Quick Usage:**
+```bash
+# Preview changes
+insert-procedure-title modules/ --dry-run
+
+# Apply changes
+insert-procedure-title modules/
+```
+
 ## Common Options
 
 All tools support these common options for excluding files and directories:
@@ -340,4 +361,5 @@ inventory-conditionals --help
 convert-callouts-to-deflist --help
 convert-tables-to-deflists --help
 insert-abstract-role --help
+insert-procedure-title --help
 ```
