@@ -7,6 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.41] - 2026-01-27
+
+### Added
+- **insert-abstract-role** - New tool to add `[role="_abstract"]` for DITA short description conversion
+  - Inserts `[role="_abstract"]` above the first paragraph after the document title
+  - Required for DITA short description conversion during documentation migration
+  - Dry-run mode by default for safe preview, use `--apply` to modify files
+  - Full exclusion support (`--exclude-dir`, `--exclude-file`, `--exclude-list`)
+  - CLI command: `insert-abstract-role [--apply] [--dry-run] [path]`
+
+- **insert-procedure-title** - New tool to add `.Procedure` block title for DITA task compliance
+  - Resolves `AsciiDocDITA.TaskContents` Vale warnings
+  - Inserts `.Procedure` above the first numbered step in procedure files
+  - Detects procedure files by checking `:_mod-docs-content-type: PROCEDURE`
+  - Provides warnings for files needing manual attention (wrong content type, stub files)
+  - Dry-run mode by default for safe preview, use `--apply` to modify files
+  - Full exclusion support (`--exclude-dir`, `--exclude-file`, `--exclude-list`)
+  - CLI command: `insert-procedure-title [--apply] [--dry-run] [path]`
+
+### Fixed
+- **callout_lib/detector.py** - Fixed false "missing explanations" warnings when `{nbsp}` spacers follow code blocks
+  - Now correctly skips `{nbsp}` (AsciiDoc non-breaking space macro) when looking for callout explanations
+  - Stops collecting continuation lines when hitting `+`, `[NOTE]`, `[IMPORTANT]`, `[WARNING]`, `[TIP]`, `[CAUTION]`
+  - Prevents NOTE admonition content from being included in callout explanations
+
+- **convert-callouts-to-deflist** - Fixed preservation of `{nbsp}` and `+` markers between code blocks and explanations
+  - Now preserves `{nbsp}` spacers following code blocks in the converted output
+  - Now preserves `+` list continuation markers in the converted output
+  - Prevents deletion of these AsciiDoc formatting elements during conversion
+
+- **convert-callouts-interactive** - Applied same preservation fix for `{nbsp}` and `+` markers
+  - Interactive tool now has consistent behavior with batch tool
+
+- **callout_lib/converter_deflist.py** - Changed separator format from blank lines to `+` continuation markers
+  - Uses `+` continuation markers before each definition term for proper list attachment
+  - Improves compatibility with AsciiDoc list structures
+
+### Documentation
+- Updated `docs/content-reuse-assessment.md` with Task 7 for converting callouts
+  - Added guidance for resolving `AsciiDocDITA.CalloutList` Vale warnings
+  - Added both batch and interactive converter commands
+- Added tool documentation pages:
+  - `docs/tools/insert-abstract-role.md`
+  - `docs/tools/insert-procedure-title.md`
+
 ## [0.1.40] - 2026-01-23
 
 ### Added
