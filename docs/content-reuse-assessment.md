@@ -19,6 +19,7 @@ Use these doc-utils tools to complete the **Pre-Migration Reuse Readiness Tasks*
 | Archive unused files | `archive-unused-files --archive` |
 | Add abstract role for DITA | `insert-abstract-role` |
 | Add procedure title for DITA | `insert-procedure-title` |
+| Convert callouts for DITA | `convert-callouts-to-deflist` or `convert-callouts-interactive` |
 
 ## Task 1: Clean Up Attribute Files
 
@@ -100,6 +101,22 @@ Inserts `.Procedure` above the first numbered step in procedure files that lack 
 
 See [insert-procedure-title](tools/insert-procedure-title.md) for details and guidance on resolving warnings.
 
+## Task 7: Convert Callouts for DITA
+
+Use this task to resolve `AsciiDocDITA.CalloutList` Vale warnings.
+
+```sh
+# Batch conversion
+convert-callouts-to-deflist modules/
+
+# Or interactive mode (choose format per code block)
+convert-callouts-interactive modules/
+```
+
+Converts callout annotations (`<1>`, `<2>`, etc.) to definition list format. Use interactive mode to select between definition list and table formats for each code block.
+
+See [convert-callouts-to-deflist](tools/convert-callouts-to-deflist.md) or [convert-callouts-interactive](tools/convert-callouts-interactive.md) for details.
+
 ## Quick Reference
 
 ```sh
@@ -125,6 +142,11 @@ insert-abstract-role
 # Add procedure title for DITA tasks
 insert-procedure-title modules/ --dry-run
 insert-procedure-title modules/
+
+# Convert callouts for DITA
+convert-callouts-to-deflist modules/
+# Or use interactive mode:
+convert-callouts-interactive modules/
 ```
 
 Commit the reports to your repository and link them in your worksheet.
