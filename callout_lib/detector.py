@@ -281,8 +281,8 @@ class CalloutDetector:
         explanations = {}
         i = start_line + 1  # Start after the closing delimiter
 
-        # Skip blank lines and continuation markers (+)
-        while i < len(lines) and (not lines[i].strip() or lines[i].strip() == '+'):
+        # Skip blank lines, continuation markers (+), and {nbsp} spacers
+        while i < len(lines) and (not lines[i].strip() or lines[i].strip() in ('+', '{nbsp}')):
             i += 1
 
         # Collect consecutive callout explanation lines
@@ -298,8 +298,18 @@ class CalloutDetector:
                 # Continue until we hit a blank line, a new callout, or certain patterns
                 while i < len(lines):
                     line = lines[i]
-                    # Stop if we hit a blank line, new callout, or list start marker
-                    if not line.strip() or self.CALLOUT_EXPLANATION.match(line) or line.startswith('[start='):
+                    stripped = line.strip()
+                    # Stop if we hit:
+                    # - blank line
+                    # - new callout explanation
+                    # - list start marker [start=N]
+                    # - standalone + (list continuation that attaches to parent)
+                    # - admonition block start [NOTE], [IMPORTANT], [WARNING], [TIP], [CAUTION]
+                    if (not stripped or
+                        self.CALLOUT_EXPLANATION.match(line) or
+                        line.startswith('[start=') or
+                        stripped == '+' or
+                        stripped in ('[NOTE]', '[IMPORTANT]', '[WARNING]', '[TIP]', '[CAUTION]')):
                         break
                     # Add continuation line preserving original formatting
                     explanation_lines.append(line)

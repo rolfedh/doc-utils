@@ -381,10 +381,19 @@ class InteractiveCalloutConverter:
                 )
             else:
                 # Remove old explanations, add new list
+                # Find where explanations actually start (skip {nbsp} and + markers to preserve them)
+                explanation_start_line = block.end_line + 1
+                while explanation_start_line < len(new_lines) and (
+                    not new_lines[explanation_start_line].strip() or
+                    new_lines[explanation_start_line].strip() in ('+', '{nbsp}')
+                ):
+                    explanation_start_line += 1
+
                 new_section = (
                     new_lines[:content_start] +
                     converted_content +
-                    [new_lines[content_end]] +
+                    [new_lines[content_end]] +  # Keep closing delimiter
+                    new_lines[content_end + 1:explanation_start_line] +  # Preserve {nbsp} and + markers
                     output_list +
                     new_lines[explanation_end + 1:]
                 )

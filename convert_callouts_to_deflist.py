@@ -245,9 +245,13 @@ class CalloutConverter:
                     # Table format: preserve content between code block and table start
                     explanation_start_line = self.detector.last_table.start_line
                 else:
-                    # List format: skip blank lines after code block
+                    # List format: skip blank lines, {nbsp} spacers, and + continuation markers
+                    # These will be preserved in the output via the slice below
                     explanation_start_line = block.end_line + 1
-                    while explanation_start_line < len(new_lines) and not new_lines[explanation_start_line].strip():
+                    while explanation_start_line < len(new_lines) and (
+                        not new_lines[explanation_start_line].strip() or
+                        new_lines[explanation_start_line].strip() in ('+', '{nbsp}')
+                    ):
                         explanation_start_line += 1
 
                 # Build the new section

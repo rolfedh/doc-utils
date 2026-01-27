@@ -41,41 +41,20 @@ class DefListConverter:
         if table_title:
             # Remove leading dot and trailing period if present
             title_text = table_title.lstrip('.').rstrip('.')
-            lines = [f'\n{title_text}, where:']
+            lines = [f'{title_text}, where:']
         else:
-            lines = ['\nwhere:']
+            lines = ['where:']
 
         # Process each group (which may contain one or more callouts)
         for group in callout_groups:
             code_line = group.code_line
             callout_nums = group.callout_numbers
 
-            # COMMENTED OUT: User-replaceable value detection causes false positives
-            # with Java generics (e.g., <MyEntity, Integer>) and other valid syntax
-            # that uses angle brackets. Always use the full code line as the term.
-            #
-            # # Check if this is a user-replaceable value (contains angle brackets but not heredoc)
-            # # User values are single words/phrases in angle brackets like <my-value>
-            # user_values = DefListConverter.USER_VALUE_PATTERN.findall(code_line)
-            #
-            # if user_values and len(user_values) == 1 and len(code_line) < 100:
-            #     # This looks like a user-replaceable value placeholder
-            #     # Format the value (ensure it has angle brackets)
-            #     user_value = user_values[0]
-            #     if not user_value.startswith('<'):
-            #         user_value = f'<{user_value}>'
-            #     if not user_value.endswith('>'):
-            #         user_value = f'{user_value}>'
-            #     term = f'`{user_value}`'
-            # else:
-            #     # This is a code line - strip whitespace before wrapping in backticks
-            #     term = f'`{code_line.strip()}`'
-
             # Always use the full code line - strip whitespace before wrapping in backticks
             term = f'`{code_line.strip()}`'
 
-            # Add blank line before each term
-            lines.append('')
+            # Add continuation marker before each definition term
+            lines.append('+')
             lines.append(f'{term}::')
 
             # Add explanations for all callouts in this group
