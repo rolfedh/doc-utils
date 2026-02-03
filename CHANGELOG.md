@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.42] - 2026-02-03
+
+### Added
+- **convert-id-attributes-to-ids** - New tool to convert `:id:` attributes to AsciiDoc anchors
+  - Converts `:id: value` to `[id="value_{context}"]` format
+  - Optional `--clean-up` flag removes boilerplate comments and include directives
+  - Removes `// define ID as an attribute` comments
+  - Removes `// assign ID conditionally` comments
+  - Removes `include::{modules}/common/id.adoc[]` directives
+  - Dry-run mode for safe preview
+  - CLI command: `convert-id-attributes-to-ids [--clean-up] [--dry-run] [path]`
+
 ## [0.1.41] - 2026-01-27
 
 ### Added

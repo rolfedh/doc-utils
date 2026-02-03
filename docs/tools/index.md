@@ -283,6 +283,26 @@ insert-procedure-title modules/ --dry-run
 insert-procedure-title modules/
 ```
 
+---
+
+### 🔄 [convert-id-attributes-to-ids](convert-id-attributes-to-ids)
+Converts `:id:` attribute definitions to standard AsciiDoc `[id="..._{context}"]` anchors.
+
+**Key Features:**
+- Converts `:id: value` to `[id="value_{context}"]`
+- Optional cleanup of related boilerplate comments
+- Removes `include::{modules}/common/id.adoc[]` directives
+- Dry-run mode for previewing changes
+
+**Quick Usage:**
+```bash
+# Preview changes
+convert-id-attributes-to-ids --dry-run modules/
+
+# Apply with cleanup
+convert-id-attributes-to-ids --clean-up modules/
+```
+
 ## Common Options
 
 All tools support these common options for excluding files and directories:
@@ -362,4 +382,5 @@ convert-callouts-to-deflist --help
 convert-tables-to-deflists --help
 insert-abstract-role --help
 insert-procedure-title --help
+convert-id-attributes-to-ids --help
 ```

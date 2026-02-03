@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rolfedh-doc-utils"
-version = "0.1.41"
+version = "0.1.42"
 description = "CLI tools for AsciiDoc documentation projects"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -35,10 +35,11 @@ find-duplicate-content = "find_duplicate_content:main"
 find-duplicate-includes = "find_duplicate_includes:main"
 insert-abstract-role = "insert_abstract_role:main"
 insert-procedure-title = "insert_procedure_title:main"
+convert-id-attributes-to-ids = "convert_id_attributes_to_ids:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["doc_utils*", "callout_lib*"]
 
 [tool.setuptools]
-py-modules = ["doc_utils_cli", "find_unused_attributes", "check_scannability", "archive_unused_files", "archive_unused_images", "format_asciidoc_spacing", "replace_link_attributes", "extract_link_attributes", "validate_links", "convert_callouts_to_deflist", "convert_callouts_interactive", "check_source_directives", "convert_tables_to_deflists", "check_published_links", "convert_freemarker_to_asciidoc", "inventory_conditionals", "find_duplicate_content", "find_duplicate_includes", "insert_abstract_role", "insert_procedure_title"]
+py-modules = ["doc_utils_cli", "find_unused_attributes", "check_scannability", "archive_unused_files", "archive_unused_images", "format_asciidoc_spacing", "replace_link_attributes", "extract_link_attributes", "validate_links", "convert_callouts_to_deflist", "convert_callouts_interactive", "check_source_directives", "convert_tables_to_deflists", "check_published_links", "convert_freemarker_to_asciidoc", "inventory_conditionals", "find_duplicate_content", "find_duplicate_includes", "insert_abstract_role", "insert_procedure_title", "convert_id_attributes_to_ids"]
