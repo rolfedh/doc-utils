@@ -6,7 +6,12 @@ nav_order: 14
 
 # Convert Tables to Definition Lists
 
-Converts AsciiDoc 2-column tables to definition list format. For tables with more than 2 columns, use `--columns` to specify which columns to use as term and definition.
+Converts AsciiDoc tables to definition list format:
+- Column 1 becomes the term (with `::` suffix)
+- Column 2 becomes the primary definition text
+- Columns 3+ are appended as metadata lines with format: `{column_heading}: {value}`
+
+Block titles (e.g., `.Properties that you can change`) are converted to lead-in sentences with colon punctuation. List-continuation markers (`+`) are preserved.
 
 {: .note }
 > **Related Tools**
@@ -15,13 +20,14 @@ Converts AsciiDoc 2-column tables to definition list format. For tables with mor
 
 ## Overview
 
-AsciiDoc tables are useful for structured data, but definition lists often provide cleaner formatting for term-definition pairs. This tool automates the conversion of 2-column tables to definition lists.
+AsciiDoc tables are useful for structured data, but definition lists often provide cleaner formatting for term-definition pairs. This tool automates the conversion of tables to definition lists.
 
 **Conversion:**
-- First column → Term (the definition list item)
-- Second column → Definition (the explanation)
+- Column 1 → Term (the definition list item with `::` suffix)
+- Column 2 → Definition (the explanation text)
+- Columns 3+ → Metadata lines (format: `Header: value`)
 
-For tables with more than 2 columns, use the `--columns` option to specify which columns to use.
+For tables where you want to use specific columns (ignoring metadata), use the `--columns` option.
 
 ## Installation
 
@@ -43,15 +49,56 @@ convert-tables-to-deflists [options] [path]
 
 - Finds all tables in AsciiDoc files
 - Automatically skips callout tables (use `convert-callouts-to-deflist` for those)
-- Detects and skips header rows
+- Detects and uses header rows for metadata column names
 
 ### Multi-Column Support
 
-By default, only 2-column tables are converted. For tables with more columns:
+Tables with 2+ columns are converted by default:
+- Columns 1 and 2 become term and definition
+- Columns 3+ become metadata lines using the header name as a label
+
+To use only specific columns (ignoring metadata columns):
 
 ```bash
-# Use columns 1 and 3 from a 3-column table
+# Use only columns 1 and 3 from a table
 convert-tables-to-deflists --columns 1,3 .
+```
+
+### Block Title Conversion
+
+Block titles are converted to lead-in sentences:
+
+**Before:**
+```asciidoc
+.Properties that you can change
+[cols="1,2"]
+|===
+...
+```
+
+**After:**
+```asciidoc
+Properties that you can change:
+
+property.name::
+...
+```
+
+### Bullet List Handling
+
+Bullet lists in definitions are wrapped in open blocks (`--`) to ensure proper alignment of subsequent content:
+
+```asciidoc
+`quarkus.package.type` (deprecated)::
+Deprecated.
++
+--
+* Use `quarkus.package.jar.type` to configure the JAR type.
+* For native builds, set `quarkus.native.enabled` to `true`.
+--
++
+Type: string +
+Default: `jar`
 ```
 
 ### Safety Features
@@ -92,10 +139,10 @@ convert-tables-to-deflists --apply path/to/file.adoc
 convert-tables-to-deflists --apply modules/
 ```
 
-### Convert 3-Column Tables
+### Use Specific Columns Only
 
 ```bash
-# Use column 1 as term, column 3 as definition
+# Use column 1 as term, column 3 as definition (ignore other columns)
 convert-tables-to-deflists --columns 1,3 --apply .
 ```
 
@@ -132,7 +179,7 @@ convert-tables-to-deflists --exclude-list .docutils-ignore --apply .
 | `path` | File or directory to process (default: current directory) |
 | `--apply` | Apply changes (default is dry-run mode) |
 | `-v, --verbose` | Show detailed output |
-| `--columns TERM,DEF` | Column numbers to use (1-indexed, e.g., "1,3") |
+| `--columns TERM,DEF` | Column numbers to use (1-indexed, e.g., "1,3"). Ignores metadata columns. |
 | `--skip-header-tables` | Skip tables that have header rows |
 | `--include-callout-tables` | Include callout tables (normally skipped) |
 | `--exclude-dir DIR` | Exclude directory (can be used multiple times) |
@@ -172,62 +219,128 @@ database.user::
 The username to connect to the database.
 ```
 
-### Example 2: 3-Column Table with --columns
+### Example 2: Multi-Column Table with Metadata
+
+Tables with 3+ columns automatically include metadata from extra columns:
 
 **Before:**
 ```asciidoc
-[cols="1,2,3"]
+[cols="35%,35%,15%,15%",options="header"]
 |===
-|Property |Default |Description
+| Property
+| Description
+| Type
+| Default
 
-|database.hostname |localhost |The IP address of the database server.
+| `quarkus.native.enabled`
+| Enables native image generation. When set to `true`, the application is compiled into a native executable.
+| boolean
+| `false`
 
-|database.port |5432 |The port number.
-
-|database.user |admin |The username.
+| `quarkus.package.output-name`
+| Specifies the name of the final build artifact.
+| string
+| _(none)_
 |===
 ```
 
+**After:**
+```asciidoc
+`quarkus.native.enabled`::
+Enables native image generation. When set to `true`, the application is compiled into a native executable. +
+Type: boolean +
+Default: `false`
+
+`quarkus.package.output-name`::
+Specifies the name of the final build artifact. +
+Type: string +
+Default: _(none)_
+```
+
+### Example 3: Table with Bullet Lists
+
+Definitions containing bullet lists are wrapped in open blocks for proper formatting:
+
+**Before:**
+```asciidoc
+[cols="35%,35%,15%,15%",options="header"]
+|===
+| Property | Description | Type | Default
+
+| `quarkus.package.type` (deprecated)
+a| Deprecated.
+* Use `quarkus.package.jar.type` to configure the JAR type.
+* For native builds, set `quarkus.native.enabled` to `true`.
+| string
+| `jar`
+|===
+```
+
+**After:**
+```asciidoc
+`quarkus.package.type` (deprecated)::
+Deprecated.
++
+--
+* Use `quarkus.package.jar.type` to configure the JAR type.
+* For native builds, set `quarkus.native.enabled` to `true`.
+--
++
+Type: string +
+Default: `jar`
+```
+
+### Example 4: Using --columns to Ignore Metadata
+
+Use `--columns` to specify exactly which columns to use (metadata columns are ignored):
+
 **Command:**
 ```bash
-convert-tables-to-deflists --columns 1,3 --apply file.adoc
+convert-tables-to-deflists --columns 1,2 --apply file.adoc
+```
+
+**Before:**
+```asciidoc
+[cols="1,2,1,1",options="header"]
+|===
+|Property |Description |Type |Default
+|database.hostname |The IP address of the database server. |string |localhost
+|===
 ```
 
 **After:**
 ```asciidoc
 database.hostname::
 The IP address of the database server.
-
-database.port::
-The port number.
-
-database.user::
-The username.
 ```
 
-### Example 3: Inline Cell Format
+### Example 5: Table with Block Title
 
-Tables with cells on a single line are also supported:
+Block titles are converted to lead-in sentences:
 
 **Before:**
 ```asciidoc
+. Add the properties that you want to change and save the file.
++
+.Properties that you can change
++
 [cols="1,2"]
 |===
-|Term1 |Definition1
-|Term2 |Definition2
+|property.name |Description of the property.
 |===
 ```
 
 **After:**
 ```asciidoc
-Term1::
-Definition1
-
-Term2::
-Definition2
+. Add the properties that you want to change and save the file.
++
+Properties that you can change:
++
+property.name::
+Description of the property.
 ```
 
-### Example 4: Table with Conditional Directives
+### Example 6: Table with Conditional Directives
 
 Conditional directives are preserved during conversion:
 
@@ -277,23 +390,9 @@ Tables where the first column contains callout numbers (`<1>`, `<2>`, etc.) are 
 
 Use `--include-callout-tables` to include these tables.
 
-### Tables with More Than 2 Columns
+### Single-Column Tables
 
-Tables with 3+ columns are skipped unless you specify `--columns`:
-
-```asciidoc
-[cols="1,2,3"]
-|===
-|Col1 |Col2 |Col3
-|A |B |C
-|===
-```
-
-Use `--columns 1,3` (or any valid column pair) to process these tables.
-
-### Tables with Header Rows (Optional)
-
-Tables with detected header rows are converted by default (header row is excluded from output). Use `--skip-header-tables` to skip them entirely.
+Tables with only 1 column are skipped (need at least 2 columns for term-definition pairs).
 
 ## Best Practices
 
@@ -302,6 +401,7 @@ Tables with detected header rows are converted by default (header row is exclude
 3. **Review changes with `git diff`** before committing
 4. **Test documentation builds** after converting
 5. **For callout tables**, use `convert-callouts-to-deflist` instead
+6. **Tables need header rows** for column 3+ metadata to work properly
 
 ## Example Workflow
 
@@ -343,10 +443,13 @@ This tool uses the `TableParser` class from the [`callout_lib`](https://github.c
 **Key Processing Steps:**
 1. Scan for AsciiDoc tables (`|===` delimiters)
 2. Parse table attributes (`[cols="..."]`) to determine column count
-3. Detect header rows by checking for common header keywords
+3. Detect header rows and extract column names for metadata
 4. Skip callout tables (first column is `<1>`, `<2>`, etc.)
 5. Convert eligible tables to definition list format
-6. Preserve conditional directives
+6. Wrap bullet lists in open blocks (`--`) for proper alignment
+7. Append columns 3+ as metadata lines using header names
+8. Convert block titles to lead-in sentences
+9. Preserve conditional directives and list-continuation markers
 
 ---
 
