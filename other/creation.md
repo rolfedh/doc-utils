@@ -10,7 +10,7 @@ This document shows how a technical writer can use Claude Code to build a docume
 
 ## The Starting Point
 
-It began with a Vale warning:
+It began with a Vale warning. [Vale](https://vale.sh/) is a linter for prose that enforces style rules in documentation:
 
 ```
 modules/proc_advanced-configuration-mapping.adoc
@@ -30,7 +30,7 @@ Vale generated the following warning:
  modules/proc_advanced-configuration-mapping.adoc
  1:1  warning  The '.Procedure' block title is missing.    AsciiDocDITA.TaskContents
 
-Read ~/doc-utils/CLAUDE.adoc and then create a script in ~/doc-utils that inserts
+Read ~/doc-utils/CLAUDE.md and then create a script in ~/doc-utils that inserts
 a .Procedure block title above the numbered steps in the target file.
 ```
 
@@ -96,7 +96,7 @@ The file had no numbered steps—it was incomplete. The script silently did noth
 
 ```
 modules/proc_advanced-configuration-mapping.adoc doesn't have any numbered steps.
-In this case, the script should generate an error message in stdout.
+In this case, the script should print a warning to stderr.
 ```
 
 **What could be better:**
@@ -104,7 +104,7 @@ In this case, the script should generate an error message in stdout.
 ```
 modules/proc_advanced-configuration-mapping.adoc doesn't have any numbered steps.
 In this case, the script should:
-1. Print a warning message identifying the file
+1. Print a warning to stderr identifying the file
 2. Continue processing other files
 3. Summarize how many files had this issue at the end
 
@@ -137,7 +137,7 @@ Claude fixed the detection logic to continue searching backward past other block
 
 ## Step 7: More Edge Cases During Validation
 
-After installation and documentation, running the tool on the full modules directory showed 12 warnings. Reviewing these revealed another pattern: some procedure files use unordered lists (`*` bullets) instead of numbered steps, but they already have `.Procedure`:
+Running the tool on the full modules directory showed 12 warnings. Reviewing these revealed another pattern: some procedure files use unordered lists (`*` bullets) instead of numbered steps, but they already have `.Procedure`:
 
 ```asciidoc
 .Procedure
@@ -214,6 +214,74 @@ Include before/after examples showing the .Procedure insertion.
 
 Pointing to a specific template and requesting examples helps Claude produce documentation that matches your style.
 
+## Step 10: Validation at Scale
+
+Validation isn't just about refining the tool—it's about completing the work that prompted you to create the tool in the first place. The goal is to resolve the specific Vale error or warning, then move on to the next one.
+
+### Work Through the Warnings
+
+When you run your new tool and see warnings, investigate each one:
+
+```
+Warning: Procedure file has no numbered steps and no .Procedure title: modules/proc_advanced-configuration-mapping.adoc
+Warning: Procedure file has no numbered steps and no .Procedure title: modules/proc_configuring-quarkus-developer-tools.adoc
+```
+
+These warnings aren't failures—they're the tool doing its job. Each warning is a file that needs attention.
+
+### Warnings Reveal Content Issues
+
+In this case, investigating the warnings revealed **orphaned stub files**. The file `proc_advanced-configuration-mapping.adoc` contained only:
+
+```asciidoc
+:_mod-docs-content-type: PROCEDURE
+[id="proc_advanced-configuration-mapping"]
+
+= Advanced configuration mapping
+
+[role="_abstract"]
+The following advanced mapping procedure is an extension that is specific to {ProductLongName} and outside of the MicroProfile Config specification.
+```
+
+No actual procedure content—just a title and abstract. This stub was acting as a section heading in the assembly, with a real procedure nested under it at `leveloffset=+2`.
+
+### Fix the Content, Not Just the Warning
+
+Instead of adding an empty `.Procedure` section to silence the warning, we analyzed the assembly structure:
+
+```asciidoc
+include::modules/proc_advanced-configuration-mapping.adoc[leveloffset=+1]
+
+include::modules/proc_using-nested-object-configuration.adoc[leveloffset=+2]
+```
+
+The stub was a parent heading with the actual content as a child. The fix:
+
+1. **Incorporated useful context** from the stub's abstract into the child procedure
+2. **Deleted the stub file**
+3. **Adjusted the leveloffset** from `+2` to `+1`
+
+The same pattern appeared with `proc_configuring-quarkus-developer-tools.adoc`—another stub with no content, nested procedures underneath. Same solution: evaluate whether to incorporate content, delete the stub, flatten the hierarchy.
+
+### Enhance the Tool When Patterns Emerge
+
+As you work through warnings, you might discover additional use cases:
+
+- **Files with unordered lists** instead of numbered steps but already have `.Procedure`—the tool shouldn't warn about these
+- **Stub files** that are technically PROCEDURE type but serve as section headings—these might warrant a different warning message
+
+Each pattern can enhance the tool's accuracy. But don't get distracted perfecting the tool—complete the content work first, then circle back to tool improvements.
+
+### Close the Loop with Vale
+
+When you've finished running your utility and manually fixing any issues the utility can't address, rerun Vale on the same set of files. This confirms that your work has resolved every instance of the original issue:
+
+```bash
+vale modules/ 2>&1 | grep TaskContents
+```
+
+If the output is empty, you've cleared that Vale rule. Move on to the next one.
+
 ## The Role of CLAUDE.md
 
 The `CLAUDE.md` file in the project root is crucial for consistent results. It tells Claude:
@@ -287,11 +355,7 @@ Claude's exploration phase—reading files, searching for patterns—often catch
 
 ### 6. Invest in CLAUDE.md
 
-A well-maintained CLAUDE.md pays dividends every time you work with Claude on the project. Document:
-- Project structure
-- Naming conventions
-- Common commands
-- Where different types of files belong
+A well-maintained CLAUDE.md pays dividends every time you work with Claude on the project. See [The Role of CLAUDE.md](#the-role-of-claudemd) for what to include.
 
 ### 7. Short Prompts Work When Context Exists
 
@@ -328,102 +392,21 @@ Once CLAUDE.md establishes context and Claude has read the relevant files, you c
 
 The last step is important: running the tool on a larger set of files often reveals assumptions that don't hold. In this case, validation after documentation led to another round of refinement.
 
-## Validation: Completing the Original Task
-
-Validation isn't just about refining the tool—it's about completing the work that prompted you to create the tool in the first place. The goal is to resolve the specific Vale error or warning, then move on to the next one.
-
-### Work Through the Warnings
-
-When you run your new tool and see warnings, investigate each one:
-
-```
-Warning: Procedure file has no numbered steps and no .Procedure title: modules/proc_advanced-configuration-mapping.adoc
-Warning: Procedure file has no numbered steps and no .Procedure title: modules/proc_configuring-quarkus-developer-tools.adoc
-```
-
-These warnings aren't failures—they're the tool doing its job. Each warning is a file that needs attention.
-
-### Warnings Reveal Content Issues
-
-In this case, investigating the warnings revealed **orphaned stub files**. The file `proc_advanced-configuration-mapping.adoc` contained only:
-
-```asciidoc
-:_mod-docs-content-type: PROCEDURE
-[id="proc_advanced-configuration-mapping"]
-
-= Advanced configuration mapping
-
-[role="_abstract"]
-The following advanced mapping procedure is an extension that is specific to {ProductLongName} and outside of the MicroProfile Config specification.
-```
-
-No actual procedure content—just a title and abstract. This stub was acting as a section heading in the assembly, with a real procedure nested under it at `leveloffset=+2`.
-
-### Fix the Content, Not Just the Warning
-
-Instead of adding an empty `.Procedure` section to silence the warning, we analyzed the assembly structure:
-
-```asciidoc
-include::modules/proc_advanced-configuration-mapping.adoc[leveloffset=+1]
-
-include::modules/proc_using-nested-object-configuration.adoc[leveloffset=+2]
-```
-
-The stub was a parent heading with the actual content as a child. The fix:
-
-1. **Incorporated useful context** from the stub's abstract into the child procedure
-2. **Deleted the stub file**
-3. **Adjusted the leveloffset** from `+2` to `+1`
-
-The same pattern appeared with `proc_configuring-quarkus-developer-tools.adoc`—another stub with no content, nested procedures underneath. Same solution: evaluate whether to incorporate content, delete the stub, flatten the hierarchy.
-
-### Enhance the Tool When Patterns Emerge
-
-As you work through warnings, you might discover additional use cases:
-
-- **Files with unordered lists** instead of numbered steps but already have `.Procedure`—the tool shouldn't warn about these
-- **Stub files** that are technically PROCEDURE type but serve as section headings—these might warrant a different warning message
-
-Each pattern can enhance the tool's accuracy. But don't get distracted perfecting the tool—complete the content work first, then circle back to tool improvements.
-
-### The Validation Loop
-
-```
-Run tool on all files
-        ↓
-Review each warning
-        ↓
-Fix the content issue (not just silence the warning)
-        ↓
-Discover patterns → enhance tool if needed
-        ↓
-Repeat until warnings represent genuinely incomplete files
-        ↓
-Move on to next Vale rule or task
-```
-
-The goal is to clear the warnings for your original Vale rule so you can move to the next one. Tool improvements happen along the way, but they serve the larger goal of fixing content at scale.
-
-### Close the Loop with Vale
-
-When you've finished running your utility and manually fixing any issues the utility can't address, rerun Vale on the same set of files. This confirms that your work has resolved every instance of the original issue:
-
-```bash
-vale modules/ 2>&1 | grep TaskContents
-```
-
-If the output is empty, you've cleared that Vale rule. Move on to the next one.
-
-## Time Investment
-
-The entire process—from Vale warning to working, documented tool—took about 30 minutes of conversation, including post-documentation refinement. A manual implementation might take 2-3 hours. More importantly, the iterative feedback loop caught edge cases that solo development often misses.
-
 ## Try It Yourself
 
-1. Find a repetitive documentation task
-2. Create or update your project's CLAUDE.md
-3. Describe the task to Claude with specific examples
-4. Test, give feedback, iterate
-5. Document what you built
+1. **Find a repetitive documentation task.** Good starting points include:
+   - Fixing consistent formatting issues flagged by your linter
+   - Validating file naming conventions across a directory
+   - Generating link inventories or checking for broken references
+   - Inserting required metadata or frontmatter into files
+   - Converting between markup formats (Markdown to AsciiDoc, etc.)
+
+2. **Create or update your project's CLAUDE.md** with naming conventions, directory structure, and common commands.
+
+3. **Describe the task to Claude with specific examples**—include a file with the problem and a file showing the correct format.
+
+4. **Test, give feedback, iterate.** Run on real files early. Report what you expected vs. what happened.
+
+5. **Document what you built** so future you (and teammates) can use it.
 
 The best way to learn is to build something you actually need.
