@@ -115,6 +115,24 @@ check-scannability --max-words 25 --max-sentences 4
 
 ---
 
+### 🏷️ [classify-guides](classify-guides)
+Classifies AsciiDoc guides by [Diataxis](https://diataxis.fr/) content type (tutorial, how-to, concept, reference) using structural heuristics and optional LLM-assisted classification.
+
+**Key Features:**
+- Reads `:diataxis-type:` metadata from file headers for instant HIGH confidence classification
+- Scoring-based heuristics detect tutorials, how-to guides, concepts, and reference docs
+- Detects mixed-type documents and suggests split points
+- Optional LLM fallback (Google Gemini, Anthropic Claude, or local Ollama)
+- YAML output with per-guide classification, confidence, and reasoning
+
+**Quick Usage:**
+```bash
+python3 classify-guides.py --all
+python3 classify-guides.py --all --llm   # with LLM fallback
+```
+
+---
+
 ### 🗄️ [archive-unused-files](archive-unused-files)
 Finds and optionally archives unreferenced AsciiDoc files in your documentation repository.
 
@@ -383,4 +401,5 @@ convert-tables-to-deflists --help
 insert-abstract-role --help
 insert-procedure-title --help
 convert-id-attributes-to-ids --help
+python3 classify-guides.py --help
 ```
