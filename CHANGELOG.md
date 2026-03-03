@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.43] - 2026-03-03
+
+### Added
+- **classify-guides** — New tool to classify AsciiDoc guides by Diataxis type (tutorial, howto, concept, reference)
+  - Reads `:diataxis-type:` metadata from AsciiDoc file headers for instant HIGH confidence classification
+  - Scoring-based structural heuristics detect tutorials, how-to guides, concepts, and reference docs
+  - Detects mixed-type documents (e.g., `mixed:tutorial+reference`) with split-point estimation
+  - Optional LLM fallback with auto-detection of Google Gemini, Anthropic Claude, or local Ollama
+  - LLM acts as weighted tiebreaker, not override; results cached to avoid redundant API calls
+  - API keys read from environment variables (`GEMINI_API_KEY`, `ANTHROPIC_API_KEY`); Ollama needs no key
+  - YAML output with per-guide classification, confidence level, and reasoning
+  - Portable defaults: scans current directory by default, optional `--yaml-file` for quarkus.yaml metadata
+  - CLI flags: `--llm`, `--llm-all`, `--llm-provider`, `--adoc-dir`, `--yaml-file`, `--output`
+  - 32 unit tests covering analysis, classification, and LLM merge logic
+
+### Documentation
+- Added `docs/tools/classify-guides.md` with full usage, LLM configuration, and output format reference
+- Updated `docs/tools/index.md` with classify-guides entry
+
 ## [0.1.42] - 2026-02-03
 
 ### Added
