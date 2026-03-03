@@ -94,6 +94,7 @@ venv/
 *.out
 *.pdf
 *.html
+guide-classifications.yaml
 
 # Ignore legacy fixture/readme
 fixtures-README-legacy.txt

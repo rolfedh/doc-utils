@@ -40,14 +40,14 @@ When two types both score above a threshold, the guide is classified as mixed (e
 ## Usage
 
 ```sh
-# Classify only guides with type "guide" (the catch-all category)
+# Scan current directory for .adoc files
 python3 classify-guides.py
 
-# Classify all guides regardless of current type
-python3 classify-guides.py --all
+# Scan a specific directory
+python3 classify-guides.py --adoc-dir /path/to/docs
 
-# Use a different adoc directory and yaml file
-python3 classify-guides.py --adoc-dir /path/to/adoc --yaml-file /path/to/quarkus.yaml
+# Use a quarkus.yaml metadata file (classifies all guides)
+python3 classify-guides.py --yaml-file /path/to/quarkus.yaml --all
 
 # Write results to a specific file
 python3 classify-guides.py --output my-results.yaml
@@ -57,10 +57,10 @@ python3 classify-guides.py --output my-results.yaml
 
 | Option | Description |
 |--------|-------------|
-| `--adoc-dir DIR` | Directory containing `.adoc` guide files (default: `~/quarkus/docs/src/main/asciidoc`) |
-| `--yaml-file FILE` | Path to `quarkus.yaml` metadata (default: `~/quarkus/quarkusio.github.io/_data/versioned/latest/index/quarkus.yaml`) |
+| `--adoc-dir DIR` | Directory containing `.adoc` guide files (default: current directory) |
+| `--yaml-file FILE` | Path to `quarkus.yaml` metadata (optional; without it, scans `--adoc-dir` directly) |
 | `--output FILE` | Output YAML file (default: `guide-classifications.yaml`) |
-| `--all` | Classify all guides, not just `type:guide` entries |
+| `--all` | Classify all guides, not just `type:guide` entries (only relevant with `--yaml-file`) |
 | `--llm` | Use LLM classification for low-confidence or unclassified guides |
 | `--llm-all` | Use LLM classification for all guides |
 | `--llm-provider PROVIDER` | LLM provider: `auto`, `gemini`, `anthropic`, `ollama` (default: `auto`) |

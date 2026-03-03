@@ -12,11 +12,12 @@ level, detected signals, and (for mixed-type guides) the approximate line
 where the type transition occurs — useful for manual splitting.
 
 Usage:
-    python3 classify-guides.py [--adoc-dir DIR] [--yaml-file FILE] [--output FILE]
-    python3 classify-guides.py --all                # classify all guides, not just type:guide
+    python3 classify-guides.py                      # scan current directory for .adoc files
+    python3 classify-guides.py --adoc-dir /path/to/docs
+    python3 classify-guides.py --yaml-file quarkus.yaml --all
     python3 classify-guides.py --llm                # use LLM for low-confidence guides
     python3 classify-guides.py --llm-all            # use LLM for all guides
-    python3 classify-guides.py --llm-provider gemini --llm-api-key YOUR_KEY
+    python3 classify-guides.py --llm-provider gemini
 """
 
 import argparse
@@ -609,17 +610,14 @@ def main():
     parser.add_argument(
         "--adoc-dir",
         type=Path,
-        default=Path("/home/rdlugyhe/quarkus/docs/src/main/asciidoc"),
-        help="Directory containing .adoc guide files",
+        default=Path("."),
+        help="Directory containing .adoc guide files (default: current directory)",
     )
     parser.add_argument(
         "--yaml-file",
         type=Path,
-        default=Path(
-            "/home/rdlugyhe/quarkus/quarkusio.github.io"
-            "/_data/versioned/latest/index/quarkus.yaml"
-        ),
-        help="Path to quarkus.yaml",
+        default=None,
+        help="Path to quarkus.yaml metadata file (optional; without it, scans --adoc-dir directly)",
     )
     parser.add_argument(
         "--output",
@@ -655,14 +653,23 @@ def main():
     )
     args = parser.parse_args()
 
-    if not args.yaml_file.exists():
-        print(f"Error: {args.yaml_file} not found", file=sys.stderr)
-        sys.exit(1)
-
-    entries = load_guide_entries(args.yaml_file)
-
-    if not args.all:
-        entries = [e for e in entries if e["_current_type"] == "guide"]
+    if args.yaml_file:
+        if not args.yaml_file.exists():
+            print(f"Error: {args.yaml_file} not found", file=sys.stderr)
+            sys.exit(1)
+        entries = load_guide_entries(args.yaml_file)
+        if not args.all:
+            entries = [e for e in entries if e["_current_type"] == "guide"]
+    else:
+        # No YAML file — scan --adoc-dir for .adoc files directly
+        adoc_files = sorted(args.adoc_dir.glob("*.adoc"))
+        if not adoc_files:
+            print(f"Error: No .adoc files found in {args.adoc_dir}", file=sys.stderr)
+            sys.exit(1)
+        entries = [
+            {"url": f"/guides/{f.stem}", "filename": f.name, "_current_type": "guide"}
+            for f in adoc_files
+        ]
 
     print(f"Analyzing {len(entries)} guides...\n")
 
