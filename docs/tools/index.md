@@ -303,6 +303,24 @@ insert-procedure-title modules/
 
 ---
 
+### 🔗 [fix-bare-urls](fix-bare-urls)
+Converts bare URLs to explicit `link:` macros for downstream publishing pipeline compatibility.
+
+**Key Features:**
+- Converts `https://url[text]` to `link:https://url[text]`
+- Skips code blocks, passthrough blocks, backtick spans, and comments
+- Skips URLs already prefixed with `link:`, `xref:`, `image:`, etc.
+- Dry-run mode for previewing changes
+- Designed for CI/CD integration in upstream sync pipelines
+
+**Quick Usage:**
+```bash
+fix-bare-urls asciidoc/ --dry-run
+fix-bare-urls asciidoc/
+```
+
+---
+
 ### 🔄 [convert-id-attributes-to-ids](convert-id-attributes-to-ids)
 Converts `:id:` attribute definitions to standard AsciiDoc `[id="..._{context}"]` anchors.
 
@@ -401,5 +419,6 @@ convert-tables-to-deflists --help
 insert-abstract-role --help
 insert-procedure-title --help
 convert-id-attributes-to-ids --help
+fix-bare-urls --help
 python3 classify-guides.py --help
 ```
