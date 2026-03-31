@@ -303,6 +303,24 @@ insert-procedure-title modules/
 
 ---
 
+### 🔗 [obsidian-to-pandoc](obsidian-to-pandoc)
+Converts Obsidian wiki-links to pandoc-compatible markdown links for PDF and HTML generation.
+
+**Key Features:**
+- Converts `[[#Heading|display]]` to `[display](#heading)`
+- Converts `[[#Heading]]` to `[Heading](#heading)`
+- Follows pandoc's heading ID slugification algorithm
+- Reads from file or stdin, writes to file or stdout
+- Pipes directly into pandoc
+
+**Quick Usage:**
+```bash
+python3 obsidian_to_pandoc.py input.md | pandoc -o output.pdf
+python3 obsidian_to_pandoc.py input.md -o converted.md
+```
+
+---
+
 ### 🔗 [fix-bare-urls](fix-bare-urls)
 Converts bare URLs to explicit `link:` macros for downstream publishing pipeline compatibility.
 
@@ -420,5 +438,6 @@ insert-abstract-role --help
 insert-procedure-title --help
 convert-id-attributes-to-ids --help
 fix-bare-urls --help
+python3 obsidian_to_pandoc.py --help
 python3 classify-guides.py --help
 ```
